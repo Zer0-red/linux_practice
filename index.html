@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>linux+ xk0-006 // exam terminal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#080b09; --term:#0c100e; --termbar:#161b18; --line:#1d2823; --line2:#2c3a32;
+  --green:#46d369; --green-dim:#2f9d4d; --amber:#e3b341; --red:#f0645a; --blue:#6cb6ff;
+  --txt:#cfe0d4; --dim:#7c8c81; --dim2:#566159;
+  --surface:rgba(255,255,255,.012); --track:#0a0f0c; --scan:rgba(255,255,255,.014);
+  --glow:rgba(70,211,105,.05);
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+}
+body.light{
+  --bg:#eaece4; --term:#fbfcf8; --termbar:#e6e9df; --line:#d6dbcd; --line2:#c2c9b6;
+  --green:#1f8a3b; --green-dim:#2f9d4d; --amber:#9a6b0e; --red:#c33a30; --blue:#2563c9;
+  --txt:#1b231d; --dim:#5b685e; --dim2:#929c8c;
+  --surface:rgba(20,40,25,.035); --track:#dfe3d8; --scan:rgba(0,0,0,.018);
+  --glow:rgba(47,157,77,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  background:radial-gradient(1100px 600px at 75% -10%,var(--glow),transparent 60%),var(--bg);
+  font-family:var(--mono); color:var(--txt); line-height:1.55; padding:18px;
+  -webkit-font-smoothing:antialiased; transition:background .25s,color .25s;
+}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:99;
+  background:repeating-linear-gradient(to bottom,var(--scan) 0 1px,transparent 1px 3px);
+  mix-blend-mode:overlay;opacity:.6}
+.window{max-width:880px;margin:0 auto;border:1px solid var(--line2);border-radius:11px;overflow:hidden;
+  background:var(--term);box-shadow:0 24px 70px rgba(0,0,0,.55),0 0 0 1px rgba(70,211,105,.04)}
+.bar{display:flex;align-items:center;gap:8px;padding:11px 14px;background:var(--termbar);border-bottom:1px solid var(--line)}
+.dot{width:12px;height:12px;border-radius:50%}
+.dot.r{background:#ff5f56}.dot.y{background:#ffbd2e}.dot.g{background:#27c93f}
+.bar .title{margin-left:8px;font-size:12.5px;color:var(--dim)}
+.bar .title b{color:var(--txt);font-weight:500}
+.bar .right{margin-left:auto;font-size:11px;color:var(--dim2)}
+.themebtn{font-family:var(--mono);font-size:11px;color:var(--dim);background:transparent;
+  border:1px solid var(--line);border-radius:6px;padding:4px 9px;cursor:pointer;transition:.13s;line-height:1.3}
+.themebtn:hover{color:var(--txt);border-color:var(--line2)}
+.window{transition:background .25s,border-color .25s}
+.screen{padding:18px 20px 26px;min-height:520px}
+.cursor{display:inline-block;width:9px;height:16px;background:var(--green);transform:translateY(2px);animation:blink 1.1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.prompt{color:var(--green)}.prompt .u{color:var(--green)}.prompt .p{color:var(--blue)}.prompt .c{color:var(--txt)}
+.muted{color:var(--dim)}.amber{color:var(--amber)}.red{color:var(--red)}.grn{color:var(--green)}.blue{color:var(--blue)}
+.cmdline{margin-bottom:14px;font-size:13.5px;word-break:break-word}
+
+/* nav */
+nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+nav button{font-family:var(--mono);font-size:12.5px;color:var(--dim);background:transparent;border:1px solid var(--line);
+  border-radius:7px;padding:7px 13px;cursor:pointer;transition:.13s}
+nav button:hover{color:var(--txt);border-color:var(--line2)}
+nav button.active{color:var(--green);border-color:var(--green-dim);background:rgba(70,211,105,.07)}
+
+/* chips */
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.chip{font-family:var(--mono);font-size:11.5px;color:var(--dim);background:transparent;border:1px solid var(--line);
+  border-radius:20px;padding:5px 12px;cursor:pointer;transition:.13s}
+.chip:hover{color:var(--txt)}.chip.active{color:var(--green);border-color:var(--green-dim);background:rgba(70,211,105,.08)}
+
+/* question */
+.qbox{font-size:14.5px}
+.qmeta{font-size:11px;color:var(--dim2);margin-bottom:10px;letter-spacing:.3px}
+.qtext{font-size:15.5px;line-height:1.55;margin-bottom:16px;color:var(--txt)}
+.qtext .pre{color:var(--green);margin-right:6px}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;gap:11px;align-items:flex-start;text-align:left;font-family:var(--mono);font-size:14px;
+  color:var(--txt);background:var(--surface);border:1px solid var(--line);border-radius:8px;
+  padding:11px 13px;cursor:pointer;transition:.1s}
+.opt:hover{border-color:var(--green-dim);background:rgba(70,211,105,.05)}
+.opt .key{color:var(--green);flex-shrink:0;font-weight:700}
+.opt.dis{cursor:default}
+.opt.dis:hover{background:var(--surface);border-color:var(--line)}
+.opt.right{border-color:var(--green);background:rgba(70,211,105,.12)}
+.opt.right .key{color:var(--green)}
+.opt.wrong{border-color:var(--red);background:rgba(240,100,90,.12)}
+.opt.wrong .key{color:var(--red)}
+.fb{margin-top:16px;border-top:1px dashed var(--line2);padding-top:14px;font-size:13.5px;display:none}
+.fb.show{display:block}
+.fb .v{font-weight:700;margin-bottom:6px}
+.fb .v.ok{color:var(--green)}.fb .v.no{color:var(--red)}
+.fb .x{color:var(--dim);line-height:1.55}
+.fb .x::before{content:"# ";color:var(--dim2)}
+.row{display:flex;align-items:center;gap:12px;margin-top:18px;flex-wrap:wrap}
+.btn{font-family:var(--mono);font-size:13px;color:var(--txt);background:rgba(70,211,105,.08);
+  border:1px solid var(--green-dim);border-radius:8px;padding:10px 18px;cursor:pointer;transition:.13s}
+.btn:hover{background:rgba(70,211,105,.16)}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--dim)}
+.btn.ghost:hover{color:var(--txt);border-color:var(--line2)}
+.kbd{font-size:11px;color:var(--dim2);margin-left:auto}
+.kbd b{color:var(--dim);font-weight:400}
+
+/* stats / dashboard */
+.statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:11px;margin:6px 0 20px}
+.stat{border:1px solid var(--line);border-radius:9px;padding:13px 15px;background:var(--surface)}
+.stat .n{font-size:26px;font-weight:700;color:var(--green);line-height:1}
+.stat .l{font-size:10.5px;color:var(--dim);text-transform:uppercase;letter-spacing:.6px;margin-top:7px}
+.stat.amber .n{color:var(--amber)}.stat.blue .n{color:var(--blue)}
+.domrow{display:flex;align-items:center;gap:12px;margin-bottom:11px}
+.domrow .nm{font-size:12.5px;width:230px;flex-shrink:0;color:var(--txt)}
+.domrow .nm small{color:var(--dim2)}
+.barwrap{flex:1;height:9px;background:var(--track);border:1px solid var(--line);border-radius:5px;overflow:hidden}
+.barwrap > i{display:block;height:100%;background:linear-gradient(90deg,var(--green-dim),var(--green));transition:width .5s}
+.domrow .pc{font-size:11.5px;color:var(--dim);width:64px;text-align:right}
+.section{font-size:11.5px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;margin:22px 0 12px;border-bottom:1px solid var(--line);padding-bottom:6px}
+
+/* exam results */
+.score{font-size:54px;font-weight:700;line-height:1;margin:6px 0}
+.score.pass{color:var(--green)}.score.fail{color:var(--amber)}
+.reviewq{border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin-bottom:10px;font-size:13px}
+.reviewq .q{color:var(--txt);margin-bottom:6px}
+.reviewq .ln{color:var(--dim);font-size:12.5px}
+.reviewq .you{color:var(--red)}.reviewq .cor{color:var(--green)}
+.barline{color:var(--dim2);user-select:none}
+@media(max-width:560px){.screen{padding:14px}.domrow .nm{width:150px;font-size:11.5px}.qtext{font-size:14.5px}}
+</style>
+</head>
+<body>
+<div class="window">
+  <div class="bar">
+    <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+    <span class="title">student@linuxplus: <b>~/xk0-006</b></span>
+    <span class="right" id="barright"></span>
+    <button class="themebtn" id="themeToggle" title="Toggle light / dark">&#9728; light</button>
+  </div>
+  <div class="screen" id="screen"></div>
+</div>
+
+<script>
+const Q = [
+{d:1,q:"Which command lists the kernel modules currently loaded in memory?",o:["lsmod","modinfo","insmod","depmod"],c:0,x:"lsmod reads /proc/modules. modinfo shows details, insmod loads one, depmod rebuilds the dependency map."},
+{d:1,q:"Which command shows detailed information about a module (author, parameters, dependencies)?",o:["modinfo","lsmod","rmmod","dmesg"],c:0,x:"modinfo <module> prints metadata. lsmod only lists what is loaded."},
+{d:1,q:"Which command loads a kernel module AND automatically resolves its dependencies?",o:["modprobe","insmod","depmod","modinfo"],c:0,x:"modprobe pulls in dependencies; insmod loads a single .ko file with no dependency resolution."},
+{d:1,q:"Which command unloads a currently loaded kernel module?",o:["rmmod","lsmod","modinfo","mkinitrd"],c:0,x:"rmmod removes a module (modprobe -r also works and handles dependencies)."},
+{d:1,q:"Which command rebuilds the modules.dep dependency database?",o:["depmod","modprobe","insmod","dracut"],c:0,x:"depmod scans modules and regenerates modules.dep so modprobe knows dependencies."},
+{d:1,q:"What is the key difference between insmod and modprobe?",o:["modprobe resolves dependencies; insmod does not","insmod is newer than modprobe","modprobe only unloads modules","insmod rebuilds initramfs"],c:0,x:"insmod inserts exactly one module and fails on missing deps; modprobe loads dependencies too."},
+{d:1,q:"Which command prints the kernel ring buffer (boot and hardware messages)?",o:["dmesg","lshw","lscpu","dmidecode"],c:0,x:"dmesg shows kernel messages; -T adds human timestamps. Great for hardware/OOM errors."},
+{d:1,q:"Which command displays CPU architecture details (cores, sockets, flags)?",o:["lscpu","lspci","lsusb","lsmem"],c:0,x:"lscpu summarizes CPU info from /proc/cpuinfo and sysfs."},
+{d:1,q:"Which command lists PCI devices such as the network and graphics controllers?",o:["lspci","lsusb","lsblk","lscpu"],c:0,x:"lspci enumerates devices on the PCI bus."},
+{d:1,q:"Which command reads the DMI/SMBIOS table for BIOS, serial number, and memory slots?",o:["dmidecode","lshw","lscpu","ipmitool"],c:0,x:"dmidecode decodes the SMBIOS/DMI data from firmware."},
+{d:1,q:"Which tool monitors hardware sensors like temperature and fan speed?",o:["lm_sensors","ipmitool","dmidecode","nvtop"],c:0,x:"lm_sensors (the sensors command) reads hardware monitoring chips."},
+{d:1,q:"Which command manages and queries a server's BMC over IPMI?",o:["ipmitool","lm_sensors","dmidecode","lshw"],c:0,x:"ipmitool talks to the Baseboard Management Controller for out-of-band management."},
+{d:1,q:"Which command regenerates the initramfs image on RHEL-family systems?",o:["dracut","mkinitrd","depmod","grub2-mkconfig"],c:0,x:"dracut builds the initramfs on modern systems; mkinitrd is the legacy tool."},
+{d:1,q:"Which command creates a physical volume for use by LVM?",o:["pvcreate","vgcreate","lvcreate","pvmove"],c:0,x:"pvcreate initializes a disk/partition as an LVM physical volume."},
+{d:1,q:"Which command creates a volume group from one or more physical volumes?",o:["vgcreate","pvcreate","lvcreate","vgextend"],c:0,x:"vgcreate pools PVs into a volume group."},
+{d:1,q:"Which command creates a logical volume inside a volume group?",o:["lvcreate","lvextend","vgcreate","pvcreate"],c:0,x:"lvcreate carves a logical volume out of a VG's free space."},
+{d:1,q:"What is the correct order to build LVM storage from scratch?",o:["pvcreate -> vgcreate -> lvcreate","lvcreate -> vgcreate -> pvcreate","vgcreate -> pvcreate -> lvcreate","mkfs -> pvcreate -> lvcreate"],c:0,x:"Physical Volume, then Volume Group, then Logical Volume. Then mkfs and mount."},
+{d:1,q:"Which command grows an existing logical volume?",o:["lvextend","lvremove","vgreduce","pvremove"],c:0,x:"lvextend (or lvresize) enlarges an LV; follow with resize2fs/xfs_growfs to grow the filesystem."},
+{d:1,q:"Which command adds a new physical volume to an existing volume group?",o:["vgextend","pvcreate","lvextend","vgcreate"],c:0,x:"vgextend attaches a PV to a VG to add capacity."},
+{d:1,q:"Which command relocates data off a physical volume before it is removed?",o:["pvmove","pvremove","vgexport","lvremove"],c:0,x:"pvmove migrates extents to other PVs so the disk can be safely removed."},
+{d:1,q:"Which command lists block devices and their mount points in a tree view?",o:["lsblk","blkid","fdisk","parted"],c:0,x:"lsblk shows disks, partitions, and mountpoints; -f adds filesystem/UUID."},
+{d:1,q:"Which command displays the UUID and filesystem type of block devices?",o:["blkid","lsblk","df","stat"],c:0,x:"blkid is used to find UUIDs for /etc/fstab entries."},
+{d:1,q:"Which command grows a partition to use adjacent free space (common in cloud images)?",o:["growpart","resize2fs","xfs_growfs","parted"],c:0,x:"growpart expands the partition; then resize2fs/xfs_growfs grows the filesystem inside it."},
+{d:1,q:"Which command creates an ext4 filesystem on /dev/sdb1?",o:["mkfs.ext4 /dev/sdb1","fsck.ext4 /dev/sdb1","resize2fs /dev/sdb1","tune2fs /dev/sdb1"],c:0,x:"mkfs.ext4 (or mkfs -t ext4) formats the partition. mkfs.xfs would make XFS."},
+{d:1,q:"Which command checks and repairs a filesystem (run on an unmounted FS)?",o:["fsck","mkfs","blkid","df"],c:0,x:"fsck checks consistency. Never run it on a mounted, writable filesystem."},
+{d:1,q:"Which command resizes an ext2/3/4 filesystem?",o:["resize2fs","xfs_growfs","growpart","lvextend"],c:0,x:"resize2fs grows or shrinks ext filesystems. XFS uses xfs_growfs and cannot shrink."},
+{d:1,q:"Which command grows a mounted XFS filesystem?",o:["xfs_growfs","resize2fs","xfs_repair","mkfs.xfs"],c:0,x:"xfs_growfs only grows (online). XFS cannot be shrunk."},
+{d:1,q:"Which file shows the current status of software RAID arrays?",o:["/proc/mdstat","/etc/fstab","/proc/mounts","/etc/mtab"],c:0,x:"cat /proc/mdstat shows md array state; mdadm --detail gives more."},
+{d:1,q:"Which command creates and manages software RAID arrays?",o:["mdadm","lvm","fdisk","blkid"],c:0,x:"mdadm builds and monitors md (multiple-device) RAID arrays."},
+{d:1,q:"Which file defines filesystems to be mounted automatically at boot?",o:["/etc/fstab","/etc/mtab","/proc/mounts","/etc/auto.master"],c:0,x:"/etc/fstab lists devices, mountpoints, types, options, dump and fsck order."},
+{d:1,q:"Which fstab mount option lets the system boot even if the device is missing?",o:["nofail","noexec","nosuid","ro"],c:0,x:"nofail prevents a missing device from blocking boot. noexec/nosuid are security options."},
+{d:1,q:"Which mount option prevents execution of binaries from a filesystem?",o:["noexec","nofail","ro","remount"],c:0,x:"noexec blocks running executables; nosuid ignores setuid bits; ro is read-only."},
+{d:1,q:"Which command mounts all entries currently listed in /etc/fstab?",o:["mount -a","mount -r","umount -a","mount -o remount"],c:0,x:"mount -a is the safe way to test fstab edits before rebooting."},
+{d:1,q:"Which service provides on-demand (automatic) mounting of filesystems?",o:["autofs","fstab","systemd-mount","blkid"],c:0,x:"autofs mounts filesystems when accessed and unmounts them when idle."},
+{d:1,q:"What does an inode store?",o:["File metadata (permissions, owner, timestamps, block pointers)","The file's name","The directory tree","The mount table"],c:0,x:"The inode holds metadata and data-block pointers; the filename lives in the directory entry."},
+{d:1,q:"Which is the modern command to view and configure IP addresses (replaces ifconfig)?",o:["ip","arp","ss","ethtool"],c:0,x:"ip addr shows addresses, ip link the interfaces, ip route the routing table."},
+{d:1,q:"Which command displays the kernel routing table?",o:["ip route","ip addr","ss","arp"],c:0,x:"ip route (ip r) shows routes including the default gateway."},
+{d:1,q:"Which command shows listening sockets and ports (the modern replacement for netstat)?",o:["ss","arp","dig","nmap"],c:0,x:"ss -tuln lists TCP/UDP listening sockets numerically; add -p for the owning process."},
+{d:1,q:"Which command is the preferred modern tool for querying DNS records?",o:["dig","nslookup","arp","hostname"],c:0,x:"dig +short gives terse output; dig MX queries mail records. nslookup is the older tool."},
+{d:1,q:"Which command captures and inspects network packets on an interface?",o:["tcpdump","nmap","iperf3","mtr"],c:0,x:"tcpdump -i eth0 captures packets; -w writes a .pcap for Wireshark."},
+{d:1,q:"Which command scans a network for hosts and open ports?",o:["nmap","ss","tcpdump","arp"],c:0,x:"nmap -p scans ports; -sV detects service versions."},
+{d:1,q:"Which command measures bandwidth between two hosts?",o:["iperf3","mtr","ping","ethtool"],c:0,x:"iperf3 runs a client/server throughput test."},
+{d:1,q:"Which command combines traceroute and ping to show per-hop packet loss?",o:["mtr","traceroute","tracepath","ping"],c:0,x:"mtr continuously probes each hop, exposing where loss occurs."},
+{d:1,q:"Which command queries or changes NIC settings such as speed and duplex?",o:["ethtool","nmcli","ip","arp"],c:0,x:"ethtool eth0 shows link negotiation; useful for diagnosing physical link issues."},
+{d:1,q:"Which command is the NetworkManager command-line interface?",o:["nmcli","netplan","ip","ethtool"],c:0,x:"nmcli manages connections and devices: nmcli device status, nmcli con up."},
+{d:1,q:"Which command applies a Netplan network configuration?",o:["netplan apply","netplan run","systemctl restart netplan","ip reload"],c:0,x:"netplan apply renders and applies the YAML config; netplan try applies with a rollback timer."},
+{d:1,q:"Which file lists the DNS nameservers the resolver uses?",o:["/etc/resolv.conf","/etc/hosts","/etc/nsswitch.conf","/etc/hostname"],c:0,x:"/etc/resolv.conf holds nameserver entries (often managed by systemd-resolved/NetworkManager)."},
+{d:1,q:"Which file is a static, local hostname-to-IP mapping checked before DNS?",o:["/etc/hosts","/etc/resolv.conf","/etc/networks","/etc/nsswitch.conf"],c:0,x:"/etc/hosts maps names to IPs locally."},
+{d:1,q:"Which file controls the order of name lookups (files vs DNS)?",o:["/etc/nsswitch.conf","/etc/resolv.conf","/etc/hosts","/etc/host.conf"],c:0,x:"nsswitch.conf sets sources/order for passwd, group, hosts, etc."},
+{d:1,q:"Which environment variable holds the list of directories searched for executables?",o:["PATH","HOME","SHELL","PS1"],c:0,x:"PATH is the colon-separated search path. PS1 is the prompt; HOME is the home dir."},
+{d:1,q:"Which environment variable defines the interactive shell prompt?",o:["PS1","PATH","USER","DISPLAY"],c:0,x:"PS1 sets the primary prompt string."},
+{d:1,q:"Which file is sourced for a per-user interactive, non-login Bash shell?",o:[".bashrc",".bash_profile","/etc/profile",".profile"],c:0,x:".bashrc runs for interactive non-login shells; .bash_profile for login shells."},
+{d:1,q:"What is the difference between > and >> in the shell?",o:["> overwrites a file; >> appends to it","> appends; >> overwrites","Both append","Both pipe to a command"],c:0,x:"> truncates/creates; >> appends to the end."},
+{d:1,q:"What does 2> redirect?",o:["Standard error","Standard output","Standard input","Both stdout and stderr"],c:0,x:"File descriptor 2 is stderr. 1> is stdout, < is stdin."},
+{d:1,q:"What does 2>&1 do?",o:["Redirects stderr to wherever stdout currently points","Redirects stdout to a file named 1","Merges two files","Runs a command twice"],c:0,x:"It points stderr at the current stdout target (order matters with > file 2>&1)."},
+{d:1,q:"Which operator sends one command's output to another command's input?",o:["|","<","&","!"],c:0,x:"The pipe | connects stdout of the left command to stdin of the right."},
+{d:1,q:"Which utility processes text by fields and supports patterns/actions?",o:["awk","sed","cut","tr"],c:0,x:"awk splits lines into fields ($1..$N); -F sets the separator."},
+{d:1,q:"Which utility is a stream editor used for find-and-replace on text?",o:["sed","awk","grep","tee"],c:0,x:"sed 's/old/new/g' substitutes; -i edits in place."},
+{d:1,q:"Which utility extracts specific columns by delimiter?",o:["cut","sort","uniq","tr"],c:0,x:"cut -d: -f1 takes the first colon-delimited field."},
+{d:1,q:"Which utility collapses or counts ADJACENT duplicate lines (so input must be sorted)?",o:["uniq","sort","tr","wc"],c:0,x:"uniq -c counts adjacent duplicates; sort first to group them."},
+{d:1,q:"Which utility writes output to both the screen and a file at once?",o:["tee","cat","tr","wc"],c:0,x:"command | tee file.log shows output and saves it; -a appends."},
+{d:1,q:"Which utility reads a script into the CURRENT shell so its variables persist?",o:["source","exec","bash","nohup"],c:0,x:"source (or .) runs the file in the current shell rather than a subshell."},
+{d:1,q:"Which utility builds argument lists from stdin to feed another command?",o:["xargs","tee","tr","cut"],c:0,x:"find ... | xargs rm passes results as arguments; -I{} sets a placeholder."},
+{d:1,q:"Which command prints system and kernel information (use -r for the release)?",o:["uname","hostname","lscpu","dmesg"],c:0,x:"uname -r shows the kernel version; -a shows everything."},
+{d:1,q:"Which tool archives multiple files into a single .tar file?",o:["tar","cpio","gzip","dd"],c:0,x:"tar creates/extracts archives; combine with z/j/J for compression."},
+{d:1,q:"Which compression tool produces .xz files (high compression ratio)?",o:["xz","gzip","bzip2","zip"],c:0,x:"xz gives strong compression; gzip is faster, bzip2 is in between."},
+{d:1,q:"Which command performs low-level block copying and disk imaging?",o:["dd","cp","rsync","tar"],c:0,x:"dd if= of= bs= copies raw blocks; status=progress shows progress."},
+{d:1,q:"Which tool is like dd but designed to recover data from failing disks?",o:["ddrescue","rsync","dd","cpio"],c:0,x:"ddrescue retries and skips bad sectors to maximize recovery."},
+{d:1,q:"Which command efficiently synchronizes files using delta transfers?",o:["rsync","scp","cp","dd"],c:0,x:"rsync -avz copies only changes; great for backups and remote sync."},
+{d:1,q:"What do zcat, zgrep, and zless let you do?",o:["Read gzip-compressed files without decompressing them first","Compress files faster","Encrypt log files","Mount archives"],c:0,x:"They operate directly on .gz content."},
+{d:1,q:"Which is a Linux hypervisor that provides hardware-accelerated virtualization in the kernel?",o:["KVM","VirtIO","libvirt","virsh"],c:0,x:"KVM is the in-kernel hypervisor; QEMU provides emulation; libvirt/virsh manage VMs."},
+{d:1,q:"Which command-line tool manages libvirt virtual machines?",o:["virsh","virt-manager","qemu-img","nmcli"],c:0,x:"virsh is the CLI for libvirt; virt-manager is the GUI."},
+{d:1,q:"What does VirtIO provide for virtual machines?",o:["Paravirtualized drivers for better VM performance","A bootloader","A firewall","Disk encryption"],c:0,x:"VirtIO drivers let guests talk efficiently to virtual disk/network devices."},
+{d:2,q:"Which command identifies a file's type by examining its contents?",o:["file","stat","ls","find"],c:0,x:"file reports the type (e.g., 'ELF 64-bit', 'ASCII text') regardless of extension."},
+{d:2,q:"Which command searches the filesystem live by name, type, size, or time?",o:["find","locate","grep","ls"],c:0,x:"find walks the tree and can run actions with -exec; locate uses a prebuilt database."},
+{d:2,q:"Which command finds files quickly using a prebuilt index database?",o:["locate","find","which","stat"],c:0,x:"locate reads a database (updated by updatedb); it is fast but may be stale."},
+{d:2,q:"Which command shows detailed metadata for a file, including inode and timestamps?",o:["stat","file","ls","du"],c:0,x:"stat shows size, inode, and atime/mtime/ctime."},
+{d:2,q:"Which command creates a symbolic link?",o:["ln -s target link","ln target link","link target","cp -s target link"],c:0,x:"ln -s makes a soft link (a path pointer); ln alone makes a hard link."},
+{d:2,q:"What distinguishes a hard link from a symbolic link?",o:["A hard link shares the same inode; a symlink points to a path","A hard link can cross filesystems; a symlink cannot","A symlink shares the inode","They are identical"],c:0,x:"Hard links reference the same inode (same FS, no directories); symlinks are path pointers that can break."},
+{d:2,q:"Which command lists open files and the processes holding them?",o:["lsof","ps","stat","find"],c:0,x:"lsof -i shows network sockets; it also reveals deleted-but-open files filling a disk."},
+{d:2,q:"Which low-level command creates a user account?",o:["useradd","adduser","groupadd","usermod"],c:0,x:"useradd is the low-level tool (adduser is a friendlier Debian wrapper). -m makes the home dir."},
+{d:2,q:"Which command adds an existing user to a supplementary group WITHOUT removing their others?",o:["usermod -aG group user","usermod -G group user","gpasswd -d user","groupmod user"],c:0,x:"The -a flag appends; without it, usermod -G replaces all supplementary groups."},
+{d:2,q:"Which command changes a user's login shell?",o:["chsh","passwd","chage","usermod -aG"],c:0,x:"chsh -s /bin/bash user sets the shell; usermod -s does the same."},
+{d:2,q:"Which command manages password aging and expiration?",o:["chage","passwd","usermod","getent"],c:0,x:"chage -M sets max days, -E an expiry date, -l lists current settings."},
+{d:2,q:"Which file stores hashed user passwords and is readable only by root?",o:["/etc/shadow","/etc/passwd","/etc/group","/etc/skel"],c:0,x:"/etc/shadow is root-only. /etc/passwd is world-readable and holds no passwords."},
+{d:2,q:"Which file maps usernames to UID, GID, home directory, and shell?",o:["/etc/passwd","/etc/shadow","/etc/group","/etc/login.defs"],c:0,x:"/etc/passwd is world-readable; the password field shows x (pointing to /etc/shadow)."},
+{d:2,q:"Which directory's contents are copied into a new user's home directory?",o:["/etc/skel","/etc/profile","/home/default","/etc/default/useradd"],c:0,x:"useradd -m copies /etc/skel (default dotfiles) into the new home."},
+{d:2,q:"Which command shows a user's UID, GID, and group memberships?",o:["id","whoami","groups","who"],c:0,x:"id prints UID/GID/groups; whoami prints just the username; groups lists groups."},
+{d:2,q:"Which command queries the passwd database including remote sources like LDAP?",o:["getent passwd","cat /etc/passwd","id","who"],c:0,x:"getent uses NSS, so it returns LDAP/SSSD users too, not just local ones."},
+{d:2,q:"Which command shows who is currently logged in and what they are doing?",o:["w","last","lastlog","who"],c:0,x:"w shows users plus their current activity; who is simpler; last shows login history."},
+{d:2,q:"Which command takes a snapshot of running processes?",o:["ps","top","htop","pstree"],c:0,x:"ps aux or ps -ef list processes; top/htop are live monitors."},
+{d:2,q:"Which command displays processes in a tree showing parent/child relationships?",o:["pstree","ps","htop","top"],c:0,x:"pstree visualizes the process hierarchy."},
+{d:2,q:"Which command traces the system calls a process makes?",o:["strace","pstree","mpstat","pidstat"],c:0,x:"strace shows syscalls, useful for debugging why a program fails or hangs."},
+{d:2,q:"Which command reports per-CPU utilization statistics?",o:["mpstat","pidstat","free","uptime"],c:0,x:"mpstat shows per-CPU stats; pidstat shows per-process/task stats."},
+{d:2,q:"Which signal number corresponds to SIGKILL (force, uncatchable)?",o:["9","15","1","2"],c:0,x:"9 = SIGKILL. 15 = SIGTERM (default), 1 = SIGHUP, 2 = SIGINT (Ctrl+C)."},
+{d:2,q:"Which signal does kill send by default?",o:["SIGTERM (15)","SIGKILL (9)","SIGHUP (1)","SIGSTOP (19)"],c:0,x:"Default is SIGTERM, a graceful request. Use SIGKILL only if it ignores TERM."},
+{d:2,q:"Which command kills processes by name rather than PID?",o:["pkill","kill","nohup","jobs"],c:0,x:"pkill (and killall) match by name/pattern; kill needs a PID."},
+{d:2,q:"Which command runs a program so it keeps running after you log out?",o:["nohup","fg","bg","jobs"],c:0,x:"nohup ignores the hangup signal; pair with & to background it."},
+{d:2,q:"In a shell, what does pressing Ctrl+Z do to the foreground job?",o:["Suspends it (stopped state)","Kills it","Backgrounds and keeps it running","Closes the terminal"],c:0,x:"Ctrl+Z stops the job; resume with fg (foreground) or bg (background)."},
+{d:2,q:"Which command resumes a stopped job in the background?",o:["bg","fg","jobs","nohup"],c:0,x:"bg continues a suspended job in the background; fg brings it to the foreground."},
+{d:2,q:"What does appending & to a command do?",o:["Runs it in the background","Runs it as root","Pipes its output","Repeats it"],c:0,x:"& launches the command in the background, returning the prompt immediately."},
+{d:2,q:"What is the difference between nice and renice?",o:["nice sets priority at launch; renice changes a running process","renice launches; nice changes running","Both only work as root","They set CPU affinity"],c:0,x:"nice -n starts with a priority; renice adjusts an existing PID."},
+{d:2,q:"What is the niceness range, and which end is highest priority?",o:["-20 (highest) to 19 (lowest)","0 to 100","1 to 9","-9 to 15"],c:0,x:"Lower niceness = higher scheduling priority. -20 is most favorable."},
+{d:2,q:"What is a zombie process?",o:["A finished process whose parent has not reaped its exit status","A process using 100% CPU","A process stuck in disk I/O","A background job"],c:0,x:"Zombies are dead processes awaiting the parent's wait(); they hold only a PID slot."},
+{d:2,q:"Which command schedules recurring jobs via a per-user table?",o:["crontab","at","anacron","systemctl"],c:0,x:"crontab -e edits; -l lists; -r removes. at handles one-time jobs."},
+{d:2,q:"Which command schedules a one-time job to run at a specific time?",o:["at","crontab","anacron","systemd-run"],c:0,x:"at queues a single future job; crontab is for recurring jobs."},
+{d:2,q:"Which tool runs periodic jobs that were missed while the machine was off (e.g., laptops)?",o:["anacron","cron","at","systemd"],c:0,x:"anacron catches up on daily/weekly jobs after downtime; cron assumes the system is always on."},
+{d:2,q:"What is the correct field order in a crontab entry?",o:["minute hour day-of-month month day-of-week","hour minute day month weekday","day month minute hour weekday","weekday hour minute day month"],c:0,x:"Five time fields then the command. */10 * * * * runs every 10 minutes."},
+{d:2,q:"Which is the Python package installer referenced in the objectives?",o:["pip","cargo","npm","dnf"],c:0,x:"pip installs Python packages; cargo is Rust; npm is Node.js."},
+{d:2,q:"Why verify GPG signatures on packages and repositories?",o:["To confirm package authenticity and integrity","To compress the package","To speed up installation","To resolve dependencies"],c:0,x:"GPG signatures prove the package came from a trusted source and was not tampered with."},
+{d:2,q:"Which command manages systemd units (start, stop, enable, status)?",o:["systemctl","journalctl","hostnamectl","timedatectl"],c:0,x:"systemctl is the primary systemd control tool."},
+{d:2,q:"Which command must run after editing a unit file so systemd re-reads it?",o:["systemctl daemon-reload","systemctl reload <unit>","systemctl restart systemd","systemctl edit"],c:0,x:"daemon-reload reloads unit definitions; 'reload <unit>' only reloads that app's config."},
+{d:2,q:"Which command enables a service at boot AND starts it immediately?",o:["systemctl enable --now sshd","systemctl start --boot sshd","systemctl enable sshd","systemctl restart sshd"],c:0,x:"--now combines enable (boot) and start (now)."},
+{d:2,q:"What is the difference between masking and disabling a service?",o:["Masking makes it impossible to start; disabling only stops boot autostart","They are the same","Disabling deletes the unit file","Masking starts it on boot"],c:0,x:"mask symlinks the unit to /dev/null so it cannot start even manually; disable just removes the boot link."},
+{d:2,q:"Which command views and filters the systemd journal?",o:["journalctl","systemctl","rsyslog","dmesg"],c:0,x:"journalctl -u <unit> filters by service, -f follows, -b shows the current boot."},
+{d:2,q:"Which command sets the system hostname using systemd?",o:["hostnamectl","timedatectl","nmcli","resolvectl"],c:0,x:"hostnamectl set-hostname changes it persistently."},
+{d:2,q:"Which command sets the date, time, and NTP synchronization via systemd?",o:["timedatectl","hostnamectl","chronyc","date"],c:0,x:"timedatectl manages clock settings and enables NTP sync."},
+{d:2,q:"Which command analyzes boot performance and shows which units were slowest?",o:["systemd-analyze","systemctl status","journalctl -b","uptime"],c:0,x:"systemd-analyze blame lists units by startup time."},
+{d:2,q:"Which is a daemonless, rootless container engine often used as a Docker alternative on RHEL?",o:["Podman","containerd","runC","Kubernetes"],c:0,x:"Podman runs containers without a central daemon and supports rootless mode."},
+{d:2,q:"In a Dockerfile, which instruction sets the base image?",o:["FROM","CMD","ENTRYPOINT","USER"],c:0,x:"FROM must be (essentially) first and defines the base image."},
+{d:2,q:"In a Dockerfile, which instruction defines the executable that is hard to override at runtime?",o:["ENTRYPOINT","CMD","FROM","USER"],c:0,x:"ENTRYPOINT sets the main executable; CMD provides default arguments that are easy to override."},
+{d:2,q:"Which command runs a command inside an already-running container?",o:["docker exec","docker run","docker build","docker logs"],c:0,x:"exec runs in an existing container; run creates a new one."},
+{d:2,q:"Which container network mode shares the host's network stack directly?",o:["host","bridge","macvlan","none"],c:0,x:"host mode uses the host network namespace (no isolation); bridge is the default isolated network."},
+{d:3,q:"Which framework provides a modular authentication stack configured under /etc/pam.d/?",o:["PAM","SSSD","LDAP","Kerberos"],c:0,x:"PAM (Pluggable Authentication Modules) lets services stack auth rules."},
+{d:3,q:"Which daemon integrates Linux logins with central directories like LDAP or Active Directory?",o:["SSSD","rsyslog","auditd","Polkit"],c:0,x:"SSSD (System Security Services Daemon) caches and brokers identity/auth from remote providers."},
+{d:3,q:"Which authentication system is ticket-based and provides single sign-on?",o:["Kerberos","LDAP","PAM","Samba"],c:0,x:"Kerberos issues time-limited tickets (kinit/klist). LDAP is a directory; Samba is file sharing."},
+{d:3,q:"Which utility rotates and compresses log files on a schedule?",o:["logrotate","rsyslog","journalctl","auditd"],c:0,x:"logrotate prevents logs from filling the disk by rotating/compressing them."},
+{d:3,q:"Which daemon collects security audit events based on audit.rules?",o:["auditd","rsyslog","logrotate","Polkit"],c:0,x:"auditd records audit events; rules live in audit.rules."},
+{d:3,q:"Which command manages firewalld rules?",o:["firewall-cmd","ufw","iptables","nft"],c:0,x:"firewall-cmd is firewalld's CLI; ufw is Ubuntu's simpler front end."},
+{d:3,q:"In firewalld, which flag makes a rule survive a reload or reboot?",o:["--permanent","--runtime","--save","--persist"],c:0,x:"Add --permanent then run firewall-cmd --reload; runtime rules are lost otherwise."},
+{d:3,q:"Which is the modern packet-filtering framework that replaces iptables?",o:["nftables","ipset","firewalld","tcpdump"],c:0,x:"nftables is the successor to iptables; firewalld/ufw are front ends that can use it."},
+{d:3,q:"What does setting net.ipv4.ip_forward=1 enable?",o:["IP forwarding (routing) between interfaces","A firewall","NAT logging","DNS caching"],c:0,x:"It lets the host route packets between interfaces, needed for routers/NAT/containers."},
+{d:3,q:"What is the difference between SNAT and DNAT?",o:["SNAT rewrites the source address; DNAT rewrites the destination","SNAT is stateless; DNAT is stateful","SNAT is for DNS; DNAT is for DHCP","They are identical"],c:0,x:"SNAT (masquerade) changes source for outbound; DNAT redirects destination (port forwarding)."},
+{d:3,q:"What characterizes a stateful firewall?",o:["It tracks connection state and allows return traffic automatically","It inspects each packet with no memory","It only blocks ICMP","It requires NAT"],c:0,x:"Stateful firewalls track sessions; stateless ones evaluate every packet independently."},
+{d:3,q:"Which command should you always use to safely edit the sudoers file?",o:["visudo","nano /etc/sudoers","vi /etc/sudoers","sudoedit"],c:0,x:"visudo locks the file and validates syntax before saving, preventing a broken sudoers lockout."},
+{d:3,q:"What does NOPASSWD in a sudoers rule mean?",o:["The user runs the allowed sudo commands without a password prompt","The user has no password","sudo is disabled","Root login is blocked"],c:0,x:"NOPASSWD skips the password check for the specified commands."},
+{d:3,q:"Which group conventionally grants sudo/administrative rights on RHEL systems?",o:["wheel","sudo","admin","root"],c:0,x:"RHEL uses wheel; Debian/Ubuntu use the sudo group."},
+{d:3,q:"Which command sets the immutable attribute so even root cannot modify or delete a file?",o:["chattr +i","chmod 000","chown root","setfacl -m"],c:0,x:"chattr +i makes a file immutable until chattr -i removes it; lsattr views attributes."},
+{d:3,q:"What does the setuid bit do on an executable?",o:["Runs the program with the file owner's privileges","Runs it as the current group","Prevents deletion","Makes it read-only"],c:0,x:"setuid (e.g., /usr/bin/passwd) elevates to the owner's UID during execution."},
+{d:3,q:"What does the sticky bit on /tmp accomplish?",o:["Only a file's owner (or root) can delete that file","No one can write to /tmp","Files become read-only","Files are auto-deleted"],c:0,x:"On a world-writable directory, the sticky bit restricts deletion to owners."},
+{d:3,q:"With umask 022, what are the default permissions for a new file?",o:["644 (rw-r--r--)","755","664","600"],c:0,x:"Base 666 minus 022 = 644 for files; directories become 755."},
+{d:3,q:"Which command adds an ACL entry granting a specific user extra access beyond standard permissions?",o:["setfacl","getfacl","chmod","chown"],c:0,x:"setfacl -m u:alice:rw file adds an ACL; getfacl displays ACLs."},
+{d:3,q:"Which command shows the current SELinux enforcement mode?",o:["getenforce","sestatus -b","setenforce","semanage"],c:0,x:"getenforce prints Enforcing/Permissive/Disabled; sestatus gives more detail."},
+{d:3,q:"Which command temporarily switches SELinux to permissive mode?",o:["setenforce 0","setenforce 1","getenforce","semanage permissive"],c:0,x:"setenforce 0 = permissive (logs only); 1 = enforcing. Permanent change is in /etc/selinux/config."},
+{d:3,q:"Which command restores files to their default SELinux contexts from policy?",o:["restorecon","chcon","semanage","setsebool"],c:0,x:"restorecon relabels files per policy; chcon sets a context directly (not persistent across relabel)."},
+{d:3,q:"Which command persistently manages SELinux port mappings, file contexts, and booleans?",o:["semanage","chcon","restorecon","getenforce"],c:0,x:"semanage writes policy changes that survive relabeling."},
+{d:3,q:"Which command toggles an SELinux boolean persistently?",o:["setsebool -P","getsebool","chcon","semanage login"],c:0,x:"setsebool -P makes the change persistent; getsebool reads current values."},
+{d:3,q:"What does ls -Z display?",o:["The SELinux security context of files","File ACLs","Inode numbers","Hidden files"],c:0,x:"-Z shows the SELinux label (user:role:type:level)."},
+{d:3,q:"Which file configures the SSH server daemon?",o:["/etc/ssh/sshd_config","/etc/ssh/ssh_config","~/.ssh/config","/etc/sshd.conf"],c:0,x:"sshd_config is the server; ssh_config (no d) is the client."},
+{d:3,q:"What does setting PermitRootLogin no accomplish?",o:["Blocks direct root login over SSH","Disables SSH entirely","Forces password login","Allows only key auth"],c:0,x:"It stops the root account from logging in directly via SSH, a common hardening step."},
+{d:3,q:"Which tool bans IP addresses after repeated failed login attempts?",o:["fail2ban","auditd","rkhunter","AIDE"],c:0,x:"fail2ban parses logs and adds temporary firewall bans against brute-force sources."},
+{d:3,q:"Which of these legacy services should be avoided because they transmit data in cleartext?",o:["Telnet, FTP, TFTP","SSH, SFTP","HTTPS, TLS","WireGuard"],c:0,x:"Telnet/FTP/TFTP send credentials/data unencrypted; use SSH/SFTP/HTTPS instead."},
+{d:3,q:"Setting a service account's shell to /sbin/nologin does what?",o:["Prevents interactive login for that account","Grants root access","Locks the password","Deletes the account"],c:0,x:"/sbin/nologin politely refuses interactive logins, ideal for service accounts."},
+{d:3,q:"Which tool encrypts and signs files using public-key cryptography (data at rest)?",o:["GPG","OpenSSL","fail2ban","AIDE"],c:0,x:"GPG (-e encrypt, -d decrypt, --sign) handles file-level crypto and signatures."},
+{d:3,q:"Which technology provides full-disk/partition encryption on Linux?",o:["LUKS2","GPG","TLS","HMAC"],c:0,x:"LUKS2 encrypts block devices (often with the Argon2 key-derivation function)."},
+{d:3,q:"Which toolkit is used for certificate operations, key generation, and testing TLS?",o:["OpenSSL","GPG","WireGuard","AIDE"],c:0,x:"OpenSSL inspects certs (x509), generates keys, and tests TLS with s_client."},
+{d:3,q:"SHA-256 is primarily used for what?",o:["Hashing / integrity verification","Symmetric encryption","Key exchange","Compression"],c:0,x:"SHA-256 produces a fixed digest to verify integrity; it is not encryption."},
+{d:3,q:"What does HMAC provide?",o:["Message integrity and authenticity using a keyed hash","Disk encryption","A firewall rule","A certificate authority"],c:0,x:"HMAC combines a secret key with a hash to authenticate a message."},
+{d:3,q:"What is the difference between a CVE and a CVSS score?",o:["CVE is a unique vulnerability ID; CVSS is its severity score","CVE is the score; CVSS is the ID","Both are severity scores","Both are patch tools"],c:0,x:"CVE identifies the flaw; CVSS rates severity from 0 to 10."},
+{d:3,q:"Which tool maintains a file-integrity baseline to detect tampering (host intrusion detection)?",o:["AIDE","rkhunter","fail2ban","OpenSCAP"],c:0,x:"AIDE stores hashes of files and reports changes; rkhunter specifically hunts rootkits."},
+{d:3,q:"Which tool scans for rootkits on a Linux system?",o:["rkhunter","AIDE","OpenSCAP","auditd"],c:0,x:"rkhunter (Rootkit Hunter) checks for rootkit signatures and suspicious changes."},
+{d:3,q:"Which framework automates compliance scanning using SCAP content?",o:["OpenSCAP","CIS Benchmarks","AIDE","rkhunter"],c:0,x:"OpenSCAP evaluates systems against SCAP policies; CIS Benchmarks are the guidelines themselves."},
+{d:3,q:"Which command securely overwrites a single file to make recovery difficult?",o:["shred","rm","dd","badblocks"],c:0,x:"shred overwrites file data multiple times; rm just unlinks it."},
+{d:3,q:"What does 'dd if=/dev/urandom of=/dev/sdX' accomplish?",o:["Overwrites a disk with random data (secure wipe)","Clones a disk","Creates a filesystem","Backs up a disk"],c:0,x:"Writing random data over the whole device destroys recoverable data."},
+{d:3,q:"Which file displays a pre-login banner to users connecting over the network?",o:["/etc/issue.net","/etc/issue","/etc/motd","/etc/banner"],c:0,x:"/etc/issue.net is the network pre-login banner; /etc/issue is local; /etc/motd shows after login."},
+{d:4,q:"Ansible is best described as which model?",o:["Agentless, pushing over SSH","Agent-based, pulling from a master","Daemon on every node","Kernel module"],c:0,x:"Ansible needs only SSH and Python on nodes; Puppet/Chef use pull agents."},
+{d:4,q:"Ansible playbooks are written in which format?",o:["YAML","JSON only","XML","INI"],c:0,x:"Playbooks are YAML; a play targets hosts and runs tasks that call modules."},
+{d:4,q:"What is an Ansible ad hoc command?",o:["A single task/module run without a playbook","A multi-play deployment","A scheduled cron job","A container build"],c:0,x:"e.g., ansible all -m ping runs one module immediately."},
+{d:4,q:"What are Ansible 'facts'?",o:["System properties gathered from managed hosts","Encrypted secrets","Playbook errors","Inventory groups"],c:0,x:"Facts are discovered host variables (OS, IP, memory) available to tasks."},
+{d:4,q:"Which configuration-management model does Puppet typically use?",o:["Agents pull their catalog from a master","The controller pushes over SSH","No central server","Kernel-level enforcement"],c:0,x:"Puppet agents periodically pull and apply the desired state (pull model)."},
+{d:4,q:"In Terraform/OpenTofu, what does the 'state' track?",o:["The current known mapping of managed infrastructure","The Git history","User passwords","The kernel version"],c:0,x:"State records what resources exist so plans can compute changes."},
+{d:4,q:"Which tool performs unattended, automated installations of RHEL-family systems?",o:["Kickstart","cloud-init","Ansible","Kubernetes"],c:0,x:"Kickstart answers the installer automatically; cloud-init configures cloud instances on first boot."},
+{d:4,q:"Which tool configures a cloud instance on its first boot (users, keys, packages)?",o:["cloud-init","Kickstart","Puppet","Docker Compose"],c:0,x:"cloud-init runs early to apply per-instance configuration."},
+{d:4,q:"What does it mean for an automation task to be idempotent?",o:["Running it repeatedly produces the same end state","It runs only once ever","It cannot be undone","It runs faster each time"],c:0,x:"Idempotency lets you re-run playbooks safely; only needed changes are made."},
+{d:4,q:"What does GitOps mean?",o:["Using Git as the source of truth to drive deployments","Encrypting Git repos","A Git GUI","A backup of Git"],c:0,x:"GitOps reconciles infrastructure to match what is committed in Git."},
+{d:4,q:"In Kubernetes, what is the smallest deployable unit?",o:["A Pod","A Container","A Node","A Service"],c:0,x:"A Pod wraps one or more containers sharing network/storage."},
+{d:4,q:"Which Kubernetes object stores non-sensitive configuration data?",o:["ConfigMap","Secret","Pod","Volume"],c:0,x:"ConfigMaps hold plain config; Secrets hold sensitive data (base64, optionally encrypted)."},
+{d:4,q:"In Docker/Podman Compose, what do 'up' and 'down' do?",o:["up starts the defined stack; down stops and removes it","up updates images; down deletes volumes only","up logs in; down logs out","They scale replicas"],c:0,x:"compose up brings the services online; compose down tears them down."},
+{d:4,q:"What does $(command) do in a shell script?",o:["Command substitution: captures the command's output","Defines a function","Starts a subshell loop","Comments out a line"],c:0,x:"$(...) (or backticks) substitutes the output into the line; ${var} is parameter expansion."},
+{d:4,q:"What does $? hold after a command runs?",o:["The exit status of the last command (0 = success)","The PID of the shell","The number of arguments","The script name"],c:0,x:"$? is the return code; non-zero means an error. $$ is PID, $# is arg count, $0 is the name."},
+{d:4,q:"In a test expression, what is the difference between -eq and ==?",o:["-eq compares numbers; == compares strings","-eq compares strings; == compares numbers","They are identical","== only works in [ ]"],c:0,x:"Use -eq/-ne/-lt for integers; =/==/!= for strings."},
+{d:4,q:"Which test returns true if a string is empty?",o:["-z","-n","-f","-d"],c:0,x:"-z is true for empty; -n is true for non-empty; -f tests a file; -d a directory."},
+{d:4,q:"Which test returns true if a path exists and is a regular file?",o:["-f","-d","-z","-x"],c:0,x:"-f regular file, -d directory, -e any type, -x executable."},
+{d:4,q:"What does [[ $var =~ pattern ]] do in Bash?",o:["Tests whether $var matches a regular expression","Assigns a regex to $var","Globs filenames","Compares two files"],c:0,x:"=~ performs a regex match inside [[ ]]."},
+{d:4,q:"What is the purpose of the #! line at the top of a script?",o:["It is the shebang specifying the interpreter","It is a comment ignored by all","It sets the exit code","It imports a module"],c:0,x:"#!/bin/bash (or #!/usr/bin/env python3) tells the kernel which interpreter to use."},
+{d:4,q:"What does the IFS variable control?",o:["The Internal Field Separator used to split input into fields","The shell prompt","The include path","The interrupt signal"],c:0,x:"IFS (default space/tab/newline) determines how the shell word-splits input."},
+{d:4,q:"What does 'export VAR=value' do?",o:["Makes VAR available to child processes (the environment)","Deletes VAR","Makes VAR read-only","Runs VAR as a command"],c:0,x:"export puts the variable into the environment inherited by child processes."},
+{d:4,q:"Inside a function, what does declaring a variable with 'local' do?",o:["Limits its scope to that function","Makes it global","Exports it","Makes it read-only"],c:0,x:"local prevents the variable from leaking into the rest of the script."},
+{d:4,q:"Which command creates an isolated Python virtual environment?",o:["python3 -m venv myenv","pip install venv","python3 --env","virtualize python"],c:0,x:"python3 -m venv creates it; activate with source myenv/bin/activate."},
+{d:4,q:"What is PEP 8?",o:["Python's style guide for writing readable code","A Python package manager","A Python web framework","A version of Python"],c:0,x:"PEP 8 defines conventions (4-space indents, naming) for Python code."},
+{d:4,q:"How does Python define code blocks (e.g., loop bodies)?",o:["By indentation","By curly braces","By BEGIN/END keywords","By semicolons"],c:0,x:"Python uses consistent indentation to delimit blocks."},
+{d:4,q:"Which git command initializes a new local repository?",o:["git init","git clone","git start","git new"],c:0,x:"git init creates the .git directory; git clone copies an existing remote repo."},
+{d:4,q:"Which git command stages changes for the next commit?",o:["git add","git commit","git push","git stage"],c:0,x:"git add moves changes into the index; git commit records them."},
+{d:4,q:"What is the difference between git push and git pull?",o:["push uploads commits to the remote; pull fetches and merges remote commits","push downloads; pull uploads","Both upload","Both only work offline"],c:0,x:"push sends your commits up; pull = fetch + merge into your branch."},
+{d:4,q:"Which git command temporarily shelves uncommitted changes so you can switch context?",o:["git stash","git reset","git commit","git branch"],c:0,x:"git stash saves your working changes; git stash pop restores them."},
+{d:4,q:"What does git rebase do?",o:["Reapplies commits on top of another base, rewriting history","Deletes a branch","Merges with a commit message","Clones a repo"],c:0,x:"Rebase produces a linear history by replaying commits; avoid on shared branches."},
+{d:4,q:"What does a .gitignore file do?",o:["Lists patterns of files Git should not track","Encrypts files","Stores credentials","Defines branches"],c:0,x:"Patterns like *.log or /venv keep untracked files out of the repo."},
+{d:4,q:"What is the difference between git fetch and git pull?",o:["fetch downloads without merging; pull fetches then merges","pull downloads without merging","They are identical","fetch deletes local commits"],c:0,x:"Use fetch to inspect remote changes before merging; pull does both at once."},
+{d:4,q:"Which is a recommended best practice when using AI-generated code or config?",o:["Review and verify the output before using it","Paste it straight into production","Trust it without testing","Skip security checks"],c:0,x:"Always review/test AI output; it can be subtly wrong or insecure."},
+{d:4,q:"Regarding data governance with public LLMs, what should you avoid?",o:["Submitting sensitive or private data in prompts","Writing clear prompts","Using version control","Reviewing the output"],c:0,x:"Public models may log/train on inputs; keep secrets and PII out, or use a local/private model."},
+{d:5,q:"What is the difference between an SLA, an SLO, and an SLI?",o:["SLA is the agreement, SLO the target, SLI the measured indicator","SLA is the indicator, SLO the agreement","They are identical","SLI is a firewall"],c:0,x:"SLA = contract, SLO = internal objective, SLI = the actual measured metric."},
+{d:5,q:"What is SNMP used for?",o:["Collecting metrics/status from network devices (with MIBs and traps)","Encrypting traffic","Resolving DNS","Mounting filesystems"],c:0,x:"SNMP polls device data defined in MIBs and can send traps on events."},
+{d:5,q:"A disk shows 100% full in df, but du finds little usage. What is the likely cause?",o:["A deleted file still held open by a running process","A corrupt inode table","A missing mount","Too many small files"],c:0,x:"Use lsof to find the deleted-but-open file; restarting the process frees the space."},
+{d:5,q:"df -h shows free space yet writes fail with 'No space left on device'. What should you check?",o:["Inode exhaustion with df -i","CPU usage","The routing table","SELinux booleans"],c:0,x:"Running out of inodes (many tiny files) blocks new files despite free blocks."},
+{d:5,q:"What is a kernel panic?",o:["A fatal kernel error that halts the system","A user process crash","A full filesystem","A failed login"],c:0,x:"A panic is unrecoverable; the kernel stops to prevent damage."},
+{d:5,q:"What is a segmentation fault?",o:["A process accessing memory it is not allowed to","A network timeout","A disk failure","A permission denial"],c:0,x:"A segfault (SIGSEGV) results from invalid memory access, often a bug or corruption."},
+{d:5,q:"A GRUB misconfiguration most directly causes which problem?",o:["The system fails to boot","Slow network","High CPU usage","DNS failures"],c:0,x:"GRUB is the bootloader; a bad config stops the boot process."},
+{d:5,q:"Which command shows current memory and swap usage?",o:["free -h","df -h","du -sh","uptime"],c:0,x:"free -h shows total/used/available memory and swap."},
+{d:5,q:"Which command shows system uptime and the 1/5/15-minute load averages?",o:["uptime","free","vmstat","iostat"],c:0,x:"uptime reports how long the system has run plus load averages."},
+{d:5,q:"A high %wa value in top indicates what kind of bottleneck?",o:["I/O wait (disk or network) bottleneck","CPU bottleneck","Memory leak","Network flood"],c:0,x:"%wa means the CPU is idle waiting on I/O; investigate with iostat -x."},
+{d:5,q:"When does the Linux OOM killer take action?",o:["When the system runs out of memory and must kill processes","When CPU hits 100%","When a disk fails","When a user logs in"],c:0,x:"The Out-Of-Memory killer terminates processes to reclaim RAM; see dmesg/journal."},
+{d:5,q:"What is a memory leak?",o:["A process that keeps allocating memory without freeing it","A swap partition error","A corrupted RAM module","A kernel panic"],c:0,x:"Leaked memory grows over time and can eventually exhaust RAM."},
+{d:5,q:"You can resolve DNS and the link is up, but cannot reach a remote server. What should you check first?",o:["Routing/gateway and firewall rules","The keyboard layout","The shell prompt","The locale"],c:0,x:"Layer-3 reachability depends on routes, the default gateway, and firewall policy."},
+{d:5,q:"What problem does an MTU mismatch typically cause?",o:["Large packets are dropped or connections hang","DNS fails entirely","Logins are blocked","CPU spikes"],c:0,x:"Oversized frames get dropped if the path MTU is smaller, causing stalls."},
+{d:5,q:"What is a symptom of an IP address conflict on the network?",o:["Intermittent connectivity for the duplicated address","Permanent total outage for all hosts","High disk I/O","A kernel panic"],c:0,x:"Two hosts sharing an IP cause erratic, intermittent reachability."},
+{d:5,q:"Which command reports per-device disk I/O statistics such as %util and await?",o:["iostat","vmstat","free","uptime"],c:0,x:"iostat (sysstat) focuses on block-device I/O; high %util/await means a disk bottleneck."},
+{d:5,q:"Which command reports virtual memory, CPU, and I/O activity at an interval?",o:["vmstat","iostat","free","mpstat"],c:0,x:"vmstat 2 prints stats every 2 seconds; watch si/so (swap) and wa (iowait)."},
+{d:5,q:"Heavy, continuous swapping most directly indicates what?",o:["Insufficient RAM (memory pressure)","A DNS problem","A full root filesystem","A firewall misconfiguration"],c:0,x:"Constant swap activity means the working set exceeds physical memory."},
+{d:5,q:"On RHEL, an app is denied despite correct file permissions. What is a likely culprit?",o:["An SELinux context/policy denial","A DNS failure","A swap shortage","A bad shebang"],c:0,x:"Check the audit log (ausearch/sealert); fix with restorecon or an SELinux policy/boolean."},
+{d:5,q:"A file has correct rwx bits but access is still denied. What should you inspect?",o:["ACLs with getfacl","The inode number","The hostname","The MTU"],c:0,x:"An ACL entry can further restrict access beyond the standard permission bits."},
+{d:5,q:"A TLS connection fails to establish between two systems. A common cause is:",o:["Mismatched protocol versions or obsolete ciphers","A full disk","A zombie process","A missing swap file"],c:0,x:"Cipher/protocol negotiation failures (e.g., disabled TLS versions) break the handshake."},
+{d:2,q:"Which journalctl option shows logs for only a specific systemd unit such as sshd?",o:["journalctl -u sshd","journalctl -b sshd","journalctl -p sshd","journalctl -f sshd"],c:0,x:"-u filters by unit. -b limits to a boot, -p by priority, -f follows the log."},
+{d:2,q:"Which journalctl option limits output to messages from the current boot?",o:["journalctl -b","journalctl -u","journalctl -f","journalctl -n"],c:0,x:"-b shows the current boot (-b -1 = the previous boot). -k limits to kernel messages."},
+{d:2,q:"Which journalctl option follows the journal live, like tail -f?",o:["journalctl -f","journalctl -r","journalctl -e","journalctl -n"],c:0,x:"-f streams new entries; -r reverses order, -e jumps to the end, -n limits the number of lines."},
+{d:2,q:"Which journalctl option filters entries by priority (e.g., error and above)?",o:["journalctl -p err","journalctl -u err","journalctl -b err","journalctl -x err"],c:0,x:"-p takes a priority 0 (emerg) to 7 (debug); -p err shows error and more severe. -x adds explanation text."},
+{d:2,q:"What does 'systemctl enable --now sshd' do that 'systemctl enable sshd' does not?",o:["It also starts the service immediately","It reloads the systemd manager","It masks the service","It only shows status"],c:0,x:"enable sets it to start at boot; --now also starts it right away (enable + start)."},
+{d:2,q:"After editing a unit file, which command makes systemd re-read its unit definitions?",o:["systemctl daemon-reload","systemctl reload sshd","systemctl reset-failed","systemctl revert sshd"],c:0,x:"daemon-reload reloads unit files into systemd. 'reload <unit>' only reloads that service's own config."},
+{d:2,q:"What does 'systemctl mask <unit>' do?",o:["Prevents the unit from starting at all, even manually or as a dependency","Stops the unit one time","Only removes it from boot startup","Deletes the unit file from disk"],c:0,x:"mask symlinks the unit to /dev/null so it cannot be started. disable only removes boot autostart."},
+{d:2,q:"Which command reverses a masked unit so it can be started again?",o:["systemctl unmask <unit>","systemctl enable <unit>","systemctl reset-failed <unit>","systemctl revert <unit>"],c:0,x:"unmask removes the /dev/null symlink created by mask."},
+{d:2,q:"Which command reports whether a service is set to start at boot?",o:["systemctl is-enabled sshd","systemctl is-active sshd","systemctl is-failed sshd","systemctl status --boot sshd"],c:0,x:"is-enabled checks the boot setting; is-active checks whether it is running now."},
+{d:2,q:"What does 'systemctl list-units' show?",o:["Units currently loaded into memory (active/running)","Every unit file installed on disk","Only timer units","The boot performance report"],c:0,x:"list-units shows loaded units; list-unit-files lists all installed unit files and their enablement state."},
+{d:1,q:"What does 'ss -tulnp' display?",o:["Listening TCP and UDP sockets, numeric, with the owning process","Only established outbound HTTP connections","The kernel routing table","The ARP neighbor cache"],c:0,x:"t=TCP, u=UDP, l=listening, n=numeric (no name resolution), p=process (needs root for names)."},
+{d:1,q:"Which command shows the IPv4/IPv6 addresses assigned to interfaces?",o:["ip addr","ip link","ip route","ip neigh"],c:0,x:"ip addr (ip a) shows addresses; ip link shows interfaces; ip route shows routes; ip neigh shows the ARP table."},
+{d:1,q:"Which command shows network interfaces and their link state and MAC address?",o:["ip link","ip addr","ip route","ip maddr"],c:0,x:"ip link is layer-2 interface info; 'ip link set eth0 up' brings an interface up."},
+{d:1,q:"Which command displays the routing table and the default gateway?",o:["ip route","ip addr","ip link","ip neigh"],c:0,x:"ip route (ip r) shows routes; the 'default via' line is the gateway."},
+{d:1,q:"Which command shows the neighbor/ARP table mapping IP addresses to MAC addresses?",o:["ip neigh","ip route","ip link","ip addr"],c:0,x:"ip neigh replaces the old 'arp -n' for viewing IP-to-MAC mappings."},
+{d:1,q:"Which command creates a gzip-compressed tar archive of a directory?",o:["tar -czf backup.tar.gz dir/","tar -xzf backup.tar.gz","tar -tf backup.tar.gz","tar -rzf backup.tar.gz dir/"],c:0,x:"c=create, z=gzip, f=file. Extract the same archive with -xzf."},
+{d:1,q:"Which command extracts a gzip-compressed tarball?",o:["tar -xzf archive.tar.gz","tar -czf archive.tar.gz","tar -tzf archive.tar.gz","tar -uzf archive.tar.gz"],c:0,x:"x=extract, z=gzip, f=file. (Modern tar can auto-detect compression with just -xf.)"},
+{d:1,q:"Which tar command lists an archive's contents WITHOUT extracting it?",o:["tar -tf archive.tar","tar -xf archive.tar","tar -cf archive.tar","tar -rf archive.tar"],c:0,x:"t = list (table of contents). Add z if it is gzip-compressed."},
+{d:1,q:"What does 'rsync -avz' do?",o:["Archive mode (recursive, preserves attrs), verbose, with compression in transit","Appends, verifies, and zips into one file","Asks before each overwrite","Deletes files not present in the source"],c:0,x:"a=archive, v=verbose, z=compress. -a keeps permissions, times, symlinks, and recurses."},
+{d:1,q:"What does the --delete option add to an rsync transfer?",o:["Removes files from the destination that no longer exist in the source","Deletes the source after copying","Skips files marked for deletion","Empties the destination before copying"],c:0,x:"--delete makes the destination mirror the source. Preview it first with -n."},
+{d:1,q:"What does 'rsync -n' (--dry-run) do?",o:["Shows what would be transferred without making any changes","Disables compression","Skips preserving permissions","Limits the bandwidth used"],c:0,x:"A dry run is the safe way to preview a sync, especially when combined with --delete."},
+{d:2,q:"Which find expression matches files by name with case sensitivity?",o:["find /etc -name '*.conf'","find /etc -type '*.conf'","find /etc -path '*.conf' -name","find /etc -iname"],c:0,x:"-name globs the basename (case-sensitive); -iname is the case-insensitive version."},
+{d:2,q:"Which find expression returns only directories?",o:["find / -type d","find / -type f","find / -type l","find / -name d"],c:0,x:"-type d=directory, f=regular file, l=symlink."},
+{d:2,q:"What does 'find /var -mtime -7' match?",o:["Files modified within the last 7 days","Files larger than 7 MB","Files owned by UID 7","Files with exactly 7 links"],c:0,x:"-mtime counts days; -7 means within the last 7 days, +7 means older than 7 days."},
+{d:2,q:"Which find expression matches files larger than 100 MB?",o:["find / -size +100M","find / -size 100M","find / -size -100M","find / -bytes +100M"],c:0,x:"+ means greater than, - means less than; units are k, M, G."},
+{d:2,q:"What does the -exec option do in find?",o:["Runs a specified command on each matching file","Searches inside the file contents","Excludes matching files","Marks files as executable"],c:0,x:"e.g., find . -name '*.log' -exec rm {} + runs rm on each result; {} is the filename placeholder."},
+{d:1,q:"Which grep option searches recursively through subdirectories?",o:["grep -r","grep -i","grep -v","grep -c"],c:0,x:"-r (or -R) recurses into directories."},
+{d:1,q:"Which grep option makes the search case-insensitive?",o:["grep -i","grep -v","grep -w","grep -n"],c:0,x:"-i ignores case; -w matches whole words; -n adds line numbers."},
+{d:1,q:"What does 'grep -v error logfile' output?",o:["Lines that do NOT contain 'error'","Only lines containing 'error'","A count of 'error' matches","A verbose trace of the search"],c:0,x:"-v inverts the match, printing non-matching lines."},
+{d:1,q:"What does 'grep -E' enable?",o:["Extended regular expressions (like egrep)","Exact whole-line matching only","Encrypted pattern matching","Excluding binary files"],c:0,x:"-E allows +, ?, |, and () without backslashes (extended regex)."},
+{d:1,q:"What does the -F option do in awk?",o:["Sets the input field separator","Reads the program from a file","Forces case-insensitive matching","Prints the filename"],c:0,x:"awk -F: '{print $1}' /etc/passwd splits each line on colons."},
+{d:1,q:"Which command extracts the first colon-delimited field from /etc/passwd?",o:["cut -d: -f1 /etc/passwd","cut -f1 -d1 /etc/passwd","cut -c1 /etc/passwd","cut -s: /etc/passwd"],c:0,x:"-d sets the delimiter, -f selects the field(s)."},
+{d:1,q:"What does 'sort -u' produce?",o:["Sorted output with duplicate lines removed","Output sorted in reverse","A numeric sort","Unique lines left unsorted"],c:0,x:"-u removes duplicates after sorting (like sort | uniq)."},
+{d:1,q:"What does 'uniq -c' add to its output?",o:["A count of how many times each line repeated","Color highlighting","Case-insensitive comparison","Column numbers"],c:0,x:"-c prefixes each line with its count. Remember to sort first, since uniq only collapses ADJACENT duplicates."},
+{d:1,q:"What does 'wc -l' count?",o:["The number of lines","The number of words","The number of bytes","The number of files"],c:0,x:"-l counts lines; -w words, -c bytes, -m characters."},
+{d:3,q:"Which chmod command sets permissions to rwxr-xr-x?",o:["chmod 755 file","chmod 644 file","chmod 777 file","chmod 700 file"],c:0,x:"rwx=7, r-x=5, r-x=5 -> 755."},
+{d:3,q:"What does 'chmod u+x,go-w file' do (symbolic mode)?",o:["Adds execute for the owner and removes write for group and others","Removes execute for the owner only","Adds write for everyone","Sets the file to 777"],c:0,x:"Symbolic mode uses u/g/o/a with + (add), - (remove), = (set)."},
+{d:3,q:"Which command changes both the owner and group of a file to alice:devs?",o:["chown alice:devs file","chgrp alice:devs file","chmod alice:devs file","chown -g devs alice file"],c:0,x:"chown user:group sets both; add -R to apply recursively."},
+{d:3,q:"Which command changes only the group ownership of a file?",o:["chgrp devs file","chown devs file","chmod g:devs file","setfacl -g devs file"],c:0,x:"chgrp sets the group; chown user:group or chown :group also works."},
+{d:3,q:"With umask 077, what are the default permissions for a newly created file?",o:["600 (rw-------)","644","755","666"],c:0,x:"Base 666 minus 077 = 600; new directories become 700. umask removes permission bits."},
+{d:3,q:"Which command grants user bob read/write on a file via an ACL, beyond the standard permissions?",o:["setfacl -m u:bob:rw file","setfacl -x u:bob file","chmod u:bob:rw file","getfacl -m bob file"],c:0,x:"-m modifies/adds an ACL entry; -x removes one. getfacl displays them."},
+{d:3,q:"Which command displays the ACL entries on a file?",o:["getfacl file","setfacl file","lsattr file","stat -acl file"],c:0,x:"getfacl lists ACLs. A trailing + after the ls -l permission string signals an ACL is present."},
+{d:3,q:"What does 'restorecon -Rv /var/www' do?",o:["Recursively resets SELinux contexts to policy defaults, verbosely","Recursively removes SELinux from the path","Recursively changes the owner","Reboots into permissive mode"],c:0,x:"-R recurses, -v is verbose. It relabels files to match policy, fixing mislabeled content."},
+{d:3,q:"Which command persistently defines an SELinux file context so it survives a relabel?",o:["semanage fcontext -a -t httpd_sys_content_t '/web(/.*)?'","chcon -t httpd_sys_content_t /web","restorecon -R /web","setsebool -P httpd_web on"],c:0,x:"semanage fcontext records the rule (then run restorecon to apply). chcon changes a context but does not survive a full relabel."},
+{d:3,q:"Which command lets a service legally listen on a non-default port under SELinux (e.g., sshd on 2222)?",o:["semanage port -a -t ssh_port_t -p tcp 2222","setsebool -P ssh_port 2222","firewall-cmd --add-port=2222/tcp","chcon -t ssh_port_t 2222"],c:0,x:"semanage port registers the port with the right SELinux type. firewalld is a separate concern from SELinux."},
+{d:3,q:"What does the -P flag add to 'setsebool'?",o:["It makes the boolean change persistent across reboots","It prints the boolean's value","It applies the change to a port","It runs in permissive mode"],c:0,x:"Without -P the change is runtime-only and is lost on reboot."},
+{d:3,q:"Which firewall-cmd option opens a predefined service such as https?",o:["firewall-cmd --add-service=https","firewall-cmd --add-port=https","firewall-cmd --service=https on","firewall-cmd --enable=https"],c:0,x:"Services map to their well-known ports. Add --permanent to keep it after reload."},
+{d:3,q:"Which firewall-cmd option opens a specific port like 8080/tcp?",o:["firewall-cmd --add-port=8080/tcp","firewall-cmd --add-service=8080","firewall-cmd --open-port 8080","firewall-cmd --port=8080 on"],c:0,x:"--add-port takes port/protocol. Combine with --permanent and --reload."},
+{d:3,q:"Why must firewall-cmd changes usually include --permanent?",o:["Otherwise the rule is discarded on reload or reboot","It makes the rule apply faster","It limits the rule to UDP","It disables zone checking"],c:0,x:"Runtime rules are temporary; --permanent writes to config, then --reload activates it."},
+{d:3,q:"After adding permanent firewalld rules, which command activates them in the running firewall?",o:["firewall-cmd --reload","firewall-cmd --restart","firewall-cmd --commit","firewall-cmd --apply"],c:0,x:"--reload loads the permanent config into the runtime without dropping established connections."},
+{d:3,q:"Which firewall-cmd option lists the active zone's services, ports, and rules?",o:["firewall-cmd --list-all","firewall-cmd --status","firewall-cmd --show-config","firewall-cmd --get-rules"],c:0,x:"--list-all summarizes the current zone; --list-services or --list-ports show just those."},
+{d:2,q:"Which command shows the stdout/stderr logs produced by a container?",o:["docker logs <container>","docker inspect <container>","docker ps <container>","docker stats <container>"],c:0,x:"logs prints the container's output; add -f to follow it live."},
+{d:2,q:"Which command opens an interactive shell inside an ALREADY-running container?",o:["docker exec -it <container> bash","docker run -it <container> bash","docker attach <container> bash","docker logs -it <container>"],c:0,x:"exec runs a new process in an existing container; run would create a new container. -it gives an interactive TTY."},
+{d:2,q:"Which command returns detailed JSON metadata (config, mounts, networking) about a container or image?",o:["docker inspect","docker logs","docker stats","docker top"],c:0,x:"inspect outputs low-level details in JSON."},
+{d:2,q:"What does 'docker ps' show by default?",o:["Only currently running containers","All containers including stopped ones","Local images","Host processes"],c:0,x:"docker ps lists running containers; add -a to include stopped ones."},
+{d:2,q:"What does the -p flag do in 'docker run -p 8080:80 ...'?",o:["Publishes host port 8080 to the container's port 80","Sets a password for the container","Runs the container in privileged mode","Pulls the image before running"],c:0,x:"-p host:container maps a host port to a container port."},
+{d:2,q:"What does '-v /data:/app/data' do in 'docker run'?",o:["Bind-mounts host /data into the container at /app/data","Enables verbose logging","Defines an environment variable","Verifies the image signature"],c:0,x:"-v maps a host path (or named volume) into the container for persistent storage."},
+{d:2,q:"What does the -e flag do in 'docker run -e ENV=prod ...'?",o:["Sets an environment variable inside the container","Executes a command and exits","Exposes a port","Enables encryption"],c:0,x:"-e KEY=value injects an environment variable into the container."}
+];
+
+const DOMAINS=[
+ {n:1,name:"System Management",pct:23},
+ {n:2,name:"Services & User Mgmt",pct:20},
+ {n:3,name:"Security",pct:18},
+ {n:4,name:"Automation & Scripting",pct:17},
+ {n:5,name:"Troubleshooting",pct:22},
+];
+function hashId(s){let h=0;for(let i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))|0;}return "q"+(h>>>0).toString(36);}
+Q.forEach(q=>q.id=hashId(q.q));
+
+/* ---- storage + SRS ---- */
+let progress={}; const mem={};
+async function load(){try{const r=await window.storage.get("lxq006:v1");if(r&&r.value)progress=JSON.parse(r.value);}catch(e){progress=mem["lxq006:v1"]||{};}if(!progress||typeof progress!=="object")progress={};}
+async function save(){mem["lxq006:v1"]=progress;try{await window.storage.set("lxq006:v1",JSON.stringify(progress));}catch(e){}}
+const DAY=864e5, INT=[0,0,DAY,3*DAY,7*DAY,16*DAY];
+function st(id){return progress[id]||{box:0,due:0,seen:0,correct:0,wrong:0};}
+function grade(id,ok){const s=st(id);s.seen++;if(ok){s.correct++;s.box=Math.min((s.box||0)+1,5);}else{s.wrong++;s.box=1;}s.due=Date.now()+INT[s.box];progress[id]=s;save();}
+function isDue(q){const s=progress[q.id];return !s||!s.seen||s.due<=Date.now();}
+function queue(dom,reviewAll){let p=Q.filter(q=>!dom||q.d===dom);if(!reviewAll)p=p.filter(isDue);return p.sort((a,b)=>{const A=st(a.id),B=st(b.id);if(A.box!==B.box)return A.box-B.box;return A.due-B.due;});}
+function esc(s){return String(s).replace(/[&<>]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]));}
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const LETTERS=["1","2","3","4","5"];
+
+/* ---- state ---- */
+let tab="dash";
+const P={dom:0,q:null,answered:false,reviewAll:false};
+const E={phase:"setup",len:20,items:[],i:0,picked:[]};
+
+const screen=document.getElementById("screen");
+const barright=document.getElementById("barright");
+
+function promptLine(cmd){return `<div class="cmdline"><span class="prompt"><span class="u">student@linuxplus</span><span class="c">:</span><span class="p">~/xk0-006</span><span class="c">$</span></span> <span class="c">${cmd}</span></div>`;}
+function navBar(){
+  const tabs=[["dash","dashboard"],["practice","practice"],["exam","exam-sim"]];
+  return `<nav>${tabs.map(([k,l])=>`<button data-tab="${k}" class="${tab===k?"active":""}">${l}</button>`).join("")}</nav>`;
+}
+
+function render(){
+  barright.textContent = `${Q.length} questions loaded`;
+  if(tab==="dash") return renderDash();
+  if(tab==="practice") return renderPractice();
+  if(tab==="exam") return renderExam();
+}
+
+/* ---------- DASHBOARD ---------- */
+function renderDash(){
+  const seen=Q.filter(q=>st(q.id).seen>0).length;
+  const mastered=Q.filter(q=>st(q.id).box>=4).length;
+  const due=Q.filter(isDue).length;
+  let tc=0,tw=0;Q.forEach(q=>{const s=st(q.id);tc+=s.correct;tw+=s.wrong;});
+  const acc=(tc+tw)>0?Math.round(tc/(tc+tw)*100):0;
+  const rows=DOMAINS.map(d=>{
+    const items=Q.filter(q=>q.d===d.n);
+    const m=items.filter(q=>st(q.id).box>=4).length;
+    const pct=items.length?Math.round(m/items.length*100):0;
+    return `<div class="domrow"><span class="nm">${d.n}.0 ${esc(d.name)} <small>(${d.pct}%)</small></span>
+      <span class="barwrap"><i style="width:${pct}%"></i></span><span class="pc">${m}/${items.length}</span></div>`;
+  }).join("");
+  screen.innerHTML = navBar() + promptLine("cat ~/progress/summary.txt") + `
+    <div class="statgrid">
+      <div class="stat"><div class="n">${Q.length}</div><div class="l">questions</div></div>
+      <div class="stat blue"><div class="n">${seen}</div><div class="l">attempted</div></div>
+      <div class="stat"><div class="n">${mastered}</div><div class="l">mastered</div></div>
+      <div class="stat amber"><div class="n">${due}</div><div class="l">due now</div></div>
+      <div class="stat ${acc>=70?"":"amber"}"><div class="n">${acc}%</div><div class="l">accuracy</div></div>
+    </div>
+    <div class="section">mastery by exam domain</div>
+    ${rows}
+    <div class="row">
+      <button class="btn" id="goPractice">start practice &rarr;</button>
+      <button class="btn ghost" id="goExam">exam simulation</button>
+      <button class="btn ghost" id="reset">reset progress</button>
+    </div>
+    <div class="cmdline" style="margin-top:18px;color:var(--dim2);font-size:11.5px"># mastered = answered correctly enough times to reach box 4/5 (spaced repetition). missed questions resurface sooner.</div>`;
+  hook(navBar);
+  document.getElementById("goPractice").onclick=()=>setTab("practice");
+  document.getElementById("goExam").onclick=()=>setTab("exam");
+  document.getElementById("reset").onclick=()=>{if(confirm("Reset all progress? This cannot be undone.")){progress={};save();render();}};
+}
+
+/* ---------- PRACTICE ---------- */
+function nextPractice(){
+  const qq=queue(P.dom,P.reviewAll);
+  P.q = qq.length?qq[0]:null;
+  P.answered=false;P.order=null;
+}
+function renderPractice(){
+  if(!P.q || P.answered===false && !document.getElementById("opts")){ if(!P.q) nextPractice(); }
+  const chips=[[0,"all"],[1,"D1 sys"],[2,"D2 svc/user"],[3,"D3 security"],[4,"D4 automation"],[5,"D5 troublesh."]];
+  const chipHtml=`<div class="chips">${chips.map(([n,l])=>`<button class="chip ${P.dom===n?"active":""}" data-dom="${n}">${l}</button>`).join("")}</div>`;
+  const poolAll=Q.filter(q=>!P.dom||q.d===P.dom);
+  const dueCount=poolAll.filter(isDue).length;
+
+  if(!P.q){
+    screen.innerHTML=navBar()+chipHtml+promptLine("quiz --next")+
+      `<div class="qbox"><div class="grn">All caught up in this set. &#10003;</div>
+       <div class="muted" style="margin-top:8px">Spaced repetition is doing its job &mdash; nothing is due right now.</div>
+       <div class="row"><button class="btn" id="all">review the whole set anyway</button></div></div>`;
+    hook(); document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{P.dom=+c.dataset.dom;nextPractice();render();});
+    const a=document.getElementById("all"); if(a) a.onclick=()=>{P.reviewAll=true;nextPractice();render();};
+    return;
+  }
+  const q=P.q, s=st(q.id);
+  if(!P.order) P.order = shuffle(q.o.map((t,i)=>({t,i})));
+  const dname=DOMAINS[q.d-1].name;
+  const opts=P.order.map((o,idx)=>`<button class="opt" data-idx="${idx}"><span class="key">${LETTERS[idx]})</span><span>${esc(o.t)}</span></button>`).join("");
+  screen.innerHTML=navBar()+chipHtml+promptLine(`quiz --domain ${P.dom||"all"} --next`)+`
+    <div class="qbox">
+      <div class="qmeta">[domain ${q.d}.0 ${esc(dname)}] &middot; ${dueCount} due${P.reviewAll?" &middot; review-all":""} &middot; ${s.box?"box "+s.box+"/5":"new"}</div>
+      <div class="qtext"><span class="pre">&gt;</span>${esc(q.q)}</div>
+      <div class="opts" id="opts">${opts}</div>
+      <div class="fb" id="fb"><div class="v" id="fv"></div><div class="x" id="fx">${esc(q.x)}</div></div>
+      <div class="row" id="afterrow" style="display:none">
+        <button class="btn" id="next">next &rarr;</button>
+        <span class="kbd"><b>keys:</b> 1-${P.order.length} answer &middot; n/enter next</span>
+      </div>
+      <div class="row" id="hintrow"><span class="kbd"><b>tip:</b> press 1-${P.order.length} or click an answer</span></div>
+    </div>`;
+  hook();
+  document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{P.dom=+c.dataset.dom;P.reviewAll=false;nextPractice();render();});
+  const optEls=[...document.querySelectorAll("#opts .opt")];
+  optEls.forEach(el=>el.onclick=()=>answerPractice(+el.dataset.idx));
+  const nb=document.getElementById("next"); if(nb) nb.onclick=()=>{nextPractice();render();};
+}
+function answerPractice(idx){
+  if(P.answered) return;
+  P.answered=true;
+  const q=P.q;
+  const chosen=P.order[idx];
+  const ok = chosen.i===q.c;
+  grade(q.id,ok);
+  const optEls=[...document.querySelectorAll("#opts .opt")];
+  optEls.forEach((el,i)=>{
+    el.classList.add("dis");
+    if(P.order[i].i===q.c) el.classList.add("right");
+    if(i===idx && !ok) el.classList.add("wrong");
+  });
+  const fb=document.getElementById("fb");fb.classList.add("show");
+  const fv=document.getElementById("fv");fv.textContent=ok?"\u2713 correct":"\u2717 incorrect";fv.className="v "+(ok?"ok":"no");
+  document.getElementById("afterrow").style.display="flex";
+  document.getElementById("hintrow").style.display="none";
+}
+
+/* ---------- EXAM SIM ---------- */
+function renderExam(){
+  if(E.phase==="setup"){
+    screen.innerHTML=navBar()+promptLine("exam-sim --start")+`
+      <div class="qbox">
+        <div class="qtext"><span class="pre">&gt;</span>Exam simulation: random questions across all 5 domains, answered straight through, scored at the end (like the real exam). Choose a length:</div>
+        <div class="chips">
+          ${[10,20,40,90].map(n=>`<button class="chip ${E.len===n?"active":""}" data-len="${n}">${n} questions</button>`).join("")}
+        </div>
+        <div class="muted" style="font-size:12.5px">The real XK0-006 is up to 90 questions in 90 minutes. No feedback is shown until you finish.</div>
+        <div class="row"><button class="btn" id="begin">begin exam &rarr;</button></div>
+      </div>`;
+    hook();
+    document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{E.len=+c.dataset.len;render();});
+    document.getElementById("begin").onclick=()=>{
+      const n=Math.min(E.len,Q.length);
+      E.items=shuffle(Q).slice(0,n).map(q=>({q,order:shuffle(q.o.map((t,i)=>({t,i}))),pick:null}));
+      E.i=0;E.phase="run";render();
+    };
+    return;
+  }
+  if(E.phase==="run"){
+    const it=E.items[E.i], q=it.q;
+    const opts=it.order.map((o,idx)=>`<button class="opt ${it.pick===idx?"right":""}" data-idx="${idx}"><span class="key">${LETTERS[idx]})</span><span>${esc(o.t)}</span></button>`).join("");
+    screen.innerHTML=navBar()+promptLine(`exam-sim --question $((${E.i+1}/${E.items.length}))`)+`
+      <div class="qbox">
+        <div class="qmeta">question ${E.i+1} of ${E.items.length} &middot; domain ${q.d}.0</div>
+        <div class="qtext"><span class="pre">&gt;</span>${esc(q.q)}</div>
+        <div class="opts" id="opts">${opts}</div>
+        <div class="row">
+          <button class="btn ghost" id="prev" ${E.i===0?"disabled style=opacity:.4":""}>&larr; prev</button>
+          <button class="btn" id="next">${E.i===E.items.length-1?"finish &amp; score":"next &rarr;"}</button>
+          <span class="kbd"><b>keys:</b> 1-${it.order.length} select &middot; n next &middot; p prev</span>
+        </div>
+      </div>`;
+    hook();
+    [...document.querySelectorAll("#opts .opt")].forEach(el=>el.onclick=()=>{it.pick=+el.dataset.idx;render();});
+    const pv=document.getElementById("prev"); if(pv && E.i>0) pv.onclick=()=>{E.i--;render();};
+    document.getElementById("next").onclick=()=>{ if(E.i===E.items.length-1){scoreExam();} else {E.i++;render();} };
+    return;
+  }
+  if(E.phase==="results"){
+    let correct=0;
+    E.items.forEach(it=>{ if(it.pick!=null && it.order[it.pick].i===it.q.c){correct++; grade(it.q.id,true);} else { grade(it.q.id,false);} });
+    const total=E.items.length, pct=Math.round(correct/total*100);
+    const pass=pct>=80;
+    const misses=E.items.filter(it=>!(it.pick!=null && it.order[it.pick].i===it.q.c));
+    const reviewHtml=misses.map(it=>{
+      const yours = it.pick!=null ? it.order[it.pick].t : "(no answer)";
+      const corr = it.q.o[it.q.c];
+      return `<div class="reviewq">
+        <div class="q">&gt; ${esc(it.q.q)}</div>
+        <div class="ln you">your answer: ${esc(yours)}</div>
+        <div class="ln cor">correct: ${esc(corr)}</div>
+        <div class="ln muted" style="margin-top:5px"># ${esc(it.q.x)}</div>
+      </div>`;
+    }).join("");
+    screen.innerHTML=navBar()+promptLine("exam-sim --results")+`
+      <div class="qbox">
+        <div class="muted">score</div>
+        <div class="score ${pass?"pass":"fail"}">${pct}%</div>
+        <div class="${pass?"grn":"amber"}">${correct} / ${total} correct ${pass?"&middot; above an ~80% target &#10003;":"&middot; keep drilling the misses below"}</div>
+        <div class="row">
+          <button class="btn" id="again">new exam</button>
+          <button class="btn ghost" id="topractice">practice the misses</button>
+        </div>
+        ${misses.length?`<div class="section">review &mdash; missed questions (${misses.length})</div>${reviewHtml}`:`<div class="section">perfect run &mdash; no misses</div>`}
+      </div>`;
+    hook();
+    document.getElementById("again").onclick=()=>{E.phase="setup";render();};
+    document.getElementById("topractice").onclick=()=>{P.dom=0;P.reviewAll=false;nextPractice();setTab("practice");};
+    return;
+  }
+}
+function scoreExam(){E.phase="results";render();}
+
+/* ---- nav wiring + keyboard ---- */
+function hook(){
+  document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
+}
+function setTab(t){
+  tab=t;
+  if(t==="practice" && !P.q) nextPractice();
+  if(t==="exam") {/* keep phase */}
+  render();
+}
+document.addEventListener("keydown",e=>{
+  if(e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
+  const k=e.key.toLowerCase();
+  if(tab==="practice" && P.q){
+    if(!P.answered && /^[1-5]$/.test(k)){const idx=+k-1; if(P.order && idx<P.order.length){answerPractice(idx);} }
+    else if(P.answered && (k==="n"||k==="enter")){nextPractice();render();}
+  } else if(tab==="exam" && E.phase==="run"){
+    const it=E.items[E.i];
+    if(/^[1-5]$/.test(k)){const idx=+k-1; if(idx<it.order.length){it.pick=idx;render();}}
+    else if(k==="n"||k==="enter"){ if(E.i===E.items.length-1)scoreExam(); else {E.i++;render();} }
+    else if(k==="p"&&E.i>0){E.i--;render();}
+  }
+});
+
+/* ---- theme ---- */
+function applyTheme(t){
+  const light = t==="light";
+  document.body.classList.toggle("light", light);
+  const b=document.getElementById("themeToggle");
+  if(b) b.innerHTML = light ? "&#9790; dark" : "&#9728; light";
+}
+async function loadTheme(){
+  let t="dark";
+  try{const r=await window.storage.get("lxq006:theme"); if(r&&r.value) t=JSON.parse(r.value);}catch(e){ t=mem["lxq006:theme"]||"dark"; }
+  applyTheme(t); return t;
+}
+async function setTheme(t){
+  mem["lxq006:theme"]=t; applyTheme(t);
+  try{await window.storage.set("lxq006:theme",JSON.stringify(t));}catch(e){}
+}
+document.getElementById("themeToggle").addEventListener("click",()=>{
+  setTheme(document.body.classList.contains("light")?"dark":"light");
+});
+
+(async function(){await loadTheme(); await load(); render();})();
+</script>
+</body>
+</html>

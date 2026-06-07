@@ -72,6 +72,20 @@ nav button.active{color:var(--green);border-color:var(--green-dim);background:rg
 .qbox{font-size:14.5px}
 .qmeta{font-size:11px;color:var(--dim2);margin-bottom:10px;letter-spacing:.3px}
 .qflag{color:var(--red);border:1px solid var(--red);border-radius:11px;padding:0 8px;margin-left:4px;font-size:10px;letter-spacing:.3px;white-space:nowrap}
+.tytag{font-size:10px;padding:0 7px;border-radius:10px;border:1px solid var(--line2);letter-spacing:.4px;text-transform:uppercase}
+.ty-scenario{color:var(--blue);border-color:var(--blue)}
+.ty-output{color:var(--amber);border-color:var(--amber)}
+.ty-recall{color:var(--dim);border-color:var(--line2)}
+.ty-pbq{color:var(--green);border-color:var(--green-dim)}
+.pbqwrap{display:flex;align-items:center;gap:9px;border:1px solid var(--line2);border-radius:8px;padding:11px 13px;margin:6px 0 4px;background:var(--surface)}
+.pbqwrap .pbqprompt{color:var(--green);font-weight:700;flex-shrink:0}
+.pbqin{flex:1;background:transparent;border:0;outline:none;color:var(--txt);font-family:var(--mono);font-size:14px}
+.pbqin::placeholder{color:var(--dim2)}
+.pbqin.okin{color:var(--green)}
+.pbqin.noin{color:var(--red)}
+.pbqrow{font-size:13px;margin:2px 0}
+.pbqrow code{background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:1px 7px;color:var(--txt)}
+.pbqrow code.exp{color:var(--green);border-color:var(--green-dim)}
 .qtext{font-size:15.5px;line-height:1.55;margin-bottom:16px;color:var(--txt)}
 .qtext .pre{color:var(--green);margin-right:6px}
 .opts{display:flex;flex-direction:column;gap:8px}
@@ -191,7 +205,7 @@ const Q = [
 {d:1,q:"Which command displays CPU architecture details (cores, sockets, flags)?",o:["lscpu","lspci","lsusb","lsmem"],c:0,x:"lscpu summarizes CPU info from /proc/cpuinfo and sysfs."},
 {d:1,q:"Which command lists PCI devices such as the network and graphics controllers?",o:["lspci","lsusb","lsblk","lscpu"],c:0,x:"lspci enumerates devices on the PCI bus."},
 {d:1,q:"Which command reads the DMI/SMBIOS table for BIOS, serial number, and memory slots?",o:["dmidecode","lshw","lscpu","ipmitool"],c:0,x:"dmidecode decodes the SMBIOS/DMI data from firmware."},
-{d:1,q:"Which tool monitors hardware sensors like temperature and fan speed?",o:["lm_sensors","ipmitool","dmidecode","nvtop"],c:0,x:"lm_sensors (the sensors command) reads hardware monitoring chips."},
+{d:1,q:"Which command reads hardware monitoring chips to show temperatures and fan speeds?",o:["sensors","lm_sensors","dmidecode","ipmitool"],c:0,x:"The sensors command reports the readings; lm_sensors is the package/toolset that provides it, not the command you run."},
 {d:1,q:"Which command manages and queries a server's BMC over IPMI?",o:["ipmitool","lm_sensors","dmidecode","lshw"],c:0,x:"ipmitool talks to the Baseboard Management Controller for out-of-band management."},
 {d:1,q:"Which command regenerates the initramfs image on RHEL-family systems?",o:["dracut","mkinitrd","depmod","grub2-mkconfig"],c:0,x:"dracut builds the initramfs on modern systems; mkinitrd is the legacy tool."},
 {d:1,q:"Which command creates a physical volume for use by LVM?",o:["pvcreate","vgcreate","lvcreate","pvmove"],c:0,x:"pvcreate initializes a disk/partition as an LVM physical volume."},
@@ -402,9 +416,9 @@ const Q = [
 {d:5,q:"On RHEL, an app is denied despite correct file permissions. What is a likely culprit?",o:["An SELinux context/policy denial","A DNS failure","A swap shortage","A bad shebang"],c:0,x:"Check the audit log (ausearch/sealert); fix with restorecon or an SELinux policy/boolean."},
 {d:5,q:"A file has correct rwx bits but access is still denied. What should you inspect?",o:["ACLs with getfacl","The inode number","The hostname","The MTU"],c:0,x:"An ACL entry can further restrict access beyond the standard permission bits."},
 {d:5,q:"A TLS connection fails to establish between two systems. A common cause is:",o:["Mismatched protocol versions or obsolete ciphers","A full disk","A zombie process","A missing swap file"],c:0,x:"Cipher/protocol negotiation failures (e.g., disabled TLS versions) break the handshake."},
-{d:2,q:"Which journalctl option shows logs for only a specific systemd unit such as sshd?",o:["journalctl -u sshd","journalctl -b sshd","journalctl -p sshd","journalctl -f sshd"],c:0,x:"-u filters by unit. -b limits to a boot, -p by priority, -f follows the log."},
+{d:2,q:"A service won't come back up after a reboot. Which journalctl option shows only that unit's logs (e.g., sshd)?",o:["journalctl -u sshd","journalctl -b sshd","journalctl -p sshd","journalctl -f sshd"],c:0,x:"-u filters by unit. -b limits to a boot, -p by priority, -f follows the log."},
 {d:2,q:"Which journalctl option limits output to messages from the current boot?",o:["journalctl -b","journalctl -u","journalctl -f","journalctl -n"],c:0,x:"-b shows the current boot (-b -1 = the previous boot). -k limits to kernel messages."},
-{d:2,q:"Which journalctl option follows the journal live, like tail -f?",o:["journalctl -f","journalctl -r","journalctl -e","journalctl -n"],c:0,x:"-f streams new entries; -r reverses order, -e jumps to the end, -n limits the number of lines."},
+{d:2,q:"You're reproducing a bug and want to watch a service's log entries as they happen. Which journalctl option streams them live?",o:["journalctl -f","journalctl -r","journalctl -e","journalctl -n"],c:0,x:"-f streams new entries; -r reverses order, -e jumps to the end, -n limits the number of lines."},
 {d:2,q:"Which journalctl option filters entries by priority (e.g., error and above)?",o:["journalctl -p err","journalctl -u err","journalctl -b err","journalctl -x err"],c:0,x:"-p takes a priority 0 (emerg) to 7 (debug); -p err shows error and more severe. -x adds explanation text."},
 {d:2,q:"What does 'systemctl enable --now sshd' do that 'systemctl enable sshd' does not?",o:["It also starts the service immediately","It reloads the systemd manager","It masks the service","It only shows status"],c:0,x:"enable sets it to start at boot; --now also starts it right away (enable + start)."},
 {d:2,q:"After editing a unit file, which command makes systemd re-read its unit definitions?",o:["systemctl daemon-reload","systemctl reload sshd","systemctl reset-failed","systemctl revert sshd"],c:0,x:"daemon-reload reloads unit files into systemd. 'reload <unit>' only reloads that service's own config."},
@@ -413,22 +427,22 @@ const Q = [
 {d:2,q:"Which command reports whether a service is set to start at boot?",o:["systemctl is-enabled sshd","systemctl is-active sshd","systemctl is-failed sshd","systemctl status --boot sshd"],c:0,x:"is-enabled checks the boot setting; is-active checks whether it is running now."},
 {d:2,q:"What does 'systemctl list-units' show?",o:["Units currently loaded into memory (active/running)","Every unit file installed on disk","Only timer units","The boot performance report"],c:0,x:"list-units shows loaded units; list-unit-files lists all installed unit files and their enablement state."},
 {d:1,q:"What does 'ss -tulnp' display?",o:["Listening TCP and UDP sockets, numeric, with the owning process","Only established outbound HTTP connections","The kernel routing table","The ARP neighbor cache"],c:0,x:"t=TCP, u=UDP, l=listening, n=numeric (no name resolution), p=process (needs root for names)."},
-{d:1,q:"Which command shows the IPv4/IPv6 addresses assigned to interfaces?",o:["ip addr","ip link","ip route","ip neigh"],c:0,x:"ip addr (ip a) shows addresses; ip link shows interfaces; ip route shows routes; ip neigh shows the ARP table."},
+{d:1,q:"You need to confirm what IP address an interface actually holds. Which command shows the addresses assigned to interfaces?",o:["ip addr","ip link","ip route","ip neigh"],c:0,x:"ip addr (ip a) shows addresses; ip link shows interfaces; ip route shows routes; ip neigh shows the ARP table."},
 {d:1,q:"Which command shows network interfaces and their link state and MAC address?",o:["ip link","ip addr","ip route","ip maddr"],c:0,x:"ip link is layer-2 interface info; 'ip link set eth0 up' brings an interface up."},
-{d:1,q:"Which command displays the routing table and the default gateway?",o:["ip route","ip addr","ip link","ip neigh"],c:0,x:"ip route (ip r) shows routes; the 'default via' line is the gateway."},
-{d:1,q:"Which command shows the neighbor/ARP table mapping IP addresses to MAC addresses?",o:["ip neigh","ip route","ip link","ip addr"],c:0,x:"ip neigh replaces the old 'arp -n' for viewing IP-to-MAC mappings."},
-{d:1,q:"Which command creates a gzip-compressed tar archive of a directory?",o:["tar -czf backup.tar.gz dir/","tar -xzf backup.tar.gz","tar -tf backup.tar.gz","tar -rzf backup.tar.gz dir/"],c:0,x:"c=create, z=gzip, f=file. Extract the same archive with -xzf."},
-{d:1,q:"Which command extracts a gzip-compressed tarball?",o:["tar -xzf archive.tar.gz","tar -czf archive.tar.gz","tar -tzf archive.tar.gz","tar -uzf archive.tar.gz"],c:0,x:"x=extract, z=gzip, f=file. (Modern tar can auto-detect compression with just -xf.)"},
+{d:1,q:"A host reaches the LAN but not the internet and you suspect the gateway. Which command displays the routing table and default gateway?",o:["ip route","ip addr","ip link","ip neigh"],c:0,x:"ip route (ip r) shows routes; the 'default via' line is the gateway."},
+{d:1,q:"You suspect two machines are fighting over one IP address. Which command shows the ARP/neighbor table (IP to MAC)?",o:["ip neigh","ip route","ip link","ip addr"],c:0,x:"ip neigh replaces the old 'arp -n' for viewing IP-to-MAC mappings."},
+{d:1,q:"You need to back up /etc into one compressed file before an upgrade. Which command creates a gzip-compressed tar archive?",o:["tar -czf backup.tar.gz dir/","tar -xzf backup.tar.gz","tar -tf backup.tar.gz","tar -rzf backup.tar.gz dir/"],c:0,x:"c=create, z=gzip, f=file. Extract the same archive with -xzf."},
+{d:1,q:"A colleague sent you backup.tar.gz and you need its contents. Which command extracts a gzip-compressed tarball?",o:["tar -xzf archive.tar.gz","tar -czf archive.tar.gz","tar -tzf archive.tar.gz","tar -uzf archive.tar.gz"],c:0,x:"x=extract, z=gzip, f=file. (Modern tar can auto-detect compression with just -xf.)"},
 {d:1,q:"Which tar command lists an archive's contents WITHOUT extracting it?",o:["tar -tf archive.tar","tar -xf archive.tar","tar -cf archive.tar","tar -rf archive.tar"],c:0,x:"t = list (table of contents). Add z if it is gzip-compressed."},
 {d:1,q:"What does 'rsync -avz' do?",o:["Archive mode (recursive, preserves attrs), verbose, with compression in transit","Appends, verifies, and zips into one file","Asks before each overwrite","Deletes files not present in the source"],c:0,x:"a=archive, v=verbose, z=compress. -a keeps permissions, times, symlinks, and recurses."},
 {d:1,q:"What does the --delete option add to an rsync transfer?",o:["Removes files from the destination that no longer exist in the source","Deletes the source after copying","Skips files marked for deletion","Empties the destination before copying"],c:0,x:"--delete makes the destination mirror the source. Preview it first with -n."},
-{d:1,q:"What does 'rsync -n' (--dry-run) do?",o:["Shows what would be transferred without making any changes","Disables compression","Skips preserving permissions","Limits the bandwidth used"],c:0,x:"A dry run is the safe way to preview a sync, especially when combined with --delete."},
+{d:1,q:"Before running a mirror with --delete, you want to preview what would change. What does rsync -n do?",o:["Shows what would be transferred without making any changes","Disables compression","Skips preserving permissions","Limits the bandwidth used"],c:0,x:"A dry run is the safe way to preview a sync, especially when combined with --delete."},
 {d:2,q:"Which find expression matches files by name with case sensitivity?",o:["find /etc -name '*.conf'","find /etc -type '*.conf'","find /etc -path '*.conf' -name","find /etc -iname"],c:0,x:"-name globs the basename (case-sensitive); -iname is the case-insensitive version."},
-{d:2,q:"Which find expression returns only directories?",o:["find / -type d","find / -type f","find / -type l","find / -name d"],c:0,x:"-type d=directory, f=regular file, l=symlink."},
+{d:2,q:"You're auditing a tree and want to act on folders only, not files. Which find expression returns only directories?",o:["find / -type d","find / -type f","find / -type l","find / -name d"],c:0,x:"-type d=directory, f=regular file, l=symlink."},
 {d:2,q:"What does 'find /var -mtime -7' match?",o:["Files modified within the last 7 days","Files larger than 7 MB","Files owned by UID 7","Files with exactly 7 links"],c:0,x:"-mtime counts days; -7 means within the last 7 days, +7 means older than 7 days."},
 {d:2,q:"Which find expression matches files larger than 100 MB?",o:["find / -size +100M","find / -size 100M","find / -size -100M","find / -bytes +100M"],c:0,x:"+ means greater than, - means less than; units are k, M, G."},
 {d:2,q:"What does the -exec option do in find?",o:["Runs a specified command on each matching file","Searches inside the file contents","Excludes matching files","Marks files as executable"],c:0,x:"e.g., find . -name '*.log' -exec rm {} + runs rm on each result; {} is the filename placeholder."},
-{d:1,q:"Which grep option searches recursively through subdirectories?",o:["grep -r","grep -i","grep -v","grep -c"],c:0,x:"-r (or -R) recurses into directories."},
+{d:1,q:"A config value could live in any file under /etc and you must find it. Which grep option searches recursively through subdirectories?",o:["grep -r","grep -i","grep -v","grep -c"],c:0,x:"-r (or -R) recurses into directories."},
 {d:1,q:"Which grep option makes the search case-insensitive?",o:["grep -i","grep -v","grep -w","grep -n"],c:0,x:"-i ignores case; -w matches whole words; -n adds line numbers."},
 {d:1,q:"What does 'grep -v error logfile' output?",o:["Lines that do NOT contain 'error'","Only lines containing 'error'","A count of 'error' matches","A verbose trace of the search"],c:0,x:"-v inverts the match, printing non-matching lines."},
 {d:1,q:"What does 'grep -E' enable?",o:["Extended regular expressions (like egrep)","Exact whole-line matching only","Encrypted pattern matching","Excluding binary files"],c:0,x:"-E allows +, ?, |, and () without backslashes (extended regex)."},
@@ -445,16 +459,16 @@ const Q = [
 {d:3,q:"Which command grants user bob read/write on a file via an ACL, beyond the standard permissions?",o:["setfacl -m u:bob:rw file","setfacl -x u:bob file","chmod u:bob:rw file","getfacl -m bob file"],c:0,x:"-m modifies/adds an ACL entry; -x removes one. getfacl displays them."},
 {d:3,q:"Which command displays the ACL entries on a file?",o:["getfacl file","setfacl file","lsattr file","stat -acl file"],c:0,x:"getfacl lists ACLs. A trailing + after the ls -l permission string signals an ACL is present."},
 {d:3,q:"What does 'restorecon -Rv /var/www' do?",o:["Recursively resets SELinux contexts to policy defaults, verbosely","Recursively removes SELinux from the path","Recursively changes the owner","Reboots into permissive mode"],c:0,x:"-R recurses, -v is verbose. It relabels files to match policy, fixing mislabeled content."},
-{d:3,q:"Which command persistently defines an SELinux file context so it survives a relabel?",o:["semanage fcontext -a -t httpd_sys_content_t '/web(/.*)?'","chcon -t httpd_sys_content_t /web","restorecon -R /web","setsebool -P httpd_web on"],c:0,x:"semanage fcontext records the rule (then run restorecon to apply). chcon changes a context but does not survive a full relabel."},
+{d:3,q:"Files you placed outside the default web root keep losing their SELinux label after a relabel. Which command sets the context persistently?",o:["semanage fcontext -a -t httpd_sys_content_t '/web(/.*)?'","chcon -t httpd_sys_content_t /web","restorecon -R /web","setsebool -P httpd_web on"],c:0,x:"semanage fcontext records the rule (then run restorecon to apply). chcon changes a context but does not survive a full relabel."},
 {d:3,q:"Which command lets a service legally listen on a non-default port under SELinux (e.g., sshd on 2222)?",o:["semanage port -a -t ssh_port_t -p tcp 2222","setsebool -P ssh_port 2222","firewall-cmd --add-port=2222/tcp","chcon -t ssh_port_t 2222"],c:0,x:"semanage port registers the port with the right SELinux type. firewalld is a separate concern from SELinux."},
 {d:3,q:"What does the -P flag add to 'setsebool'?",o:["It makes the boolean change persistent across reboots","It prints the boolean's value","It applies the change to a port","It runs in permissive mode"],c:0,x:"Without -P the change is runtime-only and is lost on reboot."},
 {d:3,q:"Which firewall-cmd option opens a predefined service such as https?",o:["firewall-cmd --add-service=https","firewall-cmd --add-port=https","firewall-cmd --service=https on","firewall-cmd --enable=https"],c:0,x:"Services map to their well-known ports. Add --permanent to keep it after reload."},
-{d:3,q:"Which firewall-cmd option opens a specific port like 8080/tcp?",o:["firewall-cmd --add-port=8080/tcp","firewall-cmd --add-service=8080","firewall-cmd --open-port 8080","firewall-cmd --port=8080 on"],c:0,x:"--add-port takes port/protocol. Combine with --permanent and --reload."},
+{d:3,q:"An app now listens on 8080/tcp and remote users are blocked. Which firewall-cmd option opens that port?",o:["firewall-cmd --add-port=8080/tcp","firewall-cmd --add-service=8080","firewall-cmd --open-port 8080","firewall-cmd --port=8080 on"],c:0,x:"--add-port takes port/protocol. Combine with --permanent and --reload."},
 {d:3,q:"Why must firewall-cmd changes usually include --permanent?",o:["Otherwise the rule is discarded on reload or reboot","It makes the rule apply faster","It limits the rule to UDP","It disables zone checking"],c:0,x:"Runtime rules are temporary; --permanent writes to config, then --reload activates it."},
 {d:3,q:"After adding permanent firewalld rules, which command activates them in the running firewall?",o:["firewall-cmd --reload","firewall-cmd --restart","firewall-cmd --commit","firewall-cmd --apply"],c:0,x:"--reload loads the permanent config into the runtime without dropping established connections."},
 {d:3,q:"Which firewall-cmd option lists the active zone's services, ports, and rules?",o:["firewall-cmd --list-all","firewall-cmd --status","firewall-cmd --show-config","firewall-cmd --get-rules"],c:0,x:"--list-all summarizes the current zone; --list-services or --list-ports show just those."},
 {d:2,q:"Which command shows the stdout/stderr logs produced by a container?",o:["docker logs <container>","docker inspect <container>","docker ps <container>","docker stats <container>"],c:0,x:"logs prints the container's output; add -f to follow it live."},
-{d:2,q:"Which command opens an interactive shell inside an ALREADY-running container?",o:["docker exec -it <container> bash","docker run -it <container> bash","docker attach <container> bash","docker logs -it <container>"],c:0,x:"exec runs a new process in an existing container; run would create a new container. -it gives an interactive TTY."},
+{d:2,q:"A running container is misbehaving and you want to look around inside it without restarting it. Which command opens an interactive shell in it?",o:["docker exec -it <container> bash","docker run -it <container> bash","docker attach <container> bash","docker logs -it <container>"],c:0,x:"exec runs a new process in an existing container; run would create a new container. -it gives an interactive TTY."},
 {d:2,q:"Which command returns detailed JSON metadata (config, mounts, networking) about a container or image?",o:["docker inspect","docker logs","docker stats","docker top"],c:0,x:"inspect outputs low-level details in JSON."},
 {d:2,q:"What does 'docker ps' show by default?",o:["Only currently running containers","All containers including stopped ones","Local images","Host processes"],c:0,x:"docker ps lists running containers; add -a to include stopped ones."},
 {d:2,q:"What does the -p flag do in 'docker run -p 8080:80 ...'?",o:["Publishes host port 8080 to the container's port 80","Sets a password for the container","Runs the container in privileged mode","Pulls the image before running"],c:0,x:"-p host:container maps a host port to a container port."},
@@ -515,7 +529,7 @@ const Q = [
 {d:4,q:"Which option makes a Bash script exit immediately when a command fails?",o:["set -e","set -x","set -u","set +e"],c:0,x:"set -e aborts on the first non-zero exit. (set -x traces, set -u errors on unset vars.)"},
 {d:4,q:"Which Python data structure stores key-value pairs?",o:["Dictionary","List","Tuple","Set"],c:0,x:"A dict maps keys to values; lists/tuples are ordered sequences and sets hold unique values."},
 {d:2,q:"Which rpm option lists ALL installed packages?",o:["rpm -qa","rpm -ql","rpm -qf","rpm -V"],c:0,x:"-qa = query all. -ql lists a package's files, -qf finds the owner of a file, -V verifies a package."},
-{d:2,q:"Which rpm option lists the files installed by a package?",o:["rpm -ql httpd","rpm -qa httpd","rpm -qi httpd","rpm -e httpd"],c:0,x:"-ql = query list of files. -qi shows info, -e erases."},
+{d:2,q:"You need to see exactly which files the httpd package put on disk. Which rpm option lists a package's files?",o:["rpm -ql httpd","rpm -qa httpd","rpm -qi httpd","rpm -e httpd"],c:0,x:"-ql = query list of files. -qi shows info, -e erases."},
 {d:2,q:"Which rpm option verifies an installed package's files against the RPM database?",o:["rpm -V","rpm -qa","rpm -ql","rpm -i"],c:0,x:"rpm -V reports files whose size, permissions, or checksum changed since install."},
 {d:2,q:"Which command imports a repository's GPG key for RPM-based systems?",o:["rpm --import <keyfile>","rpm -i <keyfile>","gpg --add <keyfile>","dnf keygen"],c:0,x:"rpm --import trusts the key so signed packages from the repo verify."},
 {d:2,q:"Which dpkg option lists the files installed by a Debian package?",o:["dpkg -L <package>","dpkg -l <package>","dpkg -S <package>","dpkg -i <package>"],c:0,x:"-L lists a package's files. -l lists installed packages, -S finds which package owns a file."},
@@ -523,15 +537,47 @@ const Q = [
 {d:2,q:"Which dpkg command lists installed packages?",o:["dpkg -l","dpkg -L","dpkg -c","dpkg -x"],c:0,x:"dpkg -l shows installed packages and their status."},
 {d:2,q:"What is the difference between 'apt remove' and 'apt purge'?",o:["purge also removes the package's configuration files","remove also deletes config; purge keeps it","They are identical","purge only removes dependencies"],c:0,x:"apt remove leaves config behind; apt purge removes the package and its config files."},
 {d:2,q:"Which command clears downloaded .deb files from the local APT cache?",o:["apt clean","apt update","apt autoremove","apt purge cache"],c:0,x:"apt clean empties /var/cache/apt/archives; autoclean removes only outdated files."},
-{d:2,q:"Which command clears cached metadata and packages for DNF?",o:["dnf clean all","dnf update","dnf autoremove","dnf reset"],c:0,x:"dnf clean all wipes cached repo metadata and packages, forcing a fresh download next time."},
+{d:2,q:"A newly added repo's packages aren't showing up even though the .repo looks correct. Which command clears DNF's cached metadata?",o:["dnf clean all","dnf update","dnf autoremove","dnf reset"],c:0,x:"dnf clean all wipes cached repo metadata and packages, forcing a fresh download next time."},
 {d:2,q:"Which command lists available package updates on a DNF system without installing them?",o:["dnf check-update","dnf list installed","dnf clean all","dnf history"],c:0,x:"dnf check-update reports packages with newer versions available."},
 {d:2,q:"Which command finds which package provides a given file or command on a DNF system?",o:["dnf provides /usr/bin/htop","dnf search htop","dnf info htop","dnf list htop"],c:0,x:"dnf provides (or whatprovides) maps a file/command to its package; rpm -qf does it for installed files."},
-{d:2,q:"Which command lists the enabled repositories on a DNF system?",o:["dnf repolist","dnf list repos","dnf info repos","dnf search repos"],c:0,x:"dnf repolist shows enabled repos; add --all to include disabled ones."},
+{d:2,q:"You're unsure whether a repo is actually active. Which command lists the enabled repositories on a DNF system?",o:["dnf repolist","dnf list repos","dnf info repos","dnf search repos"],c:0,x:"dnf repolist shows enabled repos; add --all to include disabled ones."},
 {d:2,q:"Which command shows detailed information (version, size, summary) about a package?",o:["dnf info <package>","dnf provides <package>","dnf repolist <package>","dnf clean <package>"],c:0,x:"dnf info prints metadata about an available or installed package."},
 {d:2,q:"Where are DNF/YUM repository definitions stored?",o:["/etc/yum.repos.d/*.repo","/etc/apt/sources.list","/etc/dnf/hosts","/var/lib/rpm"],c:0,x:"Each .repo file under /etc/yum.repos.d/ defines a repo (baseurl, enabled, gpgkey)."},
 {d:2,q:"Where are APT repository sources defined on a Debian/Ubuntu system?",o:["/etc/apt/sources.list and /etc/apt/sources.list.d/","/etc/yum.repos.d/","/etc/apt/repos.conf","/var/lib/dpkg/"],c:0,x:"APT reads sources.list plus any .list files under sources.list.d/."},
 {d:2,q:"A 'dnf install' fails with a GPG key error for a repository. What is usually required?",o:["Import the repository's GPG key (or set gpgkey= in the .repo)","Disable SELinux","Run dnf as a normal user","Delete /etc/hosts"],c:0,x:"DNF verifies package signatures; the repo's GPG key must be trusted/imported."},
-{d:2,q:"What is EPEL on RHEL-family systems?",o:["Extra Packages for Enterprise Linux, a community add-on repository","A kernel module loader","A firewall front end","A backup tool"],c:0,x:"EPEL provides additional packages not in the base RHEL repos."}
+{d:2,q:"What is EPEL on RHEL-family systems?",o:["Extra Packages for Enterprise Linux, a community add-on repository","A kernel module loader","A firewall front end","A backup tool"],c:0,x:"EPEL provides additional packages not in the base RHEL repos."},
+{"d": 2, "q": "You edited /etc/systemd/system/api.service and restarted the service, but your change had no effect. What did you forget?", "o": ["Run systemctl daemon-reload before restarting", "Mask the unit", "Do a full reboot", "chmod +x the unit file"], "c": 0, "x": "systemd caches unit files; daemon-reload re-reads them after edits.", "ty": "scenario", "obj": "2.5", "skill": "reload systemd units", "diff": 1},
+{"d": 2, "q": "A daemon shows active (running) yet clients get 'connection refused' on its port. What is the most likely cause?", "o": ["A firewall is blocking the port, or it binds only to localhost", "The unit file has a typo", "SELinux is permissive", "The hostname is wrong"], "c": 0, "x": "If the service is up, look at reachability: firewall rules and the bind address (0.0.0.0 vs 127.0.0.1).", "ty": "scenario", "obj": "5.3", "skill": "diagnose service reachability", "diff": 2},
+{"d": 2, "q": "You stop a service but it starts again on its own moments later. What is the likely reason?", "o": ["It is socket- or dependency-activated; mask it to stop it entirely", "Cron restarts it", "The kernel restarts it", "It cannot be stopped"], "c": 0, "x": "Socket activation or another unit's dependency can relaunch it; masking blocks all activation.", "ty": "scenario", "obj": "2.5", "skill": "systemd activation", "diff": 2},
+{"d": 2, "q": "nginx fails to start and the status output is truncated. How do you see the full reason?", "o": ["journalctl -xeu nginx", "dmesg | tail", "cat /etc/nginx/nginx.conf", "systemctl list-units"], "c": 0, "x": "journalctl -u shows that unit's logs; -xe adds context and jumps to the end.", "ty": "scenario", "obj": "3.1", "skill": "read service logs", "diff": 1},
+{"d": 1, "q": "A server pings external IPs fine but cannot resolve any hostnames. Which area should you check?", "o": ["DNS settings (/etc/resolv.conf and nsswitch.conf)", "The default route", "Link duplex", "The MTU"], "c": 0, "x": "IP works but names fail points squarely at DNS resolution.", "ty": "scenario", "obj": "1.4", "skill": "diagnose DNS", "diff": 1},
+{"d": 1, "q": "You set a static IP with nmcli; it works now but is gone after a reboot. What was missed?", "o": ["The change was not saved to a persistent connection profile", "A kernel module", "An SELinux relabel", "A cron job"], "c": 0, "x": "Runtime-only changes don't survive reboot; persist them in the NetworkManager/netplan config.", "ty": "scenario", "obj": "1.4", "skill": "persistent network config", "diff": 2},
+{"d": 3, "q": "A web server is reachable on localhost but not from other machines. What is the most likely cause?", "o": ["A firewall is blocking the port", "DNS is down", "The disk is full", "The login shell is wrong"], "c": 0, "x": "Local works, remote fails - the firewall (or bind address) is the usual culprit.", "ty": "scenario", "obj": "3.2", "skill": "firewall reachability", "diff": 2},
+{"d": 3, "q": "On an enforcing system, Apache returns 403 for pages you copied into /var/www though permissions look correct. What fixes it?", "o": ["restorecon to relabel the files to the right SELinux context", "chmod 777 the files", "Disable the firewall", "Reboot the server"], "c": 0, "x": "Copied/moved files keep their old context; restorecon resets them to policy defaults.", "ty": "scenario", "obj": "3.5", "skill": "selinux context", "diff": 2},
+{"d": 3, "q": "Before changing any policy, how can you quickly tell whether SELinux is what's blocking an app?", "o": ["Check the audit log (ausearch/sealert), or set permissive temporarily and retest", "Run chmod -R 777", "Reinstall the app", "Disable networking"], "c": 0, "x": "AVC denials in the audit log confirm SELinux; permissive mode is a safe temporary test.", "ty": "scenario", "obj": "3.5", "skill": "selinux diagnosis", "diff": 2},
+{"d": 2, "q": "On Ubuntu, 'apt install somepkg' reports 'Unable to locate package' though the name is correct. What should you do first?", "o": ["Run apt update to refresh the package index", "Reinstall apt", "Edit /etc/hosts", "Run apt clean"], "c": 0, "x": "A stale index causes this; apt update re-syncs available packages.", "ty": "scenario", "obj": "2.4", "skill": "apt troubleshooting", "diff": 1},
+{"d": 2, "q": "A bad update broke an app and you must return to the previous version on RHEL. Which is appropriate?", "o": ["dnf downgrade the package (or dnf history undo)", "rpm -e --nodeps", "apt purge", "yum clean all"], "c": 0, "x": "dnf downgrade installs the prior version; dnf history undo reverses a transaction.", "ty": "scenario", "obj": "2.4", "skill": "package rollback", "diff": 2},
+{"d": 1, "q": "You created a new logical volume and filesystem, but it is not mounted after a reboot. What was likely missed?", "o": ["An /etc/fstab entry for the new filesystem", "Running lvextend", "An SELinux relabel", "A firewall rule"], "c": 0, "x": "Mounts only persist if listed in fstab (by UUID/device).", "ty": "scenario", "obj": "1.3", "skill": "persistent mounts", "diff": 2},
+{"d": 1, "q": "You must grow a mounted XFS filesystem. Which tool, and can XFS shrink?", "o": ["xfs_growfs; XFS cannot be shrunk", "resize2fs; yes it can shrink", "fsck; yes", "parted; no"], "c": 0, "x": "xfs_growfs extends a mounted XFS; shrinking XFS is not supported.", "ty": "scenario", "obj": "1.3", "skill": "grow filesystem", "diff": 2},
+{"d": 1, "q": "Mounting a disk fails with 'wrong fs type, bad option, bad superblock'. What helps diagnose it?", "o": ["Confirm the type with blkid and run fsck", "chmod the device", "Reformat immediately", "Edit /etc/hosts"], "c": 0, "x": "Check the actual filesystem type, then run fsck to repair a damaged superblock.", "ty": "scenario", "obj": "5.4", "skill": "filesystem repair", "diff": 2},
+{"d": 5, "q": "Users report the box is slow. top shows a high load average but CPU mostly idle. Where do you look next?", "o": ["Disk I/O wait with iostat - storage is the likely bottleneck", "Add more swap", "Lower the MTU", "Restart DNS"], "c": 0, "x": "Load counts I/O-wait processes; idle CPU with high load means disk, not CPU.", "ty": "scenario", "obj": "5.1", "skill": "performance triage", "diff": 2},
+{"d": 5, "q": "A script runs fine by hand but never executes from cron. Common cause?", "o": ["cron uses a minimal environment/PATH; use absolute paths", "The file is too large", "DNS failure", "A missing kernel module"], "c": 0, "x": "cron strips the environment; reference full paths and set needed variables.", "ty": "scenario", "obj": "4.1", "skill": "cron troubleshooting", "diff": 2},
+{"d": 2, "q": "You added user 'dev' to a new group but their current session still lacks the group's access. Why?", "o": ["Group membership takes effect on next login; they must re-login", "The group was deleted", "SELinux blocks it", "The password expired"], "c": 0, "x": "Group changes apply to new sessions; re-login (or newgrp) to pick them up.", "ty": "scenario", "obj": "2.2", "skill": "group membership", "diff": 2},
+{"d": 2, "q": "You need a service to never start, even manually or as a dependency. Which action?", "o": ["systemctl mask the unit", "systemctl disable the unit", "Delete the binary", "Set Restart=no"], "c": 0, "x": "mask links the unit to /dev/null so nothing can start it; disable only removes boot autostart.", "ty": "scenario", "obj": "2.5", "skill": "mask units", "diff": 1},
+{"d": 5, "q": "'df -h' shows the filesystem 45% used, yet writes fail with 'No space left on device'. What should you check?", "o": ["Inode usage with df -i", "The default gateway", "SELinux booleans", "CPU load"], "c": 0, "x": "Out of inodes (many tiny files) blocks new files even with free blocks.", "ty": "output", "obj": "5.4", "skill": "inode exhaustion", "diff": 2},
+{"d": 3, "q": "'ls -l prog' shows '-rwsr-xr-x'. Which special permission is set?", "o": ["setuid", "setgid", "sticky bit", "none"], "c": 0, "x": "The s in the owner-execute position is setuid: the program runs as its owner.", "ty": "output", "obj": "3.4", "skill": "special permissions", "diff": 2},
+{"d": 3, "q": "'ls -l' shows '-rw-r--r--' on a file. What is its octal mode?", "o": ["644", "755", "640", "664"], "c": 0, "x": "rw- = 6, r-- = 4, r-- = 4 -> 644.", "ty": "output", "obj": "3.4", "skill": "permission octal", "diff": 1},
+{"d": 1, "q": "An /etc/fstab line ends with '... defaults 0 0'. What does the final 0 control?", "o": ["The fsck pass order at boot (0 = do not check)", "Mount retries", "Compression", "Disk quota"], "c": 0, "x": "The 6th field is the fsck pass; 0 means skip the boot-time check.", "ty": "output", "obj": "1.3", "skill": "read fstab", "diff": 2},
+{"d": 2, "q": "'systemctl status app' shows 'Active: failed (Result: exit-code)'. What does this tell you?", "o": ["The process started but exited with an error; check journalctl -u app", "The unit is masked", "The disk is full", "It is socket-activated"], "c": 0, "x": "exit-code means it ran and returned non-zero; the journal has the detail.", "ty": "output", "obj": "5.1", "skill": "read service status", "diff": 2},
+{"d": 5, "q": "'free -h' shows little 'free' but large 'buff/cache' and a healthy 'available'. Is the system low on memory?", "o": ["No - cache is reclaimable; the 'available' column is what matters", "Yes, add RAM now", "Yes, RAM is failing", "Yes, swap is full"], "c": 0, "x": "Linux uses spare RAM as cache and reclaims it on demand.", "ty": "output", "obj": "5.1", "skill": "interpret free", "diff": 2},
+{"d": 1, "q": "'ip a' reports eth0 'state DOWN'. What does it mean and how do you fix it?", "o": ["The link is administratively down; bring it up with ip link set eth0 up", "DNS is broken", "The cable type is wrong", "The route is missing"], "c": 0, "x": "DOWN means the interface is disabled at layer 2.", "ty": "output", "obj": "1.4", "skill": "interface state", "diff": 1},
+{"d": 5, "q": "'ss -tulnp' shows MySQL listening on '127.0.0.1:3306'. Why can't remote clients connect?", "o": ["It is bound to localhost only, not all interfaces", "The port number is wrong", "TLS is required", "The firewall is disabled"], "c": 0, "x": "127.0.0.1 accepts only local connections; bind to 0.0.0.0 for remote access.", "ty": "output", "obj": "5.3", "skill": "interpret ss", "diff": 2},
+{"d": 3, "q": "Your service is denied and logs show 'avc: denied { write }'. What does this indicate?", "o": ["An SELinux policy denial", "A disk error", "A DNS failure", "A kernel panic"], "c": 0, "x": "AVC (Access Vector Cache) denials come from SELinux policy.", "ty": "output", "obj": "3.5", "skill": "interpret avc", "diff": 2},
+{"d": 2, "q": "'rpm -V httpd' prints 'S.5....T. c /etc/httpd/conf/httpd.conf'. What does this mean?", "o": ["The file changed (size/checksum/time) since install", "The package is missing", "The file is unrecoverable", "The package is not installed"], "c": 0, "x": "Verify flags: S=size, 5=MD5 checksum, T=mtime changed; c marks it a config file.", "ty": "output", "obj": "2.4", "skill": "interpret rpm -V", "diff": 3},
+{"d": 1, "q": "'mount | grep data' shows the filesystem mounted '(ro)'. Why do writes fail?", "o": ["It is mounted read-only", "The disk is full", "Permissions are 000", "It is an NFS share"], "c": 0, "x": "ro = read-only; remount rw (after fixing any underlying errors) to write.", "ty": "output", "obj": "1.3", "skill": "interpret mount", "diff": 1},
+{"d": 5, "q": "'uptime' shows 'load average: 8.10, 7.90, 7.40' on a 4-core server. How do you read this?", "o": ["Sustained load far above core count - the system is overloaded", "The system is idle", "Load is perfectly normal", "Memory is full"], "c": 0, "x": "Load near/above the core count for all three windows signals saturation.", "ty": "output", "obj": "5.1", "skill": "interpret load", "diff": 2},
+{"d": 5, "q": "dmesg shows 'Out of memory: Killed process 1402 (mysqld)'. What happened?", "o": ["The OOM killer terminated it because memory was exhausted", "mysqld segfaulted", "The disk filled up", "A user killed it"], "c": 0, "x": "When memory runs out, the kernel kills a process to recover.", "ty": "output", "obj": "5.1", "skill": "interpret oom", "diff": 2},
+{"d": 4, "q": "A crontab entry reads '*/5 * * * * /opt/run.sh'. How often does it run?", "o": ["Every 5 minutes", "Every 5 hours", "At 5 past every hour", "Daily at 05:00"], "c": 0, "x": "*/5 in the minute field means every 5 minutes.", "ty": "output", "obj": "4.1", "skill": "read cron", "diff": 1}
 ];
 
 const REF=[{dom:1,g:"Kernel modules",items:[{c:"lsmod",d:"List modules currently loaded in memory",f:[]},{c:"modinfo",d:"Show details about a module (author, params, deps)",f:[]},{c:"modprobe",d:"Load a module AND its dependencies",f:[["-r","unload a module + unused deps"]]},{c:"insmod",d:"Insert a single module file (no dependency resolution)",f:[]},{c:"rmmod",d:"Remove a loaded module",f:[]},{c:"depmod",d:"Rebuild the modules.dep dependency database",f:[]}]},
@@ -583,6 +629,21 @@ const DOMAINS=[
 ];
 function hashId(s){let h=0;for(let i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))|0;}return "q"+(h>>>0).toString(36);}
 Q.forEach(q=>q.id=hashId(q.q));
+const PBQ=[{"d": 2, "q": "Task: Enable the nginx service so it starts at boot AND start it now (single command).", "a": "systemctl enable --now nginx", "accept": ["(sudo )?systemctl enable --now nginx(\\.service)?", "(sudo )?systemctl enable nginx(\\.service)? --now"], "x": "--now combines enable (start at boot) with an immediate start.", "obj": "2.5", "skill": "enable and start a service", "diff": 1}, {"d": 2, "q": "Task: Make systemd re-read unit files after you edited one.", "a": "systemctl daemon-reload", "accept": ["(sudo )?systemctl daemon-reload"], "x": "daemon-reload reloads unit definitions; required after editing a unit file.", "obj": "2.5", "skill": "reload systemd", "diff": 1}, {"d": 3, "q": "Task: Show only the sshd service's log messages from the current boot.", "a": "journalctl -u sshd -b", "accept": ["(sudo )?journalctl -u sshd(\\.service)? -b", "(sudo )?journalctl -b -u sshd(\\.service)?"], "x": "-u filters by unit; -b limits output to the current boot.", "obj": "3.1", "skill": "filter the journal", "diff": 2}, {"d": 3, "q": "Task: Permanently open TCP port 443 in firewalld (do not reload yet).", "a": "firewall-cmd --permanent --add-port=443/tcp", "accept": ["(sudo )?firewall-cmd --permanent --add-port=443/tcp", "(sudo )?firewall-cmd --add-port=443/tcp --permanent"], "x": "--permanent writes the rule to config; activate it later with --reload.", "obj": "3.2", "skill": "open a firewalld port", "diff": 2}, {"d": 3, "q": "Task: Apply firewalld's permanent rules to the running firewall.", "a": "firewall-cmd --reload", "accept": ["(sudo )?firewall-cmd --reload"], "x": "--reload activates permanent rules without dropping active connections.", "obj": "3.2", "skill": "reload firewalld", "diff": 1}, {"d": 2, "q": "Task: Add user 'bob' to the 'wheel' group without removing his existing groups.", "a": "usermod -aG wheel bob", "accept": ["(sudo )?usermod -ag wheel bob"], "x": "-a appends and -G targets supplementary groups; omitting -a would replace them.", "obj": "2.2", "skill": "add a user to a group", "diff": 2}, {"d": 2, "q": "Task: Create a user 'app' with a home directory and the /bin/bash login shell.", "a": "useradd -m -s /bin/bash app", "accept": ["(sudo )?useradd -m -s /bin/bash app", "(sudo )?useradd -s /bin/bash -m app"], "x": "-m creates the home directory; -s sets the login shell.", "obj": "2.2", "skill": "create a user", "diff": 2}, {"d": 3, "q": "Task: Recursively restore the default SELinux contexts on /var/www.", "a": "restorecon -Rv /var/www", "accept": ["(sudo )?restorecon -rv /var/www/?", "(sudo )?restorecon -vr /var/www/?", "(sudo )?restorecon -r /var/www/?"], "x": "-R recurses; -v (verbose) is optional. It relabels files to policy defaults.", "obj": "3.5", "skill": "relabel SELinux contexts", "diff": 2}, {"d": 3, "q": "Task: Persistently enable the SELinux boolean httpd_can_network_connect.", "a": "setsebool -P httpd_can_network_connect on", "accept": ["(sudo )?setsebool -p httpd_can_network_connect (on|1)"], "x": "-P makes the boolean change survive reboots.", "obj": "3.5", "skill": "set an SELinux boolean", "diff": 2}, {"d": 2, "q": "Task: Find which package provides the file /usr/bin/dig on a RHEL system.", "a": "dnf provides /usr/bin/dig", "accept": ["(sudo )?dnf (provides|whatprovides) /usr/bin/dig", "(sudo )?yum (provides|whatprovides) /usr/bin/dig"], "x": "dnf provides maps a file or command to the package that supplies it.", "obj": "2.4", "skill": "find the providing package", "diff": 2}, {"d": 2, "q": "Task: List every file installed by the 'httpd' RPM package.", "a": "rpm -ql httpd", "accept": ["rpm -ql httpd"], "x": "-q query, -l list the package's files.", "obj": "2.4", "skill": "list a package's files", "diff": 1}, {"d": 2, "q": "Task: Find which installed package owns the file /etc/ssh/sshd_config.", "a": "rpm -qf /etc/ssh/sshd_config", "accept": ["rpm -qf /etc/ssh/sshd_config"], "x": "-qf queries the package that owns a given file.", "obj": "2.4", "skill": "find a file's package", "diff": 2}, {"d": 1, "q": "Task: Create a gzip-compressed tar archive named backup.tar.gz containing /etc.", "a": "tar -czf backup.tar.gz /etc", "accept": ["tar -?czf backup\\.tar\\.gz /etc/?", "tar -?czvf backup\\.tar\\.gz /etc/?"], "x": "c create, z gzip, f file (name follows).", "obj": "1.2", "skill": "create a tar archive", "diff": 2}, {"d": 1, "q": "Task: Extract the gzip-compressed archive backup.tar.gz.", "a": "tar -xzf backup.tar.gz", "accept": ["tar -?xzf backup\\.tar\\.gz", "tar -?xzvf backup\\.tar\\.gz"], "x": "x extract, z gzip, f file.", "obj": "1.2", "skill": "extract a tar archive", "diff": 1}, {"d": 3, "q": "Task: Recursively change ownership of /var/www to user nginx and group nginx.", "a": "chown -R nginx:nginx /var/www", "accept": ["(sudo )?chown -r nginx:nginx /var/www/?"], "x": "-R recurses; user:group sets owner and group together.", "obj": "3.4", "skill": "recursive chown", "diff": 2}, {"d": 2, "q": "Task: Restart the chronyd service now.", "a": "systemctl restart chronyd", "accept": ["(sudo )?systemctl restart chronyd(\\.service)?"], "x": "restart stops then starts the unit.", "obj": "2.5", "skill": "restart a service", "diff": 1}, {"d": 1, "q": "Task: Show all listening TCP and UDP sockets numerically, with the owning process.", "a": "ss -tulnp", "accept": ["(sudo )?ss -tulnp", "(sudo )?ss -tulpn", "(sudo )?ss -tunlp", "(sudo )?ss -tlunp", "(sudo )?ss -ntulp", "(sudo )?ss -lntup"], "x": "t TCP, u UDP, l listening, n numeric, p process.", "obj": "1.4", "skill": "list listening ports", "diff": 2}, {"d": 3, "q": "Task: Temporarily switch SELinux into permissive mode (until reboot).", "a": "setenforce 0", "accept": ["(sudo )?setenforce 0", "(sudo )?setenforce permissive"], "x": "setenforce 0 sets permissive at runtime; it reverts on reboot.", "obj": "3.5", "skill": "toggle SELinux mode", "diff": 1}];
+function classify(q){
+  if(q.ty) return q.ty;
+  var t=q.q.toLowerCase();
+  if(/^(a |an |after |you|your|before|when |during|while|two |many |someone|files |on rhel|on a |the system|the root|a service|a user|a process|a host|a website|a binary|a program|a disk|a filesystem|users |logins)/.test(t)) return "scenario";
+  if(/(\bfail|\bfailed|\bfails|cannot|can't|won't|will not|unable|denied|\bslow|\bhang|stuck|times out|timed out|refused|panic|\bcrash|killed|exhaust|keeps |by itself|gone after|no longer|not work)/.test(t)) return "scenario";
+  if(/(\bshows |\breturns|\breports|\bdisplays|\bsays|\boutput|\bprints|load average|exit-code|state down|how often)/.test(t)) return "output";
+  return "recall";
+}
+Q.forEach(function(q){q.kind="mcq"; if(!q.ty)q.ty=classify(q);});
+PBQ.forEach(function(p){p.kind="pbq"; p.ty="pbq"; p.id=hashId(p.q);});
+const ALL=Q.concat(PBQ);
+function norm(s){return s.trim().toLowerCase().replace(/\s+/g," ").replace(/\s*=\s*/g,"=");}
+function pbqCheck(input,p){var n=norm(input); if(!n)return false; return p.accept.some(function(re){try{return new RegExp("^(?:"+re+")$").test(n);}catch(e){return false;}});}
+function metaTags(q){var ty=q.ty||"recall"; var s=' &middot; <span class="tytag ty-'+ty+'">'+ty+'</span>'; if(q.obj)s+=' &middot; obj '+q.obj; return s;}
 
 /* ---- storage + SRS ---- */
 let progress={}; const mem={};
@@ -592,7 +653,7 @@ const DAY=864e5, INT=[0,0,DAY,3*DAY,7*DAY,16*DAY];
 function st(id){return progress[id]||{box:0,due:0,seen:0,correct:0,wrong:0};}
 function grade(id,ok){const s=st(id);s.seen++;if(ok){s.correct++;s.box=Math.min((s.box||0)+1,5);}else{s.wrong++;s.box=1;}s.due=Date.now()+INT[s.box];progress[id]=s;save();}
 function isDue(q){const s=progress[q.id];return !s||!s.seen||s.due<=Date.now();}
-function queue(dom,reviewAll){let p=Q.filter(q=>!dom||q.d===dom);if(!reviewAll)p=p.filter(isDue);p=shuffle(p);const pr=b=>b===0?1:b;return p.sort((a,b)=>{const pa=pr(st(a.id).box),pb=pr(st(b.id).box);if(pa!==pb)return pa-pb;return st(a.id).due-st(b.id).due;});}
+function queue(dom,reviewAll){let p=ALL.filter(q=>!dom||q.d===dom);if(!reviewAll)p=p.filter(isDue);p=shuffle(p);const pr=b=>b===0?1:b;return p.sort((a,b)=>{const pa=pr(st(a.id).box),pb=pr(st(b.id).box);if(pa!==pb)return pa-pb;return st(a.id).due-st(b.id).due;});}
 function esc(s){return String(s).replace(/[&<>]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]));}
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 const LETTERS=["1","2","3","4","5"];
@@ -612,7 +673,7 @@ function navBar(){
 }
 
 function render(){
-  barright.textContent = `${Q.length} questions loaded`;
+  barright.textContent = `${ALL.length} questions loaded`;
   if(tab==="dash") return renderDash();
   if(tab==="ref") return renderRef();
   if(tab==="practice") return renderPractice();
@@ -621,13 +682,13 @@ function render(){
 
 /* ---------- DASHBOARD ---------- */
 function renderDash(){
-  const seen=Q.filter(q=>st(q.id).seen>0).length;
-  const mastered=Q.filter(q=>st(q.id).box>=4).length;
-  const due=Q.filter(isDue).length;
-  let tc=0,tw=0;Q.forEach(q=>{const s=st(q.id);tc+=s.correct;tw+=s.wrong;});
+  const seen=ALL.filter(q=>st(q.id).seen>0).length;
+  const mastered=ALL.filter(q=>st(q.id).box>=4).length;
+  const due=ALL.filter(isDue).length;
+  let tc=0,tw=0;ALL.forEach(q=>{const s=st(q.id);tc+=s.correct;tw+=s.wrong;});
   const acc=(tc+tw)>0?Math.round(tc/(tc+tw)*100):0;
   const rows=DOMAINS.map(d=>{
-    const items=Q.filter(q=>q.d===d.n);
+    const items=ALL.filter(q=>q.d===d.n);
     const m=items.filter(q=>st(q.id).box>=4).length;
     const pct=items.length?Math.round(m/items.length*100):0;
     return `<div class="domrow"><span class="nm">${d.n}.0 ${esc(d.name)} <small>(${d.pct}%)</small></span>
@@ -635,7 +696,7 @@ function renderDash(){
   }).join("");
   screen.innerHTML = navBar() + promptLine("cat ~/progress/summary.txt") + `
     <div class="statgrid">
-      <div class="stat"><div class="n">${Q.length}</div><div class="l">questions</div></div>
+      <div class="stat"><div class="n">${ALL.length}</div><div class="l">questions</div></div>
       <div class="stat blue"><div class="n">${seen}</div><div class="l">attempted</div></div>
       <div class="stat"><div class="n">${mastered}</div><div class="l">mastered</div></div>
       <div class="stat amber"><div class="n">${due}</div><div class="l">due now</div></div>
@@ -672,7 +733,7 @@ function renderPractice(){
   if(!P.q || P.answered===false && !document.getElementById("opts")){ if(!P.q) nextPractice(); }
   const chips=[[0,"all"],[1,"1.0 sys"],[2,"2.0 svc/user"],[3,"3.0 security"],[4,"4.0 automation"],[5,"5.0 troublesh."]];
   const chipHtml=`<div class="chips">${chips.map(([n,l])=>`<button class="chip ${P.dom===n?"active":""}" data-dom="${n}">${l}</button>`).join("")}</div>`;
-  const poolAll=Q.filter(q=>!P.dom||q.d===P.dom);
+  const poolAll=ALL.filter(q=>!P.dom||q.d===P.dom);
   const dueCount=poolAll.filter(isDue).length;
 
   if(!P.q){
@@ -685,12 +746,14 @@ function renderPractice(){
     return;
   }
   const q=P.q, s=st(q.id);
-  if(!P.order) P.order = shuffle(q.o.map((t,i)=>({t,i})));
   const dname=DOMAINS[q.d-1].name;
+  const missedFlag=(s.wrong>0&&s.box<4)?` <span class="qflag" title="You missed this before. It clears once you have it mastered.">&#10007; missed before</span>`:"";
+  if(q.kind==="pbq"){ renderPracticePBQ(q,s,chipHtml,dname,dueCount,missedFlag); return; }
+  if(!P.order) P.order = shuffle(q.o.map((t,i)=>({t,i})));
   const opts=P.order.map((o,idx)=>`<button class="opt" data-idx="${idx}"><span class="key">${LETTERS[idx]})</span><span>${esc(o.t)}</span></button>`).join("");
   screen.innerHTML=navBar()+chipHtml+promptLine(`quiz --domain ${P.dom||"all"} --next`)+`
     <div class="qbox">
-      <div class="qmeta">[domain ${q.d}.0 ${esc(dname)}] &middot; ${dueCount} due${P.reviewAll?" &middot; review-all":""} &middot; ${s.box?"box "+s.box+"/5":"new"}${(s.wrong>0&&s.box<4)?` <span class="qflag" title="You missed this before. It clears once you have it mastered.">&#10007; missed before</span>`:""}</div>
+      <div class="qmeta">[domain ${q.d}.0 ${esc(dname)}]${metaTags(q)} &middot; ${dueCount} due${P.reviewAll?" &middot; review-all":""} &middot; ${s.box?"box "+s.box+"/5":"new"}${missedFlag}</div>
       <div class="qtext"><span class="pre">&gt;</span>${esc(q.q)}</div>
       <div class="opts" id="opts">${opts}</div>
       <div class="fb" id="fb"><div class="v" id="fv"></div><div class="x" id="fx">${esc(q.x)}</div></div>
@@ -726,13 +789,46 @@ function answerPractice(idx){
   document.getElementById("afterrow").style.display="flex";
   document.getElementById("hintrow").style.display="none";
 }
-
-/* ---------- EXAM SIM ---------- */
+function renderPracticePBQ(q,s,chipHtml,dname,dueCount,missedFlag){
+  screen.innerHTML=navBar()+chipHtml+promptLine(`pbq --domain ${P.dom||"all"} --task`)+`
+    <div class="qbox">
+      <div class="qmeta">[domain ${q.d}.0 ${esc(dname)}] &middot; <span class="tytag ty-pbq">PBQ</span>${q.obj?` &middot; obj ${q.obj}`:""} &middot; ${dueCount} due &middot; ${s.box?"box "+s.box+"/5":"new"}${missedFlag}</div>
+      <div class="qtext"><span class="pre">&gt;</span>${esc(q.q)}</div>
+      <div class="pbqwrap"><span class="pbqprompt">$</span><input id="pbqin" class="pbqin" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="type the command, then press enter"></div>
+      <div class="fb" id="fb"><div class="v" id="fv"></div><div class="x" id="fx"></div></div>
+      <div class="row" id="afterrow" style="display:none">
+        <button class="btn" id="next">next &rarr;</button>
+        <span class="kbd"><b>keys:</b> enter / n next</span>
+      </div>
+      <div class="row" id="hintrow"><button class="btn" id="check">check answer</button><span class="kbd"><b>tip:</b> accepts common variants (optional sudo, flag order)</span></div>
+    </div>`;
+  hook();
+  document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{P.dom=+c.dataset.dom;P.reviewAll=false;nextPractice();render();});
+  const inp=document.getElementById("pbqin");
+  const chk=document.getElementById("check"); if(chk) chk.onclick=()=>answerPBQ();
+  if(inp){ inp.focus(); inp.onkeydown=(e)=>{ if(e.key==="Enter"){ e.preventDefault(); if(!P.answered) answerPBQ(); else { nextPractice(); render(); } } }; }
+  const nb=document.getElementById("next"); if(nb) nb.onclick=()=>{nextPractice();render();};
+}
+function answerPBQ(){
+  if(P.answered) return;
+  const inp=document.getElementById("pbqin"); const val=inp?inp.value:"";
+  if(!norm(val)) return;
+  P.answered=true;
+  const q=P.q; const ok=pbqCheck(val,q);
+  grade(q.id,ok); P.shown++;
+  if(ok) delete P.cool[q.id]; else P.cool[q.id]=P.shown+5;
+  if(inp){ inp.disabled=true; inp.classList.add(ok?"okin":"noin"); }
+  document.getElementById("fb").classList.add("show");
+  const fv=document.getElementById("fv"); fv.textContent=ok?"\u2713 correct":"\u2717 not an accepted answer"; fv.className="v "+(ok?"ok":"no");
+  document.getElementById("fx").innerHTML=`<div class="pbqrow"><span class="muted">you typed:</span> <code>${esc(val)||"(empty)"}</code></div><div class="pbqrow"><span class="muted">expected:</span> <code class="exp">${esc(q.a)}</code></div><div style="margin-top:7px">${esc(q.x)}</div>`;
+  document.getElementById("afterrow").style.display="flex";
+  document.getElementById("hintrow").style.display="none";
+}
 function renderExam(){
   if(E.phase==="setup"){
     screen.innerHTML=navBar()+promptLine("exam-sim --start")+`
       <div class="qbox">
-        <div class="qtext"><span class="pre">&gt;</span>Exam simulation: random questions across all 5 domains, answered straight through, scored at the end (like the real exam). Choose a length:</div>
+        <div class="qtext"><span class="pre">&gt;</span>Exam simulation: a balanced mix across all 5 domains and question types &mdash; recall, scenario, output-interpretation, and performance-based (type the command) &mdash; answered straight through and scored at the end. Choose a length:</div>
         <div class="chips">
           ${[10,20,40,90].map(n=>`<button class="chip ${E.len===n?"active":""}" data-len="${n}">${n} questions</button>`).join("")}
         </div>
@@ -742,41 +838,57 @@ function renderExam(){
     hook();
     document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{E.len=+c.dataset.len;render();});
     document.getElementById("begin").onclick=()=>{
-      const n=Math.min(E.len,Q.length);
-      E.items=shuffle(Q).slice(0,n).map(q=>({q,order:shuffle(q.o.map((t,i)=>({t,i}))),pick:null}));
+      const n=Math.min(E.len,ALL.length);
+      E.items=buildExam(n).map(q=> q.kind==="pbq"
+        ? {q,kind:"pbq",typed:""}
+        : {q,kind:"mcq",order:shuffle(q.o.map((t,i)=>({t,i}))),pick:null});
       E.i=0;E.phase="run";render();
     };
     return;
   }
   if(E.phase==="run"){
     const it=E.items[E.i], q=it.q;
-    const opts=it.order.map((o,idx)=>`<button class="opt ${it.pick===idx?"right":""}" data-idx="${idx}"><span class="key">${LETTERS[idx]})</span><span>${esc(o.t)}</span></button>`).join("");
+    let body, keyhint;
+    if(it.kind==="pbq"){
+      body=`<div class="pbqwrap"><span class="pbqprompt">$</span><input id="pbqin" class="pbqin" type="text" value="${esc(it.typed||"")}" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="type the command (scored at the end)"></div>`;
+      keyhint=`type the command &middot; n next &middot; p prev`;
+    } else {
+      body=`<div class="opts" id="opts">${it.order.map((o,idx)=>`<button class="opt ${it.pick===idx?"right":""}" data-idx="${idx}"><span class="key">${LETTERS[idx]})</span><span>${esc(o.t)}</span></button>`).join("")}</div>`;
+      keyhint=`1-${it.order.length} select &middot; n next &middot; p prev`;
+    }
+    const tyLabel = it.kind==="pbq"?"PBQ":(q.ty||"recall");
     screen.innerHTML=navBar()+promptLine(`exam-sim --question $((${E.i+1}/${E.items.length}))`)+`
       <div class="qbox">
-        <div class="qmeta">question ${E.i+1} of ${E.items.length} &middot; domain ${q.d}.0</div>
+        <div class="qmeta">question ${E.i+1} of ${E.items.length} &middot; domain ${q.d}.0 &middot; <span class="tytag ty-${tyLabel.toLowerCase()}">${tyLabel}</span></div>
         <div class="qtext"><span class="pre">&gt;</span>${esc(q.q)}</div>
-        <div class="opts" id="opts">${opts}</div>
+        ${body}
         <div class="row">
           <button class="btn ghost" id="prev" ${E.i===0?"disabled style=opacity:.4":""}>&larr; prev</button>
           <button class="btn" id="next">${E.i===E.items.length-1?"finish &amp; score":"next &rarr;"}</button>
-          <span class="kbd"><b>keys:</b> 1-${it.order.length} select &middot; n next &middot; p prev</span>
+          <span class="kbd"><b>keys:</b> ${keyhint}</span>
         </div>
       </div>`;
     hook();
-    [...document.querySelectorAll("#opts .opt")].forEach(el=>el.onclick=()=>{it.pick=+el.dataset.idx;render();});
+    if(it.kind==="pbq"){
+      const inp=document.getElementById("pbqin");
+      if(inp){ inp.focus(); inp.setSelectionRange(inp.value.length,inp.value.length); inp.oninput=()=>{it.typed=inp.value;};
+        inp.onkeydown=(e)=>{ if(e.key==="Enter"){ e.preventDefault(); it.typed=inp.value; if(E.i===E.items.length-1)scoreExam(); else {E.i++;render();} } }; }
+    } else {
+      [...document.querySelectorAll("#opts .opt")].forEach(el=>el.onclick=()=>{it.pick=+el.dataset.idx;render();});
+    }
     const pv=document.getElementById("prev"); if(pv && E.i>0) pv.onclick=()=>{E.i--;render();};
     document.getElementById("next").onclick=()=>{ if(E.i===E.items.length-1){scoreExam();} else {E.i++;render();} };
     return;
   }
   if(E.phase==="results"){
     let correct=0;
-    E.items.forEach(it=>{ if(it.pick!=null && it.order[it.pick].i===it.q.c){correct++; grade(it.q.id,true);} else { grade(it.q.id,false);} });
+    E.items.forEach(it=>{ const ok = it.kind==="pbq" ? pbqCheck(it.typed||"",it.q) : (it.pick!=null && it.order[it.pick].i===it.q.c); it._ok=ok; grade(it.q.id,ok); if(ok)correct++; });
     const total=E.items.length, pct=Math.round(correct/total*100);
     const pass=pct>=80;
-    const misses=E.items.filter(it=>!(it.pick!=null && it.order[it.pick].i===it.q.c));
+    const misses=E.items.filter(it=>!it._ok);
     const reviewHtml=misses.map(it=>{
-      const yours = it.pick!=null ? it.order[it.pick].t : "(no answer)";
-      const corr = it.q.o[it.q.c];
+      const yours = it.kind==="pbq" ? (it.typed||"(no answer)") : (it.pick!=null ? it.order[it.pick].t : "(no answer)");
+      const corr = it.kind==="pbq" ? it.q.a : it.q.o[it.q.c];
       return `<div class="reviewq">
         <div class="q">&gt; ${esc(it.q.q)}</div>
         <div class="ln you">your answer: ${esc(yours)}</div>
@@ -802,6 +914,17 @@ function renderExam(){
   }
 }
 function scoreExam(){E.phase="results";render();}
+function buildExam(n){
+  const by={recall:[],scenario:[],output:[],pbq:[]};
+  ALL.forEach(q=>{const ty=q.kind==="pbq"?"pbq":(q.ty||"recall"); (by[ty]||by.recall).push(q);});
+  const ratio={scenario:0.45,recall:0.20,output:0.20,pbq:0.15};
+  let picked=[];
+  ["scenario","recall","output","pbq"].forEach(k=>{const want=Math.round(n*ratio[k]); picked=picked.concat(shuffle(by[k]).slice(0,want));});
+  const seen=new Set(); picked=picked.filter(q=>{ if(seen.has(q.id))return false; seen.add(q.id); return true; });
+  if(picked.length<n){ const rest=shuffle(ALL.filter(q=>!seen.has(q.id))); picked=picked.concat(rest.slice(0,n-picked.length)); }
+  else if(picked.length>n){ picked=picked.slice(0,n); }
+  return shuffle(picked);
+}
 
 
 /* ---------- STUDY / REFERENCE ---------- */
@@ -903,7 +1026,7 @@ document.addEventListener("keydown",e=>{
     else if(P.answered && (k==="n"||k==="enter")){nextPractice();render();}
   } else if(tab==="exam" && E.phase==="run"){
     const it=E.items[E.i];
-    if(/^[1-5]$/.test(k)){const idx=+k-1; if(idx<it.order.length){it.pick=idx;render();}}
+    if(it.kind!=="pbq" && /^[1-5]$/.test(k)){const idx=+k-1; if(it.order && idx<it.order.length){it.pick=idx;render();}}
     else if(k==="n"||k==="enter"){ if(E.i===E.items.length-1)scoreExam(); else {E.i++;render();} }
     else if(k==="p"&&E.i>0){E.i--;render();}
   }

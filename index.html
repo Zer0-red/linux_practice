@@ -119,6 +119,42 @@ nav button.active{color:var(--green);border-color:var(--green-dim);background:rg
 .reviewq .ln{color:var(--dim);font-size:12.5px}
 .reviewq .you{color:var(--red)}.reviewq .cor{color:var(--green)}
 .barline{color:var(--dim2);user-select:none}
+
+.searchbar{display:flex;align-items:center;gap:9px;border:1px solid var(--line);border-radius:8px;padding:9px 12px;margin-bottom:16px;background:var(--surface)}
+.searchbar .sp{color:var(--green);font-size:13px;flex-shrink:0}
+.searchbar input{flex:1;background:transparent;border:0;outline:none;color:var(--txt);font-family:var(--mono);font-size:13.5px}
+.searchbar input::placeholder{color:var(--dim2)}
+.ref-count{color:var(--dim2);font-size:11.5px;margin-bottom:12px}
+.ref-empty{color:var(--amber);font-size:13px;padding:14px 0}
+.ref-tools{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.ref-toolbtn{font-family:var(--mono);font-size:11px;color:var(--dim);background:transparent;border:1px solid var(--line);border-radius:6px;padding:5px 11px;cursor:pointer;transition:.12s}
+.ref-toolbtn:hover{color:var(--green);border-color:var(--green-dim)}
+.ref-tip{font-size:11px;margin-left:auto}
+.ref-dom{display:flex;align-items:center;gap:11px;font-size:12px;color:var(--green);text-transform:uppercase;letter-spacing:1.1px;margin:18px 0 9px;border-bottom:1px solid var(--line);padding:0 2px 7px;cursor:pointer;user-select:none}
+.ref-dom:hover{color:var(--txt)}
+.ref-dom .chev{font-size:11px;flex-shrink:0;transition:transform .15s;display:inline-block;color:var(--green)}
+.ref-dom.open .chev{transform:rotate(90deg)}
+.ref-dom .dt{flex:1}
+.ref-dom .dc{font-size:10px;color:var(--dim2);letter-spacing:.3px;text-transform:none}
+.ref-domwrap{margin:0 0 4px 6px;border-left:1px solid var(--line);padding-left:8px}
+.ref-acc{border:1px solid var(--line);border-radius:8px;margin-bottom:7px;overflow:hidden;background:var(--surface)}
+.ref-acc.open{border-color:var(--line2)}
+.ref-head{display:flex;align-items:center;gap:11px;padding:11px 13px;cursor:pointer;user-select:none;transition:background .12s}
+.ref-head:hover{background:rgba(70,211,105,.07)}
+.ref-head .chev{color:var(--green);font-size:11px;flex-shrink:0;transition:transform .15s;display:inline-block}
+.ref-head.open .chev{transform:rotate(90deg)}
+.ref-head .ht{flex:1;color:var(--txt);font-size:12.5px;letter-spacing:.4px}
+.ref-head .hc{color:var(--dim2);font-size:11px;background:rgba(70,211,105,.08);border:1px solid var(--line);border-radius:11px;padding:1px 9px;min-width:26px;text-align:center}
+.ref-body{display:none;padding:12px 14px 14px;border-top:1px solid var(--line)}
+.ref-acc.open .ref-body{display:block}
+.ref-item{margin-bottom:12px;line-height:1.5}
+.ref-item:last-child{margin-bottom:0}
+.ref-cmd{color:var(--amber);font-weight:700;font-size:13.5px}
+.ref-desc{color:var(--txt);font-size:13px}
+.ref-flags{margin:5px 0 0 14px;display:flex;flex-direction:column;gap:2px;border-left:1px solid var(--line2);padding-left:12px}
+.ref-flag{font-size:12.5px;display:flex;gap:10px;color:var(--dim)}
+.ref-flag .ff{color:var(--green);min-width:90px;flex-shrink:0}
+@media(max-width:560px){.ref-flag .ff{min-width:70px}}
 @media(max-width:560px){.screen{padding:14px}.domrow .nm{width:150px;font-size:11.5px}.qtext{font-size:14.5px}}
 </style>
 </head>
@@ -416,6 +452,46 @@ const Q = [
 {d:2,q:"What does the -e flag do in 'docker run -e ENV=prod ...'?",o:["Sets an environment variable inside the container","Executes a command and exits","Exposes a port","Enables encryption"],c:0,x:"-e KEY=value injects an environment variable into the container."}
 ];
 
+const REF=[{dom:1,g:"Kernel modules",items:[{c:"lsmod",d:"List modules currently loaded in memory",f:[]},{c:"modinfo",d:"Show details about a module (author, params, deps)",f:[]},{c:"modprobe",d:"Load a module AND its dependencies",f:[["-r","unload a module + unused deps"]]},{c:"insmod",d:"Insert a single module file (no dependency resolution)",f:[]},{c:"rmmod",d:"Remove a loaded module",f:[]},{c:"depmod",d:"Rebuild the modules.dep dependency database",f:[]}]},
+{dom:1,g:"Hardware & device info",items:[{c:"dmesg",d:"Print the kernel ring buffer (boot/hardware/OOM messages)",f:[["-T","human-readable timestamps"],["-w","follow new messages"]]},{c:"lscpu",d:"CPU architecture, cores, sockets, flags",f:[]},{c:"lspci",d:"List PCI devices (NIC, GPU, controllers)",f:[]},{c:"lsusb",d:"List USB devices",f:[]},{c:"lsmem",d:"List memory ranges/blocks",f:[]},{c:"lshw",d:"Detailed listing of all hardware",f:[]},{c:"dmidecode",d:"Decode SMBIOS/DMI (BIOS, serial, RAM slots)",f:[]},{c:"sensors",d:"Read hardware sensors (temp/fan/voltage) via lm_sensors",f:[]},{c:"ipmitool",d:"Manage the BMC out-of-band over IPMI",f:[]}]},
+{dom:1,g:"initramfs",items:[{c:"dracut",d:"Regenerate the initramfs (modern systems)",f:[["-f","force overwrite existing image"]]},{c:"mkinitrd",d:"Legacy initramfs builder",f:[]}]},
+{dom:1,g:"LVM (Logical Volume Manager)",items:[{c:"pvcreate",d:"Initialize a disk/partition as a physical volume",f:[]},{c:"pvs / pvdisplay",d:"Show physical volumes (brief / detailed)",f:[]},{c:"pvmove",d:"Relocate extents off a PV before removal",f:[]},{c:"vgcreate",d:"Create a volume group from PVs",f:[]},{c:"vgextend",d:"Add a PV to an existing volume group",f:[]},{c:"vgs / vgdisplay",d:"Show volume groups (brief / detailed)",f:[]},{c:"lvcreate",d:"Create a logical volume",f:[["-L","size, e.g. -L 10G"],["-n","name"],["-l","extents, e.g. -l 100%FREE"]]},{c:"lvextend",d:"Grow a logical volume",f:[["-L +5G","add 5G"],["-r","resize the filesystem too"]]},{c:"lvs / lvdisplay",d:"Show logical volumes (brief / detailed)",f:[]},{c:"lvremove",d:"Delete a logical volume",f:[]}]},
+{dom:1,g:"Partitions & filesystems",items:[{c:"lsblk",d:"List block devices and mountpoints as a tree",f:[["-f","show FS type + UUID"]]},{c:"blkid",d:"Show UUID and filesystem type of devices",f:[]},{c:"fdisk / gdisk",d:"Edit MBR / GPT partition tables",f:[["-l","list partitions"]]},{c:"parted",d:"Scriptable partition editor (GPT/MBR)",f:[]},{c:"growpart",d:"Grow a partition into free space (cloud)",f:[]},{c:"mkfs.ext4 / mkfs.xfs",d:"Create an ext4 / XFS filesystem",f:[]},{c:"fsck",d:"Check and repair a filesystem (unmounted)",f:[["-y","auto-answer yes"]]},{c:"resize2fs",d:"Grow or shrink an ext2/3/4 filesystem",f:[]},{c:"xfs_growfs",d:"Grow a mounted XFS filesystem (cannot shrink)",f:[]},{c:"xfs_repair",d:"Repair an XFS filesystem",f:[]},{c:"df",d:"Free space per filesystem",f:[["-h","human-readable"],["-i","inode usage"]]},{c:"du",d:"Disk usage of files/dirs",f:[["-s","summary total"],["-h","human"],["-d N","depth"]]},{c:"fio",d:"Flexible I/O benchmarking tool",f:[]}]},
+{dom:1,g:"RAID (software)",items:[{c:"mdadm",d:"Create/manage software RAID arrays",f:[["--create","new array"],["--detail","array status"],["--assemble","re-assemble"]]},{c:"/proc/mdstat",d:"Read current RAID array status (cat it)",f:[]}]},
+{dom:1,g:"Mounting",items:[{c:"mount",d:"Attach a filesystem",f:[["-a","mount all fstab entries"],["-o remount","change options live"],["-o ro/rw","read-only / read-write"]]},{c:"umount",d:"Detach a filesystem",f:[]},{c:"/etc/fstab",d:"Filesystems mounted at boot (dev mount type opts dump pass)",f:[]},{c:"mount options",d:"Common security/behavior flags",f:[["ro","read-only"],["noexec","no executing binaries"],["nosuid","ignore setuid bits"],["nodev","no device files"],["noatime","do not update access times"],["nofail","boot continues if missing"]]},{c:"autofs",d:"On-demand automatic mounting",f:[]}]},
+{dom:1,g:"Network config files",items:[{c:"/etc/hosts",d:"Static hostname-to-IP map (checked before DNS)",f:[]},{c:"/etc/resolv.conf",d:"DNS resolver / nameservers",f:[]},{c:"/etc/nsswitch.conf",d:"Lookup source order (files vs dns, etc.)",f:[]}]},
+{dom:1,g:"Network tools",items:[{c:"ip addr",d:"Show/set interface IP addresses",f:[]},{c:"ip link",d:"Interfaces + link/MAC state (set eth0 up/down)",f:[]},{c:"ip route",d:"Routing table and default gateway",f:[]},{c:"ip neigh",d:"ARP/neighbor table (IP to MAC)",f:[]},{c:"ss",d:"Socket/port stats (replaces netstat)",f:[["-t","TCP"],["-u","UDP"],["-l","listening"],["-n","numeric"],["-p","owning process"]]},{c:"nmcli",d:"NetworkManager CLI (device status, con up/down)",f:[]},{c:"netplan",d:"Apply YAML network config (Ubuntu)",f:[["apply","render+apply"],["try","apply with rollback"]]},{c:"dig",d:"Query DNS records",f:[["+short","terse output"],["@server","pick resolver"]]},{c:"nslookup",d:"Older interactive DNS query tool",f:[]},{c:"ping / ping6",d:"ICMP reachability test",f:[["-c","count"],["-i","interval"]]},{c:"traceroute / tracepath",d:"Show the path to a host (tracepath needs no root)",f:[]},{c:"mtr",d:"traceroute + ping combined, per-hop loss",f:[]},{c:"tcpdump",d:"Capture packets on an interface",f:[["-i","interface"],["-w","write pcap"],["-n","no name resolution"]]},{c:"nmap",d:"Scan hosts/ports",f:[["-p","ports"],["-sV","service versions"],["-sn","ping sweep"]]},{c:"nc",d:"netcat: raw TCP/UDP connections",f:[["-l","listen"],["-z","scan"],["-v","verbose"]]},{c:"iperf3",d:"Measure bandwidth between two hosts",f:[]},{c:"ethtool",d:"Query/set NIC speed, duplex, link",f:[]},{c:"arp",d:"View/edit the ARP cache (legacy; use ip neigh)",f:[]},{c:"curl",d:"Transfer URLs",f:[["-O","save as remote name"],["-L","follow redirects"],["-I","headers only"],["-X","method"]]},{c:"wget",d:"Download files",f:[["-c","continue partial"],["-r","recursive"],["-O","output file"]]}]},
+{dom:1,g:"Shell text utilities",items:[{c:"grep",d:"Search text by pattern",f:[["-r","recursive"],["-i","ignore case"],["-v","invert match"],["-E","extended regex"],["-n","line numbers"],["-c","count"],["-w","whole word"]]},{c:"awk",d:"Field-based text processing",f:[["-F","set field separator"],["$1..$N","fields, $0 whole line"]]},{c:"sed",d:"Stream editor (substitute/delete)",f:[["s/a/b/g","substitute all"],["-i","edit in place"],["-n","quiet, with p to print"]]},{c:"cut",d:"Extract columns",f:[["-d","delimiter"],["-f","fields"],["-c","character positions"]]},{c:"sort",d:"Sort lines",f:[["-n","numeric"],["-r","reverse"],["-k","key/column"],["-u","unique"]]},{c:"uniq",d:"Collapse ADJACENT duplicates (sort first)",f:[["-c","count"],["-d","only dups"],["-u","only uniques"]]},{c:"tr",d:"Translate/delete characters",f:[["-d","delete"],["-s","squeeze repeats"]]},{c:"tee",d:"Write to stdout AND file(s)",f:[["-a","append"]]},{c:"wc",d:"Count",f:[["-l","lines"],["-w","words"],["-c","bytes"],["-m","chars"]]},{c:"head / tail",d:"First / last lines",f:[["-n","line count"],["-f","follow (tail)"]]},{c:"xargs",d:"Build commands from stdin",f:[["-I{}","placeholder"],["-n","batch size"],["-0","null-separated"]]},{c:"source / .",d:"Run a script in the current shell",f:[]},{c:"uname",d:"Kernel/system info",f:[["-r","kernel release"],["-a","everything"],["-m","architecture"]]}]},
+{dom:1,g:"Redirection & pipes",items:[{c:">",d:"Redirect stdout, overwriting the file",f:[]},{c:">>",d:"Redirect stdout, appending",f:[]},{c:"2>",d:"Redirect stderr",f:[]},{c:"2>&1",d:"Send stderr to where stdout points",f:[]},{c:"|",d:"Pipe stdout into another command's stdin",f:[]},{c:"< / << / <<<",d:"Input redirection / here-doc / here-string",f:[]}]},
+{dom:1,g:"Environment & paths",items:[{c:"PATH",d:"Search path for executables",f:[]},{c:"HOME / USER / SHELL",d:"Home dir / username / login shell",f:[]},{c:"PS1",d:"Shell prompt string",f:[]},{c:".bashrc / .bash_profile",d:"Per-user non-login / login shell config",f:[]},{c:"~ . .. -",d:"Home / current / parent / previous dir",f:[]}]},
+{dom:1,g:"Archiving, compression & backup",items:[{c:"tar",d:"Create/extract archives",f:[["-c","create"],["-x","extract"],["-t","list contents"],["-z","gzip"],["-j","bzip2"],["-J","xz"],["-v","verbose"],["-f","file"]]},{c:"cpio",d:"Archive using a file list from stdin",f:[]},{c:"gzip / gunzip",d:"Compress / decompress .gz",f:[["-k","keep original"],["-d","decompress"]]},{c:"bzip2 / xz",d:"Compress to .bz2 / .xz (higher ratio)",f:[]},{c:"zip / unzip",d:"Create / extract .zip archives",f:[]},{c:"dd",d:"Low-level block copy/imaging",f:[["if=","input"],["of=","output"],["bs=","block size"],["status=progress","show progress"]]},{c:"ddrescue",d:"Like dd but recovers from failing disks",f:[]},{c:"rsync",d:"Efficient delta sync/copy",f:[["-a","archive mode"],["-v","verbose"],["-z","compress"],["--delete","mirror (remove extras)"],["-n","dry run"]]},{c:"zcat / zgrep / zless",d:"Operate on gzip files without decompressing",f:[]}]},
+{dom:1,g:"Virtualization",items:[{c:"QEMU / KVM",d:"Emulator / in-kernel hardware-accelerated hypervisor",f:[]},{c:"virsh",d:"libvirt CLI to manage VMs",f:[["list --all","all VMs"],["start/shutdown","control a VM"]]},{c:"virt-manager",d:"GUI for managing VMs",f:[]},{c:"qemu-img",d:"Create/convert/resize VM disk images",f:[]},{c:"VirtIO",d:"Paravirtualized drivers for fast VM I/O",f:[]}]},
+{dom:2,g:"Files & directories",items:[{c:"ls",d:"List directory contents",f:[["-l","long format"],["-a","include hidden"],["-h","human sizes"],["-Z","SELinux context"]]},{c:"cp",d:"Copy",f:[["-r/-R","recursive"],["-p","preserve attrs"],["-a","archive"]]},{c:"mv",d:"Move/rename",f:[]},{c:"rm",d:"Remove",f:[["-r","recursive"],["-f","force"]]},{c:"mkdir / rmdir",d:"Make / remove (empty) directory",f:[["-p","create parents (mkdir)"]]},{c:"find",d:"Search filesystem live",f:[["-name","by name (glob)"],["-iname","case-insensitive"],["-type f/d","file/dir"],["-mtime -7","modified last 7 days"],["-size +100M","bigger than 100M"],["-exec ... {} +","run a command per match"]]},{c:"locate",d:"Fast name search via prebuilt DB (updatedb)",f:[]},{c:"file",d:"Identify file type by content",f:[]},{c:"stat",d:"Detailed metadata (inode, timestamps)",f:[]},{c:"ln",d:"Create links",f:[["-s","symbolic (soft) link"]]},{c:"lsof",d:"List open files + holding processes",f:[["-i","network sockets"],["-p","by PID"]]},{c:"diff / sdiff",d:"Compare files (sdiff = side by side)",f:[]},{c:"touch",d:"Create empty file / update timestamp",f:[]}]},
+{dom:2,g:"User & group accounts",items:[{c:"useradd",d:"Create a user (low-level)",f:[["-m","make home dir"],["-s","login shell"],["-G","supplementary groups"],["-u","UID"]]},{c:"usermod",d:"Modify a user",f:[["-aG","append to group(s)"],["-s","change shell"],["-L/-U","lock/unlock"]]},{c:"userdel",d:"Delete a user",f:[["-r","also remove home"]]},{c:"groupadd / groupdel / groupmod",d:"Manage groups",f:[]},{c:"passwd",d:"Set/change password",f:[["-l/-u","lock/unlock"]]},{c:"chage",d:"Password aging",f:[["-l","list"],["-M","max days"],["-E","expiry date"]]},{c:"chsh",d:"Change login shell",f:[]},{c:"id / groups / whoami",d:"Show UID/GID/groups / groups / username",f:[]},{c:"who / w",d:"Logged-in users (w adds activity)",f:[]},{c:"last / lastlog",d:"Login history / last login per user",f:[]},{c:"getent passwd",d:"Query accounts incl. LDAP/SSSD via NSS",f:[]}]},
+{dom:2,g:"Account files",items:[{c:"/etc/passwd",d:"User records (world-readable, no passwords)",f:[]},{c:"/etc/shadow",d:"Hashed passwords (root-only)",f:[]},{c:"/etc/group",d:"Group definitions",f:[]},{c:"/etc/skel",d:"Template copied into new home dirs",f:[]}]},
+{dom:2,g:"Processes & jobs",items:[{c:"ps",d:"Process snapshot",f:[["aux","BSD: all users"],["-ef","SysV: full listing"]]},{c:"top / htop / atop",d:"Live process monitors",f:[]},{c:"pstree",d:"Processes as a parent/child tree",f:[]},{c:"strace",d:"Trace a process's system calls",f:[]},{c:"mpstat / pidstat",d:"Per-CPU / per-process stats",f:[]},{c:"nice / renice",d:"Set priority at launch / on a running PID",f:[["-20..19","high..low priority"]]},{c:"kill",d:"Send a signal to a PID",f:[["-9","SIGKILL force"],["-15","SIGTERM (default)"],["-1","SIGHUP reload"]]},{c:"pkill / killall",d:"Signal processes by name/pattern",f:[]},{c:"nohup",d:"Run immune to hangup (survives logout)",f:[]},{c:"jobs / fg / bg",d:"List / foreground / background jobs; & backgrounds",f:[]}]},
+{dom:2,g:"Signals",items:[{c:"1 HUP",d:"Hang up; often reload config",f:[]},{c:"9 KILL",d:"Force kill (cannot be caught/ignored)",f:[]},{c:"15 TERM",d:"Graceful terminate (default of kill)",f:[]},{c:"2 INT / 19 STOP",d:"Ctrl+C interrupt / pause (uncatchable)",f:[]}]},
+{dom:2,g:"Scheduling",items:[{c:"crontab",d:"Per-user recurring jobs",f:[["-e","edit"],["-l","list"],["-r","remove"]]},{c:"cron fields",d:"min hour day-of-month month day-of-week command",f:[]},{c:"at",d:"One-time job at a set time",f:[]},{c:"anacron",d:"Run periodic jobs missed while powered off",f:[]},{c:"systemd timers",d:"systemd alternative to cron",f:[]}]},
+{dom:2,g:"Package management",items:[{c:"apt",d:"Debian/Ubuntu front end",f:[["update","refresh index"],["install / remove","add / delete"],["purge","remove + config"]]},{c:"dpkg",d:"Debian low-level",f:[["-i","install .deb"],["-l","list"],["-L","files in pkg"]]},{c:"dnf / yum",d:"RHEL family (resolves deps)",f:[["install / remove / update",""],["search / info",""]]},{c:"rpm",d:"RHEL low-level",f:[["-i","install"],["-qa","list all"],["-ql","files in pkg"],["-qf","which pkg owns a file"],["-e","erase"]]},{c:"pip / cargo / npm",d:"Python / Rust / Node package installers",f:[]}]},
+{dom:2,g:"systemd: systemctl",items:[{c:"start / stop / restart",d:"Control a service now",f:[]},{c:"reload",d:"Reload the service's own config",f:[]},{c:"enable / disable",d:"Set / unset start at boot",f:[["--now","also start/stop now"]]},{c:"is-enabled / is-active",d:"Check boot setting / running state",f:[]},{c:"mask / unmask",d:"Block a unit from starting / undo",f:[]},{c:"status",d:"Show state + recent log lines",f:[]},{c:"daemon-reload",d:"Re-read unit files after editing them",f:[]},{c:"list-units / list-unit-files",d:"Loaded units / all installed unit files",f:[]}]},
+{dom:2,g:"systemd: journalctl & others",items:[{c:"journalctl",d:"Query the systemd journal",f:[["-u","by unit"],["-b","current boot"],["-f","follow live"],["-p","by priority"],["-k","kernel only"],["--since","time filter"]]},{c:"hostnamectl",d:"View/set hostname",f:[]},{c:"timedatectl",d:"View/set time, date, NTP",f:[]},{c:"resolvectl",d:"Query/manage systemd-resolved DNS",f:[]},{c:"systemd-analyze",d:"Boot timing (blame = slowest units)",f:[]}]},
+{dom:2,g:"Containers (docker / podman)",items:[{c:"run",d:"Create + start a container",f:[["-d","detached"],["-it","interactive TTY"],["-p h:c","publish port"],["-v h:c","mount volume"],["-e K=V","env variable"],["--name","name it"]]},{c:"ps",d:"List running containers",f:[["-a","include stopped"]]},{c:"exec",d:"Run a command in a running container",f:[["-it","interactive shell"]]},{c:"logs",d:"Show a container's stdout/stderr",f:[["-f","follow"]]},{c:"inspect",d:"Detailed JSON about container/image",f:[]},{c:"images / pull / build",d:"List / download / build images",f:[["-t","tag (build)"]]},{c:"stop / rm / rmi",d:"Stop / remove container / remove image",f:[]},{c:"prune",d:"Reclaim space from unused objects",f:[]},{c:"Dockerfile",d:"FROM base, RUN build step, COPY files, CMD default args, ENTRYPOINT main exec, USER",f:[]},{c:"compose",d:"Multi-container stacks",f:[["up","start"],["down","stop+remove"],["logs","view"]]}]},
+{dom:3,g:"Authentication & directory",items:[{c:"PAM",d:"Modular auth stack under /etc/pam.d/",f:[]},{c:"SSSD",d:"Bridges logins to LDAP/AD; caches identity",f:[]},{c:"LDAP / Kerberos",d:"Directory of accounts / ticket-based SSO (kinit, klist)",f:[]},{c:"Samba",d:"Windows-style file/print sharing",f:[]}]},
+{dom:3,g:"Logging & audit",items:[{c:"rsyslog",d:"Traditional syslog daemon",f:[]},{c:"logrotate",d:"Rotate/compress logs on a schedule",f:[]},{c:"/var/log",d:"Default log directory",f:[]},{c:"auditd",d:"Audit daemon; rules in audit.rules",f:[]},{c:"ausearch / aureport",d:"Search / summarize audit logs",f:[]}]},
+{dom:3,g:"Firewalls",items:[{c:"firewall-cmd",d:"firewalld CLI",f:[["--add-service=","open a known service"],["--add-port=8080/tcp","open a port"],["--permanent","persist (then --reload)"],["--reload","apply permanent rules"],["--list-all","show active zone"]]},{c:"ufw",d:"Ubuntu simple firewall",f:[["allow / deny","rules"],["enable / status","turn on / show"]]},{c:"nftables / iptables / ipset",d:"Packet filtering frameworks",f:[]},{c:"net.ipv4.ip_forward",d:"Enable routing between interfaces (sysctl)",f:[]}]},
+{dom:3,g:"sudo & privilege",items:[{c:"sudo",d:"Run a command as another user (default root)",f:[["-i","login shell as root"],["-l","list privileges"]]},{c:"su -",d:"Switch user with a full login environment",f:[]},{c:"visudo",d:"Safely edit /etc/sudoers (syntax-checked)",f:[]},{c:"/etc/sudoers, /etc/sudoers.d",d:"Sudo policy; NOPASSWD, wheel/sudo group",f:[]}]},
+{dom:3,g:"Permissions & ownership",items:[{c:"chmod",d:"Change permissions",f:[["755","rwxr-xr-x (octal)"],["u+x,go-w","symbolic"],["-R","recursive"]]},{c:"chown",d:"Change owner (and group)",f:[["user:group","both"],["-R","recursive"]]},{c:"chgrp",d:"Change group only",f:[]},{c:"umask",d:"Default-permission mask",f:[["022","files 644, dirs 755"],["077","files 600, dirs 700"]]},{c:"special bits",d:"Beyond rwx",f:[["setuid 4000","run as file owner"],["setgid 2000","inherit group / run as group"],["sticky 1000","only owner deletes (/tmp)"]]}]},
+{dom:3,g:"ACLs & attributes",items:[{c:"setfacl",d:"Set an access control list entry",f:[["-m u:bob:rw","add/modify"],["-x u:bob","remove"],["-R","recursive"]]},{c:"getfacl",d:"Show ACL entries (ls -l shows a + if present)",f:[]},{c:"chattr / lsattr",d:"Set / view file attributes",f:[["+i","immutable"],["+a","append only"]]}]},
+{dom:3,g:"SELinux",items:[{c:"getenforce / sestatus",d:"Show current mode / detailed status",f:[]},{c:"setenforce",d:"Set mode now",f:[["0","permissive"],["1","enforcing"]]},{c:"semanage",d:"Persistent policy (survives relabel)",f:[["fcontext -a -t TYPE path","define context"],["port -a -t TYPE -p tcp N","allow a port"]]},{c:"restorecon",d:"Reset contexts to policy defaults",f:[["-R","recursive"],["-v","verbose"]]},{c:"chcon",d:"Change a context directly (not relabel-safe)",f:[]},{c:"getsebool / setsebool",d:"Read / set a boolean",f:[["-P","persistent (setsebool)"]]},{c:"ls -Z / audit2allow / sealert",d:"Show context / build policy from denials / explain alerts",f:[]}]},
+{dom:3,g:"Secure remote access (SSH)",items:[{c:"/etc/ssh/sshd_config",d:"SSH server config",f:[["PermitRootLogin no","block root login"],["AllowUsers / AllowGroups","restrict access"]]},{c:"ssh-keygen",d:"Generate key pairs",f:[["-t ed25519","key type"],["-f","output file"]]},{c:"ssh-copy-id",d:"Install your public key on a server",f:[]},{c:"scp / sftp",d:"Copy / interactive transfer over SSH",f:[]},{c:"fail2ban",d:"Ban IPs after repeated failed logins (fail2ban-client status)",f:[]}]},
+{dom:3,g:"Cryptography",items:[{c:"gpg",d:"Encrypt/decrypt/sign files",f:[["-e","encrypt"],["-d","decrypt"],["-r","recipient"],["--sign / --verify",""]]},{c:"openssl",d:"Certs, keys, hashing, TLS testing",f:[["x509 -text","inspect cert"],["s_client","test TLS"]]},{c:"cryptsetup (LUKS2)",d:"Full-disk/partition encryption (Argon2 KDF)",f:[["luksFormat / luksOpen",""]]},{c:"WireGuard",d:"Modern, simple VPN",f:[]},{c:"SHA-256 / HMAC",d:"Hashing / keyed integrity+authenticity",f:[]}]},
+{dom:3,g:"Compliance & integrity",items:[{c:"AIDE",d:"File-integrity baseline (aide --init / --check)",f:[]},{c:"rkhunter",d:"Scan for rootkits",f:[]},{c:"oscap (OpenSCAP)",d:"Automated SCAP compliance scanning",f:[]},{c:"CIS Benchmarks",d:"Vendor-neutral hardening guidelines",f:[]},{c:"CVE / CVSS",d:"Vulnerability ID / severity score (0-10)",f:[]},{c:"shred / badblocks -w",d:"Securely overwrite a file / destructive disk test",f:[]}]},
+{dom:4,g:"Automation & IaC",items:[{c:"ansible",d:"Agentless config mgmt over SSH",f:[["-m","module"],["-a","module args"],["all --list-hosts",""]]},{c:"ansible-playbook",d:"Run a YAML playbook",f:[["-i","inventory"],["--check","dry run"],["--limit","subset of hosts"]]},{c:"ansible-vault",d:"Encrypt secrets (encrypt/decrypt/view)",f:[]},{c:"Puppet",d:"Agent pulls catalog from a master (manifests)",f:[]},{c:"OpenTofu / Terraform",d:"Provisioning IaC",f:[["init / plan / apply",""]]},{c:"Kickstart / cloud-init",d:"Unattended install / first-boot cloud config",f:[]},{c:"Kubernetes / Compose",d:"Orchestrate containers (Pods, ConfigMaps, Secrets) / multi-container apps",f:[]}]},
+{dom:4,g:"Git",items:[{c:"git init / clone",d:"New repo / copy a remote repo",f:[]},{c:"git add / commit",d:"Stage changes / record them",f:[["-m","commit message"]]},{c:"git push / pull / fetch",d:"Upload / fetch+merge / fetch only",f:[]},{c:"git branch / checkout / switch",d:"List/create branch / change branch",f:[["-b","create+switch (checkout)"]]},{c:"git merge / rebase",d:"Integrate branches / replay commits (rewrites history)",f:[]},{c:"git reset / stash",d:"Unstage or move HEAD / shelve changes",f:[]},{c:"git log / diff / status",d:"History / changes / working state",f:[["--oneline","compact log"]]},{c:"git tag / config",d:"Mark a commit / set options",f:[]},{c:".gitignore",d:"Patterns Git should not track",f:[]}]},
+{dom:4,g:"Shell scripting",items:[{c:"#!",d:"Shebang: interpreter directive (#!/bin/bash)",f:[]},{c:"$(cmd) / `cmd`",d:"Command substitution",f:[]},{c:"${var}",d:"Parameter expansion",f:[]},{c:"$? / $# / $@ / $0",d:"Exit status / arg count / all args / script name",f:[]},{c:"test [ ]",d:"Comparisons",f:[["-eq -ne -lt -gt","numeric"],["= == !=","string"],["-z / -n","empty / non-empty"],["-f / -d / -e","file / dir / exists"]]},{c:"[[ $x =~ re ]]",d:"Regex match",f:[]},{c:"if / case / for / while / until",d:"Control flow",f:[]},{c:"export / local / set / unset",d:"Variable scope/environment control",f:[]},{c:"IFS",d:"Internal Field Separator (how input splits)",f:[]}]},
+{dom:4,g:"Python (sysadmin basics)",items:[{c:"python3 -m venv",d:"Create an isolated virtual environment",f:[]},{c:"source venv/bin/activate",d:"Enter the venv (deactivate to leave)",f:[]},{c:"pip",d:"Install packages",f:[["install -r requirements.txt",""],["freeze","list versions"]]},{c:"PEP 8",d:"Python style guide (4-space indents, naming)",f:[]}]},
+{dom:5,g:"Monitoring & performance tools",items:[{c:"top / htop",d:"Live processes, CPU, memory, load",f:[]},{c:"free",d:"Memory and swap usage",f:[["-h","human"]]},{c:"uptime",d:"Uptime + 1/5/15-min load averages",f:[]},{c:"vmstat",d:"Memory/CPU/IO at an interval (watch wa, si/so)",f:[]},{c:"iostat",d:"Per-device disk I/O (%util, await)",f:[["-x","extended"]]},{c:"mpstat / pidstat",d:"Per-CPU / per-process stats",f:[]},{c:"sar",d:"Historical performance (sysstat)",f:[["-u CPU / -r mem / -n DEV net",""]]},{c:"lsof",d:"Open files; find deleted-but-open files filling disk",f:[]},{c:"dmesg",d:"Kernel/hardware/OOM messages",f:[]},{c:"ss / dig / mtr / tcpdump",d:"Sockets / DNS / path loss / packet capture",f:[]},{c:"watch",d:"Re-run a command periodically",f:[["-n","interval"],["-d","highlight changes"]]}]},
+{dom:5,g:"Troubleshooting symptoms & checks",items:[{c:"Disk full, du shows little",d:"A deleted file is held open -> find it with lsof",f:[]},{c:"No space, but df -h has room",d:"Inode exhaustion -> check df -i",f:[]},{c:"High %wa in top",d:"I/O wait -> disk bottleneck (check iostat -x)",f:[]},{c:"Heavy swapping (si/so)",d:"Memory pressure -> not enough RAM",f:[]},{c:"OOM killer in dmesg",d:"Out of memory; processes killed to recover",f:[]},{c:"App denied, perms look right (RHEL)",d:"SELinux context/policy -> check audit log, restorecon",f:[]},{c:"Denied with correct rwx",d:"ACL may restrict -> check getfacl",f:[]},{c:"Boot fails after kernel/GRUB change",d:"GRUB misconfiguration",f:[]}]}];
 const DOMAINS=[
  {n:1,name:"System Management",pct:23},
  {n:2,name:"Services & User Mgmt",pct:20},
@@ -449,13 +525,14 @@ const barright=document.getElementById("barright");
 
 function promptLine(cmd){return `<div class="cmdline"><span class="prompt"><span class="u">student@linuxplus</span><span class="c">:</span><span class="p">~/xk0-006</span><span class="c">$</span></span> <span class="c">${cmd}</span></div>`;}
 function navBar(){
-  const tabs=[["dash","dashboard"],["practice","practice"],["exam","exam-sim"]];
+  const tabs=[["dash","dashboard"],["ref","study"],["practice","practice"],["exam","exam-sim"]];
   return `<nav>${tabs.map(([k,l])=>`<button data-tab="${k}" class="${tab===k?"active":""}">${l}</button>`).join("")}</nav>`;
 }
 
 function render(){
   barright.textContent = `${Q.length} questions loaded`;
   if(tab==="dash") return renderDash();
+  if(tab==="ref") return renderRef();
   if(tab==="practice") return renderPractice();
   if(tab==="exam") return renderExam();
 }
@@ -634,6 +711,88 @@ function renderExam(){
   }
 }
 function scoreExam(){E.phase="results";render();}
+
+
+/* ---------- STUDY / REFERENCE ---------- */
+const R={dom:0,search:"",open:new Set(),domClosed:new Set()};
+const REFDOMNAMES={1:"System Management",2:"Services & User Management",3:"Security",4:"Automation & Scripting",5:"Troubleshooting"};
+function gkey(g){return g.dom+":"+g.g;}
+function renderRef(){
+  const chips=[[0,"all"],[1,"D1 sys"],[2,"D2 svc/user"],[3,"D3 security"],[4,"D4 automation"],[5,"D5 troublesh."]];
+  screen.innerHTML=navBar()+
+    `<div class="chips">${chips.map(([n,l])=>`<button class="chip ${R.dom===n?"active":""}" data-dom="${n}">${l}</button>`).join("")}</div>`+
+    promptLine("grep -ri --flags ~/cheatsheet")+
+    `<div class="searchbar"><span class="sp">search &gt;</span><input id="refsearch" type="text" placeholder="filter command or flag (e.g. tar, -mtime, selinux)" value="${esc(R.search)}" autocomplete="off" spellcheck="false"></div>
+     <div class="ref-tools"><button class="ref-toolbtn" id="expall">expand all</button><button class="ref-toolbtn" id="colall">collapse all</button><span class="ref-tip muted">click a category to expand</span></div>
+     <div id="reflist"></div>`;
+  hook();
+  document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{R.dom=+c.dataset.dom;renderRef();});
+  const inp=document.getElementById("refsearch");
+  inp.oninput=()=>{R.search=inp.value;fillRef();};
+  document.getElementById("expall").onclick=()=>{R.domClosed.clear();visibleGroups().forEach(g=>R.open.add(gkey(g)));fillRef();};
+  document.getElementById("colall").onclick=()=>{R.open.clear();fillRef();};
+  fillRef();
+  if(R.search){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}
+}
+function refMatch(g,term){
+  if(!term) return g.items;
+  if(g.g.toLowerCase().includes(term)) return g.items;
+  return g.items.filter(it=>{
+    const hay=(it.c+" "+it.d+" "+it.f.map(p=>p[0]+" "+p[1]).join(" ")).toLowerCase();
+    return hay.includes(term);
+  });
+}
+function visibleGroups(){
+  const term=R.search.trim().toLowerCase();
+  return REF.filter(g=>(!R.dom||g.dom===R.dom) && refMatch(g,term).length);
+}
+function fillRef(){
+  const term=R.search.trim().toLowerCase();
+  const shown=REF.filter(g=>!R.dom||g.dom===R.dom).map(g=>({g,items:refMatch(g,term)})).filter(x=>x.items.length);
+  const domOrder=[...new Set(shown.map(x=>x.g.dom))];
+  let html="", total=0;
+  domOrder.forEach(dn=>{
+    const dgroups=shown.filter(x=>x.g.dom===dn);
+    const dEntries=dgroups.reduce((s,x)=>s+x.items.length,0);
+    total+=dEntries;
+    const domOpen = term ? true : !R.domClosed.has(dn);
+    html+=`<div class="ref-dom ${domOpen?"open":""}" data-dom-toggle="${dn}">
+      <span class="chev">&#9656;</span><span class="dt">${dn}.0 ${esc(REFDOMNAMES[dn])}</span>
+      <span class="dc">${dgroups.length} cat &middot; ${dEntries}</span></div>`;
+    if(!domOpen) return;
+    html+=`<div class="ref-domwrap">`;
+    dgroups.forEach(({g,items})=>{
+      const open = term ? true : R.open.has(gkey(g));
+      const body=items.map(it=>{
+        const flags=it.f.length?`<div class="ref-flags">${it.f.map(p=>`<div class="ref-flag"><span class="ff">${esc(p[0])}</span><span>${esc(p[1])}</span></div>`).join("")}</div>`:"";
+        return `<div class="ref-item"><span class="ref-cmd">${esc(it.c)}</span> <span class="ref-desc">&mdash; ${esc(it.d)}</span>${flags}</div>`;
+      }).join("");
+      html+=`<div class="ref-acc ${open?"open":""}" data-key="${esc(gkey(g))}">
+        <div class="ref-head ${open?"open":""}"><span class="chev">&#9656;</span><span class="ht">${esc(g.g)}</span><span class="hc">${items.length}</span></div>
+        <div class="ref-body">${body}</div>
+      </div>`;
+    });
+    html+=`</div>`;
+  });
+  const lst=document.getElementById("reflist");
+  const ncat=shown.length;
+  lst.innerHTML = (total?`<div class="ref-count"># ${total} entr${total===1?"y":"ies"} in ${ncat} categor${ncat===1?"y":"ies"}${term?" matching '"+esc(term)+"'":""}</div>`:`<div class="ref-empty">no commands match '${esc(term)}'</div>`)+html;
+  // domain toggles always active; category toggles only when not searching (search force-expands)
+  lst.querySelectorAll(".ref-dom").forEach(h=>h.onclick=()=>{
+    if(term) return;
+    const dn=+h.dataset.domToggle;
+    if(R.domClosed.has(dn))R.domClosed.delete(dn); else R.domClosed.add(dn);
+    fillRef();
+  });
+  if(!term){
+    lst.querySelectorAll(".ref-head").forEach(h=>h.onclick=()=>{
+      const k=h.parentElement.dataset.key;
+      if(R.open.has(k))R.open.delete(k); else R.open.add(k);
+      fillRef();
+    });
+  }
+}
+
 
 /* ---- nav wiring + keyboard ---- */
 function hook(){

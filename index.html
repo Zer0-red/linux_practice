@@ -714,7 +714,7 @@ function scoreExam(){E.phase="results";render();}
 
 
 /* ---------- STUDY / REFERENCE ---------- */
-const R={dom:0,search:"",open:new Set(),domClosed:new Set()};
+const R={dom:0,search:"",open:new Set(),domOpen:new Set()};
 const REFDOMNAMES={1:"System Management",2:"Services & User Management",3:"Security",4:"Automation & Scripting",5:"Troubleshooting"};
 function gkey(g){return g.dom+":"+g.g;}
 function renderRef(){
@@ -723,14 +723,14 @@ function renderRef(){
     `<div class="chips">${chips.map(([n,l])=>`<button class="chip ${R.dom===n?"active":""}" data-dom="${n}">${l}</button>`).join("")}</div>`+
     promptLine("grep -ri --flags ~/cheatsheet")+
     `<div class="searchbar"><span class="sp">search &gt;</span><input id="refsearch" type="text" placeholder="filter command or flag (e.g. tar, -mtime, selinux)" value="${esc(R.search)}" autocomplete="off" spellcheck="false"></div>
-     <div class="ref-tools"><button class="ref-toolbtn" id="expall">expand all</button><button class="ref-toolbtn" id="colall">collapse all</button><span class="ref-tip muted">click a category to expand</span></div>
+     <div class="ref-tools"><button class="ref-toolbtn" id="expall">expand all</button><button class="ref-toolbtn" id="colall">collapse all</button><span class="ref-tip muted">click a section to expand</span></div>
      <div id="reflist"></div>`;
   hook();
   document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{R.dom=+c.dataset.dom;renderRef();});
   const inp=document.getElementById("refsearch");
   inp.oninput=()=>{R.search=inp.value;fillRef();};
-  document.getElementById("expall").onclick=()=>{R.domClosed.clear();visibleGroups().forEach(g=>R.open.add(gkey(g)));fillRef();};
-  document.getElementById("colall").onclick=()=>{R.open.clear();fillRef();};
+  document.getElementById("expall").onclick=()=>{const v=visibleGroups();[...new Set(v.map(g=>g.dom))].forEach(d=>R.domOpen.add(d));v.forEach(g=>R.open.add(gkey(g)));fillRef();};
+  document.getElementById("colall").onclick=()=>{R.open.clear();R.domOpen.clear();fillRef();};
   fillRef();
   if(R.search){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}
 }
@@ -755,11 +755,11 @@ function fillRef(){
     const dgroups=shown.filter(x=>x.g.dom===dn);
     const dEntries=dgroups.reduce((s,x)=>s+x.items.length,0);
     total+=dEntries;
-    const domOpen = term ? true : !R.domClosed.has(dn);
-    html+=`<div class="ref-dom ${domOpen?"open":""}" data-dom-toggle="${dn}">
+    const dOpen = term ? true : R.domOpen.has(dn);
+    html+=`<div class="ref-dom ${dOpen?"open":""}" data-dom-toggle="${dn}">
       <span class="chev">&#9656;</span><span class="dt">${dn}.0 ${esc(REFDOMNAMES[dn])}</span>
       <span class="dc">${dgroups.length} cat &middot; ${dEntries}</span></div>`;
-    if(!domOpen) return;
+    if(!dOpen) return;
     html+=`<div class="ref-domwrap">`;
     dgroups.forEach(({g,items})=>{
       const open = term ? true : R.open.has(gkey(g));
@@ -781,7 +781,7 @@ function fillRef(){
   lst.querySelectorAll(".ref-dom").forEach(h=>h.onclick=()=>{
     if(term) return;
     const dn=+h.dataset.domToggle;
-    if(R.domClosed.has(dn))R.domClosed.delete(dn); else R.domClosed.add(dn);
+    if(R.domOpen.has(dn))R.domOpen.delete(dn); else R.domOpen.add(dn);
     fillRef();
   });
   if(!term){

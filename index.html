@@ -45,6 +45,9 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:99;
   border:1px solid var(--line);border-radius:6px;padding:4px 9px;cursor:pointer;transition:.13s;line-height:1.3}
 .themebtn:hover{color:var(--txt);border-color:var(--line2)}
 .window{transition:background .25s,border-color .25s}
+.disclaimer{max-width:880px;margin:18px auto 0;padding:0 6px;text-align:center}
+.disclaimer p{font-family:var(--mono);font-size:10.5px;line-height:1.6;color:var(--dim2);margin:0 0 7px}
+.disclaimer p b{color:var(--dim);font-weight:500}
 .screen{padding:18px 20px 26px;min-height:520px}
 .cursor{display:inline-block;width:9px;height:16px;background:var(--green);transform:translateY(2px);animation:blink 1.1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
@@ -68,6 +71,7 @@ nav button.active{color:var(--green);border-color:var(--green-dim);background:rg
 /* question */
 .qbox{font-size:14.5px}
 .qmeta{font-size:11px;color:var(--dim2);margin-bottom:10px;letter-spacing:.3px}
+.qflag{color:var(--red);border:1px solid var(--red);border-radius:11px;padding:0 8px;margin-left:4px;font-size:10px;letter-spacing:.3px;white-space:nowrap}
 .qtext{font-size:15.5px;line-height:1.55;margin-bottom:16px;color:var(--txt)}
 .qtext .pre{color:var(--green);margin-right:6px}
 .opts{display:flex;flex-direction:column;gap:8px}
@@ -168,6 +172,12 @@ nav button.active{color:var(--green);border-color:var(--green-dim);background:rg
   </div>
   <div class="screen" id="screen"></div>
 </div>
+
+<footer class="disclaimer">
+  <p><b>Unofficial study tool &mdash; not associated with CompTIA.</b></p>
+  <p>This application is an independent project created solely to help learners study for the CompTIA Linux+ (XK0-006) exam. It is not affiliated with, authorized by, endorsed by, sponsored by, or in any way officially connected to CompTIA, Inc. &ldquo;CompTIA&rdquo;, &ldquo;Linux+&rdquo;, and &ldquo;XK0-006&rdquo; are trademarks or registered trademarks of CompTIA, Inc., used here for identification and educational reference only.</p>
+  <p>All questions and reference material are original content written from the publicly available exam objectives. No actual exam questions are reproduced, and no relationship with CompTIA is implied. Always refer to official CompTIA resources for authoritative exam preparation.</p>
+</footer>
 
 <script>
 const Q = [
@@ -449,7 +459,79 @@ const Q = [
 {d:2,q:"What does 'docker ps' show by default?",o:["Only currently running containers","All containers including stopped ones","Local images","Host processes"],c:0,x:"docker ps lists running containers; add -a to include stopped ones."},
 {d:2,q:"What does the -p flag do in 'docker run -p 8080:80 ...'?",o:["Publishes host port 8080 to the container's port 80","Sets a password for the container","Runs the container in privileged mode","Pulls the image before running"],c:0,x:"-p host:container maps a host port to a container port."},
 {d:2,q:"What does '-v /data:/app/data' do in 'docker run'?",o:["Bind-mounts host /data into the container at /app/data","Enables verbose logging","Defines an environment variable","Verifies the image signature"],c:0,x:"-v maps a host path (or named volume) into the container for persistent storage."},
-{d:2,q:"What does the -e flag do in 'docker run -e ENV=prod ...'?",o:["Sets an environment variable inside the container","Executes a command and exits","Exposes a port","Enables encryption"],c:0,x:"-e KEY=value injects an environment variable into the container."}
+{d:2,q:"What does the -e flag do in 'docker run -e ENV=prod ...'?",o:["Sets an environment variable inside the container","Executes a command and exits","Exposes a port","Enables encryption"],c:0,x:"-e KEY=value injects an environment variable into the container."},
+{d:5,q:"A service fails after reboot. Which command should you check first?",o:["journalctl -u <service> -b","lsmod <service>","df -i <service>","ip route <service>"],c:0,x:"journalctl -u filters logs by unit; -b limits output to the current boot."},
+{d:5,q:"A website works by IP but not by name. Which area is most likely broken?",o:["DNS resolution","Default gateway","File permissions","Kernel modules"],c:0,x:"If IP works but name does not, check DNS with dig, /etc/resolv.conf, systemd-resolved, and /etc/nsswitch.conf."},
+{d:5,q:"After extending an LVM logical volume, df still shows the old size. What was probably missed?",o:["Growing the filesystem","Running chmod","Restarting sshd","Changing SELinux mode"],c:0,x:"lvextend grows the block device; resize2fs (ext) or xfs_growfs (XFS) grows the filesystem itself."},
+{d:5,q:"Load average is very high but CPU usage is low. What is the most likely cause?",o:["Processes blocked waiting on disk I/O","A CPU bottleneck","Too little swap","A DNS outage"],c:0,x:"Load counts runnable AND uninterruptible (I/O-wait) processes; high load with idle CPU points to I/O. Check iostat."},
+{d:5,q:"df -h shows free space, yet creating files fails with 'No space left on device'. What should you check?",o:["Inode usage with df -i","The default gateway","SELinux booleans","The crontab"],c:0,x:"A filesystem out of inodes (many tiny files) cannot create new files even with free blocks."},
+{d:5,q:"A process ignores Ctrl+C and a normal kill. How do you force it to terminate?",o:["kill -9 (SIGKILL)","kill -1 (SIGHUP)","kill -19 (SIGSTOP)","nohup the process"],c:0,x:"SIGKILL (9) cannot be caught or ignored. Use it only after SIGTERM (15) fails."},
+{d:5,q:"Connecting via SSH returns 'Connection refused' instantly. What is the most likely cause?",o:["sshd is not running or nothing is listening on the port","Packets are being silently dropped by a firewall","DNS resolution is broken","The disk is full"],c:0,x:"An immediate refusal means the port is reachable but closed (service down). A silent timeout would suggest a drop/firewall."},
+{d:5,q:"An SSH attempt just hangs and eventually times out with no response. What is the likely cause?",o:["A firewall is dropping the packets (or the host is unreachable)","sshd returned an error","The password expired","The shell is /sbin/nologin"],c:0,x:"A drop (no RST) causes a timeout, unlike 'Connection refused', which is an active rejection."},
+{d:5,q:"After editing mounts, the system boots into emergency mode. What is the usual culprit?",o:["A bad entry in /etc/fstab","A missing kernel module","An expired certificate","A full /var/log"],c:0,x:"An invalid fstab device or option can block boot. Add nofail to non-critical mounts to avoid this."},
+{d:5,q:"How can you safely test /etc/fstab changes without rebooting?",o:["mount -a","systemctl reboot","fsck -a","umount -a"],c:0,x:"mount -a mounts everything in fstab and surfaces errors before they break the next boot."},
+{d:5,q:"A unit shows 'failed' in systemctl status. Where do you find why it failed?",o:["journalctl -u <unit>","dmesg -c","lsof <unit>","ip link show"],c:0,x:"journalctl -u (or journalctl -xeu) shows the unit's logs and the failure reason."},
+{d:5,q:"A cron job runs fine when launched by hand but never runs from cron. Common cause?",o:["cron runs with a minimal environment/PATH, so use absolute paths","The script lost execute permission","The disk is full","SELinux is permissive"],c:0,x:"cron jobs get a stripped environment; reference full paths and define needed variables in the job."},
+{d:5,q:"Kerberos/AD authentication fails with a clock-skew error. What should you fix?",o:["Synchronize the system clock (NTP/chrony, timedatectl)","Regenerate SSH keys","Open port 88 only","Disable SELinux"],c:0,x:"Kerberos rejects tickets when clock skew is too large; keep time in sync with NTP."},
+{d:5,q:"Even root cannot modify a file despite full permissions. What might be set?",o:["The immutable attribute (chattr +i)","A sticky bit","An empty PATH","A bad umask"],c:0,x:"chattr +i makes a file unmodifiable until chattr -i clears it; check with lsattr."},
+{d:5,q:"A filesystem switches to read-only after disk errors. What is a sound next step?",o:["Check dmesg and run fsck on the unmounted filesystem","chmod -R 777 the mount","Reboot repeatedly","Disable journaling"],c:0,x:"Read-only remount protects data after errors; inspect dmesg for the device and fsck it offline."},
+{d:5,q:"dmesg shows repeated I/O errors for /dev/sdb. What does this most likely indicate?",o:["Failing disk hardware","A DNS misconfiguration","An SELinux denial","A bad shebang"],c:0,x:"Persistent low-level I/O errors point to a failing drive; check SMART data and replace it."},
+{d:5,q:"iostat shows a disk at ~100% %util with high await. What does this indicate?",o:["A disk I/O bottleneck (the device is saturated)","A memory leak","High DNS latency","A CPU bottleneck"],c:0,x:"High utilization and service time mean the storage cannot keep up with demand."},
+{d:5,q:"ip a shows eth0 in state DOWN. Which command brings the interface up?",o:["ip link set eth0 up","ip addr flush eth0","ip route add eth0","ifup --force eth0 down"],c:0,x:"ip link set <dev> up enables the interface at layer 2."},
+{d:5,q:"A host reaches other LAN systems but never the internet. What should you check first?",o:["The default gateway / routing table (ip route)","The hostname","The umask","The inode count"],c:0,x:"Reaching the LAN but not beyond usually means a missing or wrong default route."},
+{d:5,q:"Names do not resolve at all. Which file lists the nameservers to verify first?",o:["/etc/resolv.conf","/etc/fstab","/etc/hostname","/etc/profile"],c:0,x:"/etc/resolv.conf holds the nameserver entries (often managed by systemd-resolved/NetworkManager)."},
+{d:5,q:"resolv.conf is correct but names still fail. Which file controls the lookup source order?",o:["/etc/nsswitch.conf","/etc/hosts.allow","/etc/networks","/etc/services"],c:0,x:"nsswitch.conf sets the order (e.g. 'hosts: files dns'); a missing 'dns' breaks resolution."},
+{d:5,q:"A service will not start: 'Address already in use'. How do you find what holds the port?",o:["ss -tulnp","df -h","free -m","uptime"],c:0,x:"ss -tulnp (or lsof -i :PORT) shows the listening socket and its owning process."},
+{d:5,q:"Which command quickly identifies the process using the most CPU right now?",o:["top","du","stat","blkid"],c:0,x:"top (or htop) sorts by CPU live; press P to sort by CPU usage."},
+{d:5,q:"Many processes appear in the Z (zombie) state. What is the root cause?",o:["The parent process is not reaping its children","The CPU is overloaded","The disk is full","DNS is failing"],c:0,x:"Zombies are exited children awaiting wait() by the parent; fixing or restarting the parent clears them."},
+{d:5,q:"A program exits instantly with no error message. Which tool reveals the failing system call (e.g. a missing file)?",o:["strace","htop","vmstat","dig"],c:0,x:"strace traces syscalls and shows exactly where the program fails (e.g. ENOENT on open())."},
+{d:5,q:"A binary fails with 'error while loading shared libraries'. Which tool lists its library dependencies?",o:["ldd","lsof","stat","file"],c:0,x:"ldd shows shared-library dependencies and which ones cannot be found."},
+{d:5,q:"A user gets 'Disk quota exceeded' although df shows free space. What is the cause?",o:["The user's disk quota limit has been reached","Inode table corruption","A read-only mount","A missing home directory"],c:0,x:"Quotas cap per-user usage independently of total free space; check with the quota command."},
+{d:5,q:"A command only works when typed with its full path, otherwise 'command not found'. Likely cause?",o:["A PATH misconfiguration (its directory is not in $PATH)","A permission error","A kernel panic","A DNS failure"],c:0,x:"If the binary's directory is missing from $PATH, the shell cannot find it by name."},
+{d:5,q:"After a kernel update the system panics with 'unable to mount root filesystem'. Likely cause?",o:["A bad or missing initramfs for the new kernel","A full /home partition","An expired TLS certificate","A wrong umask"],c:0,x:"The initramfs must contain drivers to mount root; rebuild it with dracut (or boot the previous kernel)."},
+{d:5,q:"After updating the kernel, the system still boots the old one. What should you check?",o:["The GRUB default boot entry","The /etc/hosts file","The SELinux mode","The crontab"],c:0,x:"GRUB's default/saved entry may still point at the old kernel; update grub.cfg or the default."},
+{d:5,q:"vmstat shows high si/so (swap in/out) values. What does this indicate?",o:["Memory pressure: the system is swapping (needs more RAM)","A disk hardware failure","A DNS loop","High context switching only"],c:0,x:"Sustained swap activity means the working set exceeds physical memory."},
+{d:5,q:"An application is killed unpredictably and dmesg shows 'Out of memory: Killed process'. Cause?",o:["The OOM killer freed memory by terminating a process","A segmentation fault","An expired certificate","A routing loop"],c:0,x:"When memory is exhausted, the kernel's OOM killer terminates processes to recover."},
+{d:5,q:"You see intermittent packet loss to a remote host. Which tool shows per-hop loss along the path?",o:["mtr","ss","stat","nmcli"],c:0,x:"mtr combines traceroute and ping to reveal which hop is dropping packets."},
+{d:5,q:"You need to confirm whether client requests even reach the server. Which tool helps?",o:["tcpdump","top","du","getfacl"],c:0,x:"tcpdump captures packets on the interface so you can see if traffic arrives."},
+{d:5,q:"Throughput is poor and you suspect a NIC duplex mismatch. Which tool inspects link settings?",o:["ethtool","iostat","vmstat","journalctl"],c:0,x:"ethtool shows and sets NIC speed/duplex/auto-negotiation."},
+{d:5,q:"A TLS connection is rejected because the certificate is expired. How do you check a cert's expiry from the CLI?",o:["openssl x509 -enddate -noout -in cert.pem","gpg --verify cert.pem","dig cert.pem","stat cert.pem"],c:0,x:"openssl x509 reads certificate fields; -enddate (or -dates) shows validity."},
+{d:5,q:"On RHEL with SELinux enforcing, a service cannot bind a non-standard port even though firewalld allows it. What is needed?",o:["Add the port to SELinux policy with semanage port","Run chmod 777 on the binary","Disable the network","Reinstall the package"],c:0,x:"SELinux must permit the port/type; e.g. semanage port -a -t <type> -p tcp <port>. Check the audit log."},
+{d:5,q:"After moving files into /var/www on RHEL, the web app returns 403 (SELinux enforcing). How do you fix it?",o:["Restore the correct SELinux context with restorecon","chmod 000 the files","Delete /etc/hosts","Set umask 000"],c:0,x:"Moved files keep their old context; restorecon -Rv relabels them to the expected web type."},
+{d:5,q:"free shows almost no 'free' memory but the system runs fine. How should you read this?",o:["Most memory is used for buffers/cache; look at the 'available' column","RAM is failing","Swap is disabled","The kernel is leaking memory"],c:0,x:"Linux uses spare RAM for cache and reclaims it on demand; 'available' reflects what apps can still use."},
+{d:5,q:"The root filesystem (/) is full and services are failing. Which directory is a common culprit to inspect with du -sh?",o:["/var/log","/proc","/dev","/sys"],c:0,x:"Runaway or unrotated logs in /var/log often fill the root FS; du -sh /var/log/* helps locate them."},
+{d:4,q:"Where does Ansible define the hosts it manages?",o:["An inventory file (INI or YAML)","The playbook's tasks section","/etc/ansible/facts","The Vault file"],c:0,x:"The inventory lists hosts and groups; playbooks target those groups."},
+{d:4,q:"Which is the most idempotent way to ensure a package is installed with Ansible?",o:["Use a package module with state: present","Run a shell command calling dnf install","Copy the binary with the copy module","Use a cron job"],c:0,x:"Package modules check current state and only change what is needed; raw shell commands are not inherently idempotent."},
+{d:4,q:"When does an Ansible handler run?",o:["When a task notifies it after reporting 'changed'","On every play unconditionally","Only at playbook start","Only when --check is used"],c:0,x:"Handlers (e.g. restart a service) run once at the end if a notifying task made a change."},
+{d:4,q:"What is the purpose of ansible-vault?",o:["Encrypt sensitive variables and files","Store the inventory","Cache gathered facts","Lint playbooks"],c:0,x:"ansible-vault protects secrets at rest; supply the vault password when running the playbook."},
+{d:4,q:"What is the correct Terraform/OpenTofu workflow order?",o:["init -> plan -> apply","plan -> init -> apply","apply -> plan -> init","build -> deploy -> run"],c:0,x:"init sets up providers, plan previews changes, apply makes them."},
+{d:4,q:"In a CI/CD pipeline, what most commonly triggers a run?",o:["A commit/push to the version-control repository","A reboot of the server","A cron job on the developer's laptop","A manual file copy"],c:0,x:"Pipelines are typically triggered by repository events (push, merge, tag)."},
+{d:4,q:"What does DevSecOps emphasize?",o:["Integrating security throughout the CI/CD pipeline (shift security left)","Removing security to speed delivery","Manual end-of-cycle audits only","Disabling automated tests"],c:0,x:"DevSecOps builds security checks into the automated pipeline rather than bolting them on at the end."},
+{d:4,q:"Which command discards uncommitted changes to a tracked file, restoring it from the last commit?",o:["git restore <file> (or git checkout -- <file>)","git rm <file>","git stash drop","git reset --hard origin"],c:0,x:"git restore/checkout returns the working file to its committed state. (git reset --hard discards ALL changes.)"},
+{d:4,q:"Which git command shows changes that are not yet staged?",o:["git diff","git log","git status --short only","git show HEAD"],c:0,x:"git diff shows unstaged changes; git diff --staged shows what is staged for commit."},
+{d:4,q:"Which approach condenses several commits into one when integrating a branch?",o:["git merge --squash (or interactive rebase)","git fetch --all","git clone --depth 1","git tag -a"],c:0,x:"--squash combines a branch's commits into a single commit on merge; rebase -i can also squash."},
+{d:4,q:"In Bash, how do you capture a command's output into a variable?",o:["var=$(command)","var=command","var=<command>","run command > var"],c:0,x:"$( ) is command substitution; backticks `command` also work but are less readable."},
+{d:4,q:"In Bash, what does ${NAME:-default} do?",o:["Uses 'default' if NAME is unset or empty","Always sets NAME to default","Deletes NAME","Exports NAME"],c:0,x:"This parameter expansion supplies a fallback value without changing NAME."},
+{d:4,q:"Which option makes a Bash script exit immediately when a command fails?",o:["set -e","set -x","set -u","set +e"],c:0,x:"set -e aborts on the first non-zero exit. (set -x traces, set -u errors on unset vars.)"},
+{d:4,q:"Which Python data structure stores key-value pairs?",o:["Dictionary","List","Tuple","Set"],c:0,x:"A dict maps keys to values; lists/tuples are ordered sequences and sets hold unique values."},
+{d:2,q:"Which rpm option lists ALL installed packages?",o:["rpm -qa","rpm -ql","rpm -qf","rpm -V"],c:0,x:"-qa = query all. -ql lists a package's files, -qf finds the owner of a file, -V verifies a package."},
+{d:2,q:"Which rpm option lists the files installed by a package?",o:["rpm -ql httpd","rpm -qa httpd","rpm -qi httpd","rpm -e httpd"],c:0,x:"-ql = query list of files. -qi shows info, -e erases."},
+{d:2,q:"Which rpm option verifies an installed package's files against the RPM database?",o:["rpm -V","rpm -qa","rpm -ql","rpm -i"],c:0,x:"rpm -V reports files whose size, permissions, or checksum changed since install."},
+{d:2,q:"Which command imports a repository's GPG key for RPM-based systems?",o:["rpm --import <keyfile>","rpm -i <keyfile>","gpg --add <keyfile>","dnf keygen"],c:0,x:"rpm --import trusts the key so signed packages from the repo verify."},
+{d:2,q:"Which dpkg option lists the files installed by a Debian package?",o:["dpkg -L <package>","dpkg -l <package>","dpkg -S <package>","dpkg -i <package>"],c:0,x:"-L lists a package's files. -l lists installed packages, -S finds which package owns a file."},
+{d:2,q:"Which dpkg option finds which package owns a given file?",o:["dpkg -S /path/to/file","dpkg -L /path/to/file","dpkg -l /path/to/file","dpkg -r /path/to/file"],c:0,x:"-S searches the package database for the file's owner (the Debian equivalent of rpm -qf)."},
+{d:2,q:"Which dpkg command lists installed packages?",o:["dpkg -l","dpkg -L","dpkg -c","dpkg -x"],c:0,x:"dpkg -l shows installed packages and their status."},
+{d:2,q:"What is the difference between 'apt remove' and 'apt purge'?",o:["purge also removes the package's configuration files","remove also deletes config; purge keeps it","They are identical","purge only removes dependencies"],c:0,x:"apt remove leaves config behind; apt purge removes the package and its config files."},
+{d:2,q:"Which command clears downloaded .deb files from the local APT cache?",o:["apt clean","apt update","apt autoremove","apt purge cache"],c:0,x:"apt clean empties /var/cache/apt/archives; autoclean removes only outdated files."},
+{d:2,q:"Which command clears cached metadata and packages for DNF?",o:["dnf clean all","dnf update","dnf autoremove","dnf reset"],c:0,x:"dnf clean all wipes cached repo metadata and packages, forcing a fresh download next time."},
+{d:2,q:"Which command lists available package updates on a DNF system without installing them?",o:["dnf check-update","dnf list installed","dnf clean all","dnf history"],c:0,x:"dnf check-update reports packages with newer versions available."},
+{d:2,q:"Which command finds which package provides a given file or command on a DNF system?",o:["dnf provides /usr/bin/htop","dnf search htop","dnf info htop","dnf list htop"],c:0,x:"dnf provides (or whatprovides) maps a file/command to its package; rpm -qf does it for installed files."},
+{d:2,q:"Which command lists the enabled repositories on a DNF system?",o:["dnf repolist","dnf list repos","dnf info repos","dnf search repos"],c:0,x:"dnf repolist shows enabled repos; add --all to include disabled ones."},
+{d:2,q:"Which command shows detailed information (version, size, summary) about a package?",o:["dnf info <package>","dnf provides <package>","dnf repolist <package>","dnf clean <package>"],c:0,x:"dnf info prints metadata about an available or installed package."},
+{d:2,q:"Where are DNF/YUM repository definitions stored?",o:["/etc/yum.repos.d/*.repo","/etc/apt/sources.list","/etc/dnf/hosts","/var/lib/rpm"],c:0,x:"Each .repo file under /etc/yum.repos.d/ defines a repo (baseurl, enabled, gpgkey)."},
+{d:2,q:"Where are APT repository sources defined on a Debian/Ubuntu system?",o:["/etc/apt/sources.list and /etc/apt/sources.list.d/","/etc/yum.repos.d/","/etc/apt/repos.conf","/var/lib/dpkg/"],c:0,x:"APT reads sources.list plus any .list files under sources.list.d/."},
+{d:2,q:"A 'dnf install' fails with a GPG key error for a repository. What is usually required?",o:["Import the repository's GPG key (or set gpgkey= in the .repo)","Disable SELinux","Run dnf as a normal user","Delete /etc/hosts"],c:0,x:"DNF verifies package signatures; the repo's GPG key must be trusted/imported."},
+{d:2,q:"What is EPEL on RHEL-family systems?",o:["Extra Packages for Enterprise Linux, a community add-on repository","A kernel module loader","A firewall front end","A backup tool"],c:0,x:"EPEL provides additional packages not in the base RHEL repos."}
 ];
 
 const REF=[{dom:1,g:"Kernel modules",items:[{c:"lsmod",d:"List modules currently loaded in memory",f:[]},{c:"modinfo",d:"Show details about a module (author, params, deps)",f:[]},{c:"modprobe",d:"Load a module AND its dependencies",f:[["-r","unload a module + unused deps"]]},{c:"insmod",d:"Insert a single module file (no dependency resolution)",f:[]},{c:"rmmod",d:"Remove a loaded module",f:[]},{c:"depmod",d:"Rebuild the modules.dep dependency database",f:[]}]},
@@ -510,14 +592,14 @@ const DAY=864e5, INT=[0,0,DAY,3*DAY,7*DAY,16*DAY];
 function st(id){return progress[id]||{box:0,due:0,seen:0,correct:0,wrong:0};}
 function grade(id,ok){const s=st(id);s.seen++;if(ok){s.correct++;s.box=Math.min((s.box||0)+1,5);}else{s.wrong++;s.box=1;}s.due=Date.now()+INT[s.box];progress[id]=s;save();}
 function isDue(q){const s=progress[q.id];return !s||!s.seen||s.due<=Date.now();}
-function queue(dom,reviewAll){let p=Q.filter(q=>!dom||q.d===dom);if(!reviewAll)p=p.filter(isDue);return p.sort((a,b)=>{const A=st(a.id),B=st(b.id);if(A.box!==B.box)return A.box-B.box;return A.due-B.due;});}
+function queue(dom,reviewAll){let p=Q.filter(q=>!dom||q.d===dom);if(!reviewAll)p=p.filter(isDue);p=shuffle(p);const pr=b=>b===0?1:b;return p.sort((a,b)=>{const pa=pr(st(a.id).box),pb=pr(st(b.id).box);if(pa!==pb)return pa-pb;return st(a.id).due-st(b.id).due;});}
 function esc(s){return String(s).replace(/[&<>]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]));}
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 const LETTERS=["1","2","3","4","5"];
 
 /* ---- state ---- */
 let tab="dash";
-const P={dom:0,q:null,answered:false,reviewAll:false};
+const P={dom:0,q:null,answered:false,reviewAll:false,lastId:null,cool:{},shown:0};
 const E={phase:"setup",len:20,items:[],i:0,picked:[]};
 
 const screen=document.getElementById("screen");
@@ -576,12 +658,19 @@ function renderDash(){
 /* ---------- PRACTICE ---------- */
 function nextPractice(){
   const qq=queue(P.dom,P.reviewAll);
-  P.q = qq.length?qq[0]:null;
+  // prefer questions that are not the one just shown and not in their short session cooldown
+  let pool=qq.filter(q=>q.id!==P.lastId && !(P.cool[q.id]>P.shown));
+  if(!pool.length) pool=qq.filter(q=>q.id!==P.lastId); // small set: ignore cooldown
+  if(!pool.length) pool=qq;                            // last resort
+  // mostly random across all categories, but ~1/3 of the time resurface a previously-missed question
+  const missed=pool.filter(q=>{const s=st(q.id);return s.wrong>0 && s.box<4;});
+  P.q = (missed.length && Math.random()<0.33) ? missed[0] : (pool.length?pool[0]:null);
+  P.lastId = P.q?P.q.id:null;
   P.answered=false;P.order=null;
 }
 function renderPractice(){
   if(!P.q || P.answered===false && !document.getElementById("opts")){ if(!P.q) nextPractice(); }
-  const chips=[[0,"all"],[1,"D1 sys"],[2,"D2 svc/user"],[3,"D3 security"],[4,"D4 automation"],[5,"D5 troublesh."]];
+  const chips=[[0,"all"],[1,"1.0 sys"],[2,"2.0 svc/user"],[3,"3.0 security"],[4,"4.0 automation"],[5,"5.0 troublesh."]];
   const chipHtml=`<div class="chips">${chips.map(([n,l])=>`<button class="chip ${P.dom===n?"active":""}" data-dom="${n}">${l}</button>`).join("")}</div>`;
   const poolAll=Q.filter(q=>!P.dom||q.d===P.dom);
   const dueCount=poolAll.filter(isDue).length;
@@ -601,7 +690,7 @@ function renderPractice(){
   const opts=P.order.map((o,idx)=>`<button class="opt" data-idx="${idx}"><span class="key">${LETTERS[idx]})</span><span>${esc(o.t)}</span></button>`).join("");
   screen.innerHTML=navBar()+chipHtml+promptLine(`quiz --domain ${P.dom||"all"} --next`)+`
     <div class="qbox">
-      <div class="qmeta">[domain ${q.d}.0 ${esc(dname)}] &middot; ${dueCount} due${P.reviewAll?" &middot; review-all":""} &middot; ${s.box?"box "+s.box+"/5":"new"}</div>
+      <div class="qmeta">[domain ${q.d}.0 ${esc(dname)}] &middot; ${dueCount} due${P.reviewAll?" &middot; review-all":""} &middot; ${s.box?"box "+s.box+"/5":"new"}${(s.wrong>0&&s.box<4)?` <span class="qflag" title="You missed this before. It clears once you have it mastered.">&#10007; missed before</span>`:""}</div>
       <div class="qtext"><span class="pre">&gt;</span>${esc(q.q)}</div>
       <div class="opts" id="opts">${opts}</div>
       <div class="fb" id="fb"><div class="v" id="fv"></div><div class="x" id="fx">${esc(q.x)}</div></div>
@@ -624,6 +713,8 @@ function answerPractice(idx){
   const chosen=P.order[idx];
   const ok = chosen.i===q.c;
   grade(q.id,ok);
+  P.shown++;
+  if(ok) delete P.cool[q.id]; else P.cool[q.id]=P.shown+5; // a miss comes back after ~5 other questions
   const optEls=[...document.querySelectorAll("#opts .opt")];
   optEls.forEach((el,i)=>{
     el.classList.add("dis");
@@ -718,7 +809,7 @@ const R={dom:0,search:"",open:new Set(),domOpen:new Set()};
 const REFDOMNAMES={1:"System Management",2:"Services & User Management",3:"Security",4:"Automation & Scripting",5:"Troubleshooting"};
 function gkey(g){return g.dom+":"+g.g;}
 function renderRef(){
-  const chips=[[0,"all"],[1,"D1 sys"],[2,"D2 svc/user"],[3,"D3 security"],[4,"D4 automation"],[5,"D5 troublesh."]];
+  const chips=[[0,"all"],[1,"1.0 sys"],[2,"2.0 svc/user"],[3,"3.0 security"],[4,"4.0 automation"],[5,"5.0 troublesh."]];
   screen.innerHTML=navBar()+
     `<div class="chips">${chips.map(([n,l])=>`<button class="chip ${R.dom===n?"active":""}" data-dom="${n}">${l}</button>`).join("")}</div>`+
     promptLine("grep -ri --flags ~/cheatsheet")+

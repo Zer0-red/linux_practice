@@ -166,6 +166,7 @@ nav button.active{color:var(--green);border-color:var(--green-dim);background:rg
 .labcard-skill{font-size:11px;color:var(--dim);margin:5px 0 2px}
 .randtag{color:var(--amber);border:1px solid var(--amber);border-radius:4px;padding:0 5px;font-size:10px;text-transform:uppercase;letter-spacing:.4px}
 .labmeta{font-size:11px;color:var(--dim);margin:-4px 0 10px;letter-spacing:.3px}
+.labtag{color:var(--green);border:1px solid var(--green-dim);border-radius:4px;padding:0 6px;font-size:10px;text-transform:uppercase;letter-spacing:.4px}
 .wfnote{color:var(--dim)}
 .wfplacedwrap{margin:4px 0 12px}
 .wfplaced{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line)}
@@ -1877,7 +1878,8 @@ function genVars(t,seed){const v={};let salt=1;for(const k in (t.vars||{})){v[k]
 function tokenize(s){return (s.match(/"[^"]*"|'[^']*'|\S+/g)||[]).map(x=>x.replace(/^['"]|['"]$/g,""));}
 const VALFLAGS=new Set(["-u","-g","-l","-i"]);                       /* short flags that take a value (post-norm, lowercased) */
 const LONGVAL=new Set(["--add-port","--add-service","--remove-port","--remove-service","--zone","--add-source"]);
-function expandCombined(tok){ return /^-[a-z0-9]{2,}$/i.test(tok) ? tok.slice(1).split("").map(c=>"-"+c) : [tok]; }
+const SINGLEDASH_LONG=new Set(["-name","-iname","-type","-mtime","-mmin","-size","-perm","-user","-group","-newer","-exec","-path","-regex","-maxdepth","-mindepth","-delete","-print","-prune"]);
+function expandCombined(tok){ if(SINGLEDASH_LONG.has(tok)) return [tok]; return /^-[a-z]{2,}$/i.test(tok) ? tok.slice(1).split("").map(c=>"-"+c) : [tok]; }
 function parseCommand(input){
   const raw=input, n=norm(input);
   let toks=tokenize(n);
@@ -1937,175 +1939,357 @@ const VAR_POOLS={
 /* ---- lab templates (parameterized) ---- */
 const LAB_TEMPLATES=[
   {
-    id:"svc_logs_enable", title:"Service troubleshooting", d:2, skill:"Inspect a unit's logs, then make it boot-persistent",
-    blurb:"A systemd service fails after a reboot and the site is down.",
+    id:"journalctl_logs", title:"Reading service logs", d:5, skill:"Filter the journal with the right option",
+    blurb:"Pull exactly the journal output a situation calls for.",
     vars:{service:VAR_POOLS.services},
-    situation:v=>`${v.service} fails to come up after a reboot and the service is down.`,
-    steps:[
-      {goal:v=>`Show the logs for the ${v.service} service from the current boot only.`,
-       answer:v=>`journalctl -u ${v.service} -b`,
-       why:v=>`<code>-u</code> filters by unit (the ${v.service} service); <code>-b</code> limits output to the current boot, so you see only this session's failure.`},
-      {goal:v=>`The logs show it never started. Make ${v.service} start automatically on every boot.`,
-       answer:v=>`systemctl enable ${v.service}`, alts:v=>[`systemctl enable --now ${v.service}`],
-       why:v=>`<code>enable</code> creates the boot-time symlink so ${v.service} starts on every boot. Add <code>--now</code> to also start it immediately.`}
+    variants:[
+      { tag:"current boot",
+        situation:v=>`${v.service} broke sometime today and you only care about this boot's messages.`,
+        steps:[{goal:v=>`Show ${v.service}'s logs from the current boot only.`, answer:v=>`journalctl -u ${v.service} -b`,
+          why:v=>`<code>-u</code> filters to the ${v.service} unit; <code>-b</code> limits output to the current boot.`}] },
+      { tag:"follow live",
+        situation:v=>`You're about to reproduce a bug and want to watch ${v.service}'s log update in real time.`,
+        steps:[{goal:v=>`Stream ${v.service}'s logs live, appending new lines as they arrive.`, answer:v=>`journalctl -u ${v.service} -f`,
+          why:v=>`<code>-f</code> (follow) tails the journal like <code>tail -f</code>, printing new entries as they're written.`}] },
+      { tag:"last N lines",
+        situation:v=>`You just need a quick look at the tail end of ${v.service}'s log.`,
+        steps:[{goal:v=>`Show only the most recent 50 journal lines for ${v.service}.`, answer:v=>`journalctl -u ${v.service} -n 50`,
+          accept:v=>[`(sudo )?journalctl -u ${rxesc(v.service)} -n \\d+`,`(sudo )?journalctl -n \\d+ -u ${rxesc(v.service)}`],
+          why:v=>`<code>-n</code> caps the output to the last N lines (default 10). Handy when the journal is huge.`}] },
+      { tag:"errors only",
+        situation:v=>`${v.service}'s log is noisy and you want only error-level entries.`,
+        steps:[{goal:v=>`Show ${v.service}'s logs filtered to error priority and above.`, answer:v=>`journalctl -u ${v.service} -p err`,
+          accept:v=>[`(sudo )?journalctl -u ${rxesc(v.service)} -p (err|error|3)`,`(sudo )?journalctl -p (err|error|3) -u ${rxesc(v.service)}`],
+          why:v=>`<code>-p</code> filters by priority; <code>err</code> (level 3) shows errors and anything more severe.`}] },
+      { tag:"since a time",
+        situation:v=>`You know ${v.service} started failing around 9am and want everything since then.`,
+        steps:[{goal:v=>`Show ${v.service}'s logs from a starting time (e.g. since "09:00" or "1 hour ago").`, answer:v=>`journalctl -u ${v.service} --since "09:00"`,
+          accept:v=>[`(sudo )?journalctl -u ${rxesc(v.service)} --since .+`,`(sudo )?journalctl --since .+ -u ${rxesc(v.service)}`],
+          why:v=>`<code>--since</code> accepts absolute times ("2024-01-01 09:00") or relative ones ("1 hour ago", "yesterday").`}] },
+      { tag:"kernel + boot",
+        situation:v=>`You suspect a kernel/driver issue rather than ${v.service} itself.`,
+        steps:[{goal:()=>`Show kernel ring-buffer messages from the current boot via the journal.`, answer:()=>`journalctl -k -b`, alts:()=>[`dmesg`],
+          why:()=>`<code>-k</code> limits the journal to kernel messages; <code>-b</code> to this boot. <code>dmesg</code> reads the same ring buffer.`}] }
     ]
   },
   {
-    id:"disk_full", title:"Disk filling up", d:5, skill:"Locate what is consuming a full filesystem",
-    blurb:"Users hit 'No space left on device' and a directory is the prime suspect.",
-    vars:{dir:VAR_POOLS.vardirs},
-    situation:v=>`Users hit 'No space left on device'. ${v.dir} is the prime suspect.`,
-    steps:[
-      {goal:()=>`Show usage of all mounted filesystems in human-readable units.`,
-       answer:()=>`df -h`,
-       why:()=>`<code>df -h</code> shows per-filesystem usage. If it reports free space yet writes still fail, suspect inodes (<code>df -i</code>) or a deleted-but-open file.`},
-      {goal:v=>`Find which subdirectories of ${v.dir} are consuming the most space.`,
-       answer:v=>`du -sh ${v.dir}/*`,
-       accept:v=>[`(sudo )?du -s?h ${rxesc(v.dir)}/\\*( \\| sort -h)?`,`(sudo )?du -s?h ${rxesc(v.dir)}/?`],
-       why:v=>`<code>df</code> tells you a filesystem is full; <code>du -sh</code> tells you <i>what</i> is filling it. Pipe to <code>sort -h</code> to rank the offenders.`}
+    id:"systemctl_ctl", title:"Controlling a service", d:2, skill:"Drive systemd with the right subcommand",
+    blurb:"Manage a unit: status, enable, restart, mask, reload, dependencies.",
+    vars:{service:VAR_POOLS.services},
+    variants:[
+      { tag:"check status",
+        situation:v=>`You want to know whether ${v.service} is running and see its recent log tail.`,
+        steps:[{goal:v=>`Show the current status of ${v.service}.`, answer:v=>`systemctl status ${v.service}`,
+          why:v=>`<code>status</code> shows active/failed state, the main PID, and the last log lines for ${v.service}.`}] },
+      { tag:"enable + start now",
+        situation:v=>`${v.service} is installed but neither running nor set to start at boot.`,
+        steps:[{goal:v=>`Enable ${v.service} at boot AND start it immediately, in one command.`, answer:v=>`systemctl enable --now ${v.service}`,
+          why:v=>`<code>enable</code> creates the boot symlink; <code>--now</code> also starts it this instant, so you don't need a separate <code>start</code>.`}] },
+      { tag:"restart",
+        situation:v=>`You changed ${v.service}'s config and need it to pick up the change.`,
+        steps:[{goal:v=>`Restart ${v.service}.`, answer:v=>`systemctl restart ${v.service}`,
+          why:v=>`<code>restart</code> stops then starts the unit. If the daemon supports it, <code>reload</code> re-reads config without dropping connections.`}] },
+      { tag:"mask",
+        situation:v=>`${v.service} must never start \u2014 not at boot, not even by accident or as a dependency.`,
+        steps:[{goal:v=>`Completely prevent ${v.service} from being started.`, answer:v=>`systemctl mask ${v.service}`,
+          why:v=>`<code>mask</code> links the unit to /dev/null so it can't be started at all \u2014 stronger than <code>disable</code>, which only removes the boot symlink.`}] },
+      { tag:"reload unit files",
+        situation:()=>`You just edited a unit file under /etc/systemd/system and systemctl still shows the old definition.`,
+        steps:[{goal:()=>`Make systemd re-read its unit files from disk.`, answer:()=>`systemctl daemon-reload`,
+          why:()=>`After editing any unit file you must <code>daemon-reload</code> so systemd reloads its configuration; otherwise it runs the cached version.`}] },
+      { tag:"list dependencies",
+        situation:v=>`${v.service} won't start and you suspect a dependency is failing.`,
+        steps:[{goal:v=>`Show the dependency tree for ${v.service}.`, answer:v=>`systemctl list-dependencies ${v.service}`,
+          why:v=>`<code>list-dependencies</code> shows the units ${v.service} pulls in, so you can spot a failed prerequisite.`}] }
     ]
   },
   {
-    id:"deleted_open", title:"Space that won't free up", d:5, skill:"Find a deleted-but-open file holding disk blocks",
-    blurb:"df shows 100% full but du only accounts for a fraction.",
-    situation:()=>`df shows the disk 100% full, but du only accounts for a fraction. A large log was deleted while a service still had it open.`,
-    steps:[
-      {goal:()=>`List open files that have been deleted but are still held by a running process.`,
-       answer:()=>`lsof +L1`,
-       accept:()=>[`(sudo )?lsof \\+l1`,`(sudo )?lsof \\| ?grep deleted`],
-       why:()=>`A process holding a deleted file keeps its blocks allocated until it closes the handle or restarts. <code>lsof +L1</code> lists files whose link count dropped below 1. Restart that process to reclaim the space.`}
+    id:"firewall_cmd", title:"firewalld rules", d:3, skill:"Add, remove, and inspect firewalld rules",
+    blurb:"Open ports/services persistently, change zones, reload, inspect.",
+    vars:{port:VAR_POOLS.ports, fwsvc:["https","http","ssh"], zone:["public","internal","dmz"]},
+    variants:[
+      { tag:"open a port",
+        situation:v=>`A service listening on ${v.port}/tcp must be reachable; the rule has to survive reboots.`,
+        steps:[{goal:v=>`Permanently open TCP port ${v.port}.`, answer:v=>`firewall-cmd --permanent --add-port=${v.port}/tcp`,
+          why:v=>`<code>--add-port=${v.port}/tcp</code> opens the port; <code>--permanent</code> saves it to the on-disk config so a reload/reboot keeps it.`}] },
+      { tag:"open a service",
+        situation:v=>`Rather than a raw port, you want to allow the predefined ${v.fwsvc} service permanently.`,
+        steps:[{goal:v=>`Permanently allow the ${v.fwsvc} service.`, answer:v=>`firewall-cmd --permanent --add-service=${v.fwsvc}`,
+          why:v=>`firewalld ships named services (port+protocol bundles). <code>--add-service=${v.fwsvc}</code> is clearer than hard-coding the port.`}] },
+      { tag:"remove a service",
+        situation:v=>`The ${v.fwsvc} service should no longer be exposed.`,
+        steps:[{goal:v=>`Permanently remove the ${v.fwsvc} service from the firewall.`, answer:v=>`firewall-cmd --permanent --remove-service=${v.fwsvc}`,
+          why:v=>`<code>--remove-service</code> is the inverse of <code>--add-service</code>; with <code>--permanent</code> it edits the saved config.`}] },
+      { tag:"apply changes",
+        situation:()=>`You've made several --permanent changes but the running firewall still enforces the old rules.`,
+        steps:[{goal:()=>`Apply the permanent rules to the running firewall.`, answer:()=>`firewall-cmd --reload`,
+          why:()=>`Permanent edits don't take effect until <code>--reload</code> re-applies the saved config (without dropping established connections).`}] },
+      { tag:"inspect",
+        situation:()=>`You want to see every rule currently active in the default zone.`,
+        steps:[{goal:()=>`List all active rules in the current zone.`, answer:()=>`firewall-cmd --list-all`,
+          why:()=>`<code>--list-all</code> dumps the active zone's services, ports, and rich rules \u2014 your go-to verification command.`}] },
+      { tag:"change default zone",
+        situation:v=>`Interfaces should default to the ${v.zone} zone.`,
+        steps:[{goal:v=>`Set the default firewalld zone to ${v.zone}.`, answer:v=>`firewall-cmd --set-default-zone=${v.zone}`,
+          why:v=>`<code>--set-default-zone</code> takes effect immediately and persists; new interfaces without an explicit zone use it.`}] }
     ]
   },
   {
-    id:"perm_denied", title:"Permission denied", d:1, skill:"Add the execute bit to a script",
-    blurb:"Running a script returns 'Permission denied'.",
-    vars:{script:VAR_POOLS.scripts},
-    situation:v=>`You wrote ${v.script}, but running ./${v.script} returns 'Permission denied'.`,
-    steps:[
-      {goal:v=>`Give the owner permission to execute ${v.script}.`,
-       answer:v=>`chmod u+x ${v.script}`,
-       accept:v=>[`(sudo )?chmod u\\+x ${rxesc(v.script)}`,`(sudo )?chmod \\+x ${rxesc(v.script)}`,`(sudo )?chmod 7[0-7][0-7] ${rxesc(v.script)}`,`(sudo )?chmod u=rwx ${rxesc(v.script)}`],
-       why:v=>`The script was missing its execute bit. <code>chmod u+x</code> adds execute for the owner; <code>+x</code> adds it for all classes.`}
+    id:"permissions", title:"Permissions & ownership", d:1, skill:"Set the right mode/owner for the situation",
+    blurb:"Execute bits, numeric modes, ownership, recursive, private files.",
+    vars:{file:VAR_POOLS.scripts, dir:["/var/www","/srv/app","/opt/site"], user:VAR_POOLS.users, group:VAR_POOLS.groups, mode:["640","600","750","700"]},
+    variants:[
+      { tag:"add execute",
+        situation:v=>`Running ./${v.file} returns 'Permission denied'.`,
+        steps:[{goal:v=>`Give the owner permission to execute ${v.file}.`, answer:v=>`chmod u+x ${v.file}`,
+          accept:v=>[`(sudo )?chmod u\\+x ${rxesc(v.file)}`,`(sudo )?chmod \\+x ${rxesc(v.file)}`,`(sudo )?chmod 7[0-7][0-7] ${rxesc(v.file)}`,`(sudo )?chmod u=rwx ${rxesc(v.file)}`],
+          why:v=>`The file lacked its execute bit. <code>chmod u+x</code> adds execute for the owner; <code>+x</code> adds it for all classes.`}] },
+      { tag:"exact mode",
+        situation:v=>`${v.file} must be readable/writable by the owner and only readable by its group, per policy: mode ${v.mode}.`,
+        steps:[{goal:v=>`Set ${v.file} to exactly mode ${v.mode} (octal).`, answer:v=>`chmod ${v.mode} ${v.file}`, alts:v=>[`chmod 0${v.mode} ${v.file}`],
+          why:v=>`Octal modes set all three classes at once: each digit is r(4)+w(2)+x(1) for owner, group, other. ${v.mode} is exactly those bits.`}] },
+      { tag:"change owner",
+        situation:v=>`${v.file} should be owned by ${v.user} and the ${v.group} group.`,
+        steps:[{goal:v=>`Change ${v.file}'s owner to ${v.user} and group to ${v.group} in one command.`, answer:v=>`chown ${v.user}:${v.group} ${v.file}`, alts:v=>[`chown ${v.user}.${v.group} ${v.file}`],
+          why:v=>`<code>chown user:group file</code> sets both at once. <code>chmod</code> changes permissions; <code>chown</code> changes ownership \u2014 different problems.`}] },
+      { tag:"recursive on a tree",
+        situation:v=>`Everything under ${v.dir} needs mode 755 applied recursively.`,
+        steps:[{goal:v=>`Recursively set ${v.dir} and its contents to mode 755.`, answer:v=>`chmod -R 755 ${v.dir}`, alts:v=>[`chmod -R 0755 ${v.dir}`],
+          why:v=>`<code>-R</code> recurses into the directory tree. Be careful: 755 on files makes them world-executable \u2014 fine for a web root, not for secrets.`}] },
+      { tag:"lock down a secret",
+        situation:v=>`A private key file ${v.file} is currently group/other readable; only the owner should read or write it.`,
+        steps:[{goal:v=>`Restrict ${v.file} to owner read/write only (mode 600).`, answer:v=>`chmod 600 ${v.file}`, alts:v=>[`chmod 0600 ${v.file}`,`chmod u=rw,go= ${v.file}`],
+          why:v=>`600 = owner rw, group/other nothing. SSH and many daemons refuse to use key files that are group/world readable.`}] }
     ]
   },
   {
-    id:"add_group", title:"Onboarding a teammate", d:2, skill:"Append a user to a supplementary group safely",
-    blurb:"A teammate needs group access without losing existing groups.",
-    vars:{user:VAR_POOLS.users, group:VAR_POOLS.groups},
-    situation:v=>`New teammate '${v.user}' needs ${v.group} access but must keep every group they already belong to.`,
-    steps:[
-      {goal:v=>`Add user ${v.user} to the ${v.group} group without disturbing their existing groups.`,
-       answer:v=>`usermod -aG ${v.group} ${v.user}`, alts:v=>[`gpasswd -a ${v.user} ${v.group}`],
-       why:v=>`<code>-a</code> (append) is the key: <code>usermod -G</code> alone would <i>replace</i> all supplementary groups. The new membership takes effect at ${v.user}'s next login.`}
-    ]
-  },
-  {
-    id:"selinux_bool", title:"SELinux is blocking you", d:3, skill:"Confirm enforcing mode, then flip the right boolean",
-    blurb:"An app gets 'Permission denied' on RHEL despite correct file permissions.",
-    situation:()=>`On a RHEL host your web app gets 'Permission denied' reaching its database, yet the file permissions are correct.`,
-    steps:[
-      {goal:()=>`Check whether SELinux is currently enforcing.`,
-       answer:()=>`getenforce`, alts:()=>[`sestatus`],
-       why:()=>`<code>getenforce</code> prints Enforcing, Permissive, or Disabled. If it's Enforcing, SELinux can block an app even when rwx is correct.`},
-      {goal:()=>`Persistently allow the web server (httpd) to make outbound network connections.`,
-       answer:()=>`setsebool -P httpd_can_network_connect on`, alts:()=>[`setsebool -P httpd_can_network_connect 1`],
-       why:()=>`<code>setsebool</code> flips an SELinux boolean; <code>-P</code> makes it survive a reboot. This is the correct fix &mdash; not <code>chmod</code> and not disabling SELinux.`}
-    ]
-  },
-  {
-    id:"dns_resolve", title:"Name resolution broken", d:2, skill:"Query DNS directly to isolate a resolver problem",
-    blurb:"A server can reach IPs but cannot resolve any name.",
-    vars:{host:VAR_POOLS.hosts},
-    situation:v=>`A server can ping 8.8.8.8 but reports 'cannot resolve host' for ${v.host} and every other name.`,
-    steps:[
-      {goal:v=>`Query DNS directly for the address of ${v.host}.`,
-       answer:v=>`dig ${v.host}`, alts:v=>[`nslookup ${v.host}`,`host ${v.host}`],
-       why:v=>`Reaching an IP but not a name points squarely at DNS. <code>dig</code> asks a resolver directly; no answer means the resolver or <code>/etc/resolv.conf</code> is the problem, not connectivity.`}
-    ]
-  },
-  {
-    id:"firewall_port", title:"Open a firewall port", d:3, skill:"Add a persistent firewalld rule and apply it",
-    blurb:"A new service must be reachable from outside; the host uses firewalld.",
-    vars:{port:VAR_POOLS.ports},
-    situation:v=>`A new service listening on ${v.port}/tcp must be reachable from outside. The host uses firewalld.`,
-    steps:[
-      {goal:v=>`Permanently allow inbound TCP traffic on port ${v.port}.`,
-       answer:v=>`firewall-cmd --permanent --add-port=${v.port}/tcp`,
-       why:v=>`<code>--permanent</code> writes the rule into the saved configuration so it survives a reboot. Without it, the rule is lost on restart.`},
-      {goal:()=>`Apply the permanent rule to the running firewall right now.`,
-       answer:()=>`firewall-cmd --reload`,
-       why:()=>`Permanent rules don't take effect until you <code>--reload</code> (or restart firewalld). Reload re-applies the saved config without dropping existing connections.`}
-    ]
-  },
-  {
-    id:"lvm_grow", title:"Grow a full volume", d:1, skill:"Extend an LV and its filesystem in one step",
-    blurb:"A logical volume is nearly full and the VG has free extents.",
-    vars:{size:VAR_POOLS.sizes},
-    situation:v=>`The ext4 logical volume /dev/vg0/data is nearly full, and its volume group still has ${v.size}+ GB of free extents.`,
-    steps:[
-      {goal:v=>`Extend the logical volume by ${v.size} GB and grow its filesystem in a single command.`,
-       answer:v=>`lvextend -r -L +${v.size}G /dev/vg0/data`, alts:v=>[`lvextend --resizefs -L +${v.size}G /dev/vg0/data`],
-       why:v=>`<code>-L +${v.size}G</code> adds ${v.size} GB; <code>-r</code> (--resizefs) grows the filesystem to match in the same step (it calls resize2fs for ext4). Without <code>-r</code> you'd run resize2fs afterwards.`}
-    ]
-  },
-  {
-    id:"runaway", title:"Runaway process", d:5, skill:"Find a process by name and terminate it gracefully",
-    blurb:"System load spikes; a named process is pegging the CPU.",
+    id:"process_mgmt", title:"Taming a process", d:5, skill:"Find and signal processes by name",
+    blurb:"Locate PIDs, list, count, terminate gracefully or forcibly.",
     vars:{proc:VAR_POOLS.procs},
-    situation:v=>`System load is through the roof. A process named '${v.proc}' is pegging the CPU.`,
-    steps:[
-      {goal:v=>`Print the PID(s) of every process named ${v.proc}.`,
-       answer:v=>`pgrep ${v.proc}`, alts:v=>[`pidof ${v.proc}`,`pgrep -a ${v.proc}`],
-       why:v=>`<code>pgrep</code> matches processes by name and prints their PIDs &mdash; cleaner and safer than parsing <code>ps</code> output by hand.`},
-      {goal:v=>`Gracefully terminate all processes named ${v.proc}.`,
-       answer:v=>`pkill ${v.proc}`, alts:v=>[`killall ${v.proc}`],
-       why:v=>`<code>pkill</code>/<code>killall</code> send SIGTERM (graceful) by name, letting the process clean up. Reach for <code>-9</code> only if it ignores TERM.`}
+    variants:[
+      { tag:"find the PID",
+        situation:v=>`'${v.proc}' is misbehaving and you need its PID(s).`,
+        steps:[{goal:v=>`Print the PID(s) of every process named ${v.proc}.`, answer:v=>`pgrep ${v.proc}`, alts:v=>[`pidof ${v.proc}`],
+          why:v=>`<code>pgrep</code> matches by name and prints PIDs \u2014 cleaner than parsing <code>ps</code>. <code>pidof</code> is similar for exact binary names.`}] },
+      { tag:"list with command line",
+        situation:v=>`You want to see the full command line of each ${v.proc} process, not just the PID.`,
+        steps:[{goal:v=>`List ${v.proc} processes with their PID and full command line.`, answer:v=>`pgrep -a ${v.proc}`,
+          why:v=>`<code>-a</code> makes pgrep print the full command line beside each PID, so you can tell several instances apart.`}] },
+      { tag:"graceful stop",
+        situation:v=>`'${v.proc}' should be asked to shut down cleanly.`,
+        steps:[{goal:v=>`Send the default (graceful) termination signal to all ${v.proc} processes.`, answer:v=>`pkill ${v.proc}`, alts:v=>[`killall ${v.proc}`],
+          why:v=>`<code>pkill</code>/<code>killall</code> send SIGTERM by name, letting the process clean up before exiting.`}] },
+      { tag:"force kill",
+        situation:v=>`'${v.proc}' is wedged and ignoring SIGTERM.`,
+        steps:[{goal:v=>`Forcibly kill every ${v.proc} process with SIGKILL.`, answer:v=>`pkill -9 ${v.proc}`, alts:v=>[`killall -9 ${v.proc}`,`pkill -kill ${v.proc}`],
+          why:v=>`<code>-9</code> (SIGKILL) can't be caught or ignored \u2014 the kernel kills the process outright. Use it only after SIGTERM fails.`}] }
     ]
   },
   {
-    id:"cron_backup", title:"Schedule a backup", d:4, skill:"Write a crontab schedule line",
-    blurb:"A script must run automatically every day at 02:00.",
-    situation:()=>`A backup script at /opt/backup.sh must run automatically every day at 02:00.`,
-    steps:[
-      {goal:()=>`Write the crontab line that runs /opt/backup.sh daily at 2:00 AM.`,
-       answer:()=>`0 2 * * * /opt/backup.sh`,
-       accept:()=>[`0 2 \\* \\* \\* (sudo )?/opt/backup\\.sh`],
-       why:()=>`Cron fields are <code>minute hour day-of-month month day-of-week</code>. <code>0 2 * * *</code> means minute 0 of hour 2, every day. Cron runs with a minimal PATH, so use the absolute path.`}
+    id:"user_mgmt", title:"Managing a user account", d:2, skill:"Modify accounts: groups, locking, shell, aging",
+    blurb:"Append groups, lock/unlock, change shell, inspect password aging.",
+    vars:{user:VAR_POOLS.users, group:VAR_POOLS.groups, shell:["/bin/bash","/sbin/nologin","/bin/zsh"]},
+    variants:[
+      { tag:"add to a group",
+        situation:v=>`${v.user} needs ${v.group} access but must keep their existing groups.`,
+        steps:[{goal:v=>`Append ${v.user} to the ${v.group} group without removing other groups.`, answer:v=>`usermod -aG ${v.group} ${v.user}`, alts:v=>[`gpasswd -a ${v.user} ${v.group}`],
+          why:v=>`<code>-a</code> (append) is essential: <code>usermod -G</code> alone would <i>replace</i> all supplementary groups.`}] },
+      { tag:"lock the account",
+        situation:v=>`${v.user} has left; their login must be disabled but the account kept for auditing.`,
+        steps:[{goal:v=>`Lock ${v.user}'s password so they can't log in.`, answer:v=>`usermod -L ${v.user}`, alts:v=>[`passwd -l ${v.user}`],
+          why:v=>`<code>usermod -L</code> (or <code>passwd -l</code>) prepends a '!' to the password hash, disabling password login without deleting the account.`}] },
+      { tag:"change login shell",
+        situation:v=>`${v.user} should use ${v.shell} as their login shell.`,
+        steps:[{goal:v=>`Set ${v.user}'s login shell to ${v.shell}.`, answer:v=>`usermod -s ${v.shell} ${v.user}`, alts:v=>[`chsh -s ${v.shell} ${v.user}`],
+          why:v=>`<code>-s</code> sets the shell in /etc/passwd. Setting it to <code>/sbin/nologin</code> is the standard way to block interactive login for service accounts.`}] },
+      { tag:"inspect password aging",
+        situation:v=>`You need to check when ${v.user}'s password expires.`,
+        steps:[{goal:v=>`Show ${v.user}'s password-aging information.`, answer:v=>`chage -l ${v.user}`,
+          why:v=>`<code>chage -l</code> lists last change, expiry, and warning settings. Use <code>chage -E</code> to set an account expiry date.`}] }
     ]
   },
   {
-    id:"dracut_rebuild", title:"Recover from a bad kernel update", d:5, skill:"Regenerate the initramfs",
-    blurb:"After a kernel update the machine drops to an emergency shell.",
-    situation:()=>`After a kernel update the machine drops to an emergency shell &mdash; the initramfs is missing a storage driver.`,
-    steps:[
-      {goal:()=>`Regenerate the initramfs for the running kernel, overwriting the existing image.`,
-       answer:()=>`dracut -f`, alts:()=>[`dracut --force`],
-       why:()=>`<code>dracut -f</code> forces a rebuild of the initramfs so the needed drivers are included at boot. On Debian/Ubuntu the equivalent is <code>update-initramfs -u</code>.`}
+    id:"dns_resolve", title:"Diagnosing DNS", d:2, skill:"Query DNS the right way to isolate a problem",
+    blurb:"Forward lookups, short output, reverse lookups, specific servers.",
+    vars:{host:VAR_POOLS.hosts, ip:["8.8.8.8","1.1.1.1","192.0.2.10"]},
+    variants:[
+      { tag:"forward lookup",
+        situation:v=>`A server can ping 8.8.8.8 but can't resolve ${v.host}.`,
+        steps:[{goal:v=>`Query DNS directly for the address of ${v.host}.`, answer:v=>`dig ${v.host}`, alts:v=>[`nslookup ${v.host}`,`host ${v.host}`],
+          why:v=>`Reaching an IP but not a name points at DNS. <code>dig</code> asks a resolver directly; no answer means the resolver or <code>/etc/resolv.conf</code> is the problem.`}] },
+      { tag:"just the answer",
+        situation:v=>`You only want the resolved IP for ${v.host}, no verbose dig sections.`,
+        steps:[{goal:v=>`Get only the short answer for ${v.host}.`, answer:v=>`dig +short ${v.host}`, alts:v=>[`dig ${v.host} +short`],
+          why:v=>`<code>+short</code> strips dig's headers and prints just the record value \u2014 great for scripts.`}] },
+      { tag:"reverse lookup",
+        situation:v=>`You have the IP ${v.ip} and want the hostname behind it.`,
+        steps:[{goal:v=>`Do a reverse DNS lookup on ${v.ip}.`, answer:v=>`dig -x ${v.ip}`, alts:v=>[`host ${v.ip}`,`nslookup ${v.ip}`],
+          accept:v=>[`(sudo )?dig -x ${rxesc(v.ip)}( \\+short)?`,`(sudo )?host ${rxesc(v.ip)}`,`(sudo )?nslookup ${rxesc(v.ip)}`],
+          why:v=>`<code>dig -x</code> queries the PTR record, mapping an IP back to a name.`}] },
+      { tag:"ask a specific server",
+        situation:v=>`You suspect the local resolver is broken and want to test against ${v.ip} directly.`,
+        steps:[{goal:v=>`Resolve ${v.host} using the DNS server ${v.ip}.`, answer:v=>`dig @${v.ip} ${v.host}`,
+          accept:v=>[`(sudo )?dig @${rxesc(v.ip)} ${rxesc(v.host)}( \\+short)?`,`(sudo )?dig ${rxesc(v.host)} @${rxesc(v.ip)}`],
+          why:v=>`<code>@server</code> bypasses /etc/resolv.conf and queries that server directly \u2014 the way to prove whether the resolver or upstream DNS is at fault.`}] }
     ]
   },
   {
-    id:"tar_backup", title:"Back up before editing", d:1, skill:"Create a gzip-compressed tar archive",
-    blurb:"You want a compressed snapshot of /etc before changing configs.",
-    situation:()=>`Before changing system configs you want a compressed snapshot of /etc.`,
-    steps:[
-      {goal:()=>`Create a gzip-compressed tar archive of /etc at /root/etc.tar.gz.`,
-       answer:()=>`tar -czf /root/etc.tar.gz /etc`,
-       accept:()=>[`(sudo )?tar -?c?z?v?f /root/etc\\.tar\\.gz /etc`,`(sudo )?tar c?z?v?f? ?-?c?z?v?f /root/etc\\.tar\\.gz /etc`,`(sudo )?tar (czf|czvf|cvzf|zcf|cfz) /root/etc\\.tar\\.gz /etc`],
-       why:()=>`<code>-c</code> create, <code>-z</code> gzip, <code>-f</code> file (whose name comes right after <code>-f</code>). Add <code>-v</code> for verbose output.`}
+    id:"selinux", title:"Working with SELinux", d:3, skill:"Diagnose and fix SELinux without disabling it",
+    blurb:"Check mode, flip booleans, restore contexts, inspect labels.",
+    vars:{path:["/var/www","/srv/share","/opt/app"]},
+    variants:[
+      { tag:"check mode",
+        situation:()=>`An app gets 'Permission denied' on RHEL even though rwx looks correct.`,
+        steps:[{goal:()=>`Check whether SELinux is currently enforcing.`, answer:()=>`getenforce`, alts:()=>[`sestatus`],
+          why:()=>`<code>getenforce</code> prints Enforcing/Permissive/Disabled. If Enforcing, SELinux can block access despite correct file permissions.`}] },
+      { tag:"flip a boolean",
+        situation:()=>`The web server needs to make outbound network connections, which SELinux blocks by default.`,
+        steps:[{goal:()=>`Persistently allow httpd to make network connections.`, answer:()=>`setsebool -P httpd_can_network_connect on`, alts:()=>[`setsebool -P httpd_can_network_connect 1`],
+          why:()=>`<code>setsebool</code> toggles a policy boolean; <code>-P</code> persists it across reboots. The correct fix \u2014 not chmod, not disabling SELinux.`}] },
+      { tag:"restore context",
+        situation:v=>`Files were moved into ${v.path} and now carry the wrong SELinux labels, so the service can't read them.`,
+        steps:[{goal:v=>`Recursively restore the default SELinux contexts under ${v.path}.`, answer:v=>`restorecon -Rv ${v.path}`, alts:v=>[`restorecon -rv ${v.path}`],
+          why:v=>`<code>restorecon -R</code> relabels a tree back to the policy default; <code>-v</code> shows what changed. Use this after moving files into a labeled location.`}] },
+      { tag:"view labels",
+        situation:v=>`You want to see the SELinux context on the files in ${v.path}.`,
+        steps:[{goal:v=>`List the files in ${v.path} showing their SELinux context.`, answer:v=>`ls -Z ${v.path}`, alts:v=>[`ls -ldz ${v.path}`,`ls -dz ${v.path}`],
+          why:v=>`<code>-Z</code> adds the SELinux context column (user:role:type:level) so you can compare a mislabeled file against a working one.`}] }
+    ]
+  },
+  {
+    id:"disk_full", title:"Disk full investigation", d:5, skill:"Distinguish space, inodes, and hidden usage",
+    blurb:"Check usage, find big dirs, check inodes, find deleted-open files.",
+    vars:{dir:VAR_POOLS.vardirs},
+    variants:[
+      { tag:"check usage",
+        situation:()=>`Writes are failing with 'No space left on device'.`,
+        steps:[{goal:()=>`Show usage of all mounted filesystems in human-readable units.`, answer:()=>`df -h`,
+          why:()=>`<code>df -h</code> shows per-filesystem usage. If it shows free space yet writes fail, suspect inodes or a deleted-but-open file.`}] },
+      { tag:"find big directories",
+        situation:v=>`${v.dir} is suspected of filling the disk.`,
+        steps:[{goal:v=>`Find which subdirectories of ${v.dir} consume the most space.`, answer:v=>`du -sh ${v.dir}/*`,
+          accept:v=>[`(sudo )?du -s?h ${rxesc(v.dir)}/\\*( \\| sort -h)?`,`(sudo )?du -s?h ${rxesc(v.dir)}/?`],
+          why:v=>`<code>du -sh</code> summarizes each entry's size. Pipe to <code>sort -h</code> to rank the biggest offenders.`}] },
+      { tag:"out of inodes",
+        situation:()=>`df -h shows free space, yet you still get 'No space left on device'.`,
+        steps:[{goal:()=>`Check inode usage across filesystems.`, answer:()=>`df -i`,
+          why:()=>`Each file consumes an inode. Millions of tiny files can exhaust inodes while bytes remain free \u2014 <code>df -i</code> reveals it.`}] },
+      { tag:"deleted-but-open file",
+        situation:()=>`df says 100% full but du accounts for far less \u2014 a service deleted a big log it still holds open.`,
+        steps:[{goal:()=>`List deleted files still held open by a running process.`, answer:()=>`lsof +L1`,
+          accept:()=>[`(sudo )?lsof \\+l1`,`(sudo )?lsof \\| ?grep deleted`],
+          why:()=>`A process holding a deleted file keeps its blocks until it closes the handle. <code>lsof +L1</code> finds link-count-zero files; restart the process to reclaim space.`}] }
+    ]
+  },
+  {
+    id:"find_files", title:"Finding files", d:1, skill:"Search a tree by name, age, size, or type",
+    blurb:"find by name, recent mtime, large size, then act on matches.",
+    vars:{dir:["/var/log","/var/www","/opt/app","/srv/data"], pat:["*.log","*.tmp","core.*","*.bak"]},
+    variants:[
+      { tag:"by name",
+        situation:v=>`You need every file under ${v.dir} matching ${v.pat}.`,
+        steps:[{goal:v=>`Find all files under ${v.dir} whose name matches ${v.pat}.`, answer:v=>`find ${v.dir} -name "${v.pat}"`,
+          accept:v=>[`(sudo )?find ${rxesc(v.dir)} -name ["']?${rxesc(v.pat)}["']?`,`(sudo )?find ${rxesc(v.dir)} -type f -name ["']?${rxesc(v.pat)}["']?`],
+          why:v=>`<code>-name</code> matches the filename with shell-style globs. Quote the pattern so the shell doesn't expand it before find sees it.`}] },
+      { tag:"recently modified",
+        situation:v=>`You want files under ${v.dir} changed within the last 7 days.`,
+        steps:[{goal:v=>`Find files under ${v.dir} modified in the last 7 days.`, answer:v=>`find ${v.dir} -mtime -7`,
+          accept:v=>[`(sudo )?find ${rxesc(v.dir)}( -type f)? -mtime -\\d+`,`(sudo )?find ${rxesc(v.dir)} -mtime -\\d+( -type f)?`],
+          why:v=>`<code>-mtime -7</code> means "modified less than 7 days ago"; <code>+7</code> would mean "more than 7 days ago". The minus sign matters.`}] },
+      { tag:"large files",
+        situation:v=>`You're hunting big files (over 100 MB) under ${v.dir}.`,
+        steps:[{goal:v=>`Find files under ${v.dir} larger than 100 MB.`, answer:v=>`find ${v.dir} -size +100M`,
+          accept:v=>[`(sudo )?find ${rxesc(v.dir)}( -type f)? -size \\+\\d+[kmg]`,`(sudo )?find ${rxesc(v.dir)} -size \\+\\d+[kmg]( -type f)?`],
+          why:v=>`<code>-size +100M</code> matches files bigger than 100 MB. Use <code>k</code>/<code>M</code>/<code>G</code> suffixes; <code>+</code> = greater than.`}] }
+    ]
+  },
+  {
+    id:"archive_tar", title:"tar archives", d:1, skill:"Create, extract, and inspect tar archives",
+    blurb:"gzip create, bzip2 create, extract, list contents.",
+    variants:[
+      { tag:"create gzip",
+        situation:()=>`Snapshot /etc into a gzip-compressed archive before editing configs.`,
+        steps:[{goal:()=>`Create a gzip-compressed tar archive of /etc at /root/etc.tar.gz.`, answer:()=>`tar -czf /root/etc.tar.gz /etc`,
+          accept:()=>[`(sudo )?tar -?[cz]+v?f /root/etc\\.tar\\.gz /etc`,`(sudo )?tar -?c-?z?v?f? ?/root/etc\\.tar\\.gz /etc`,`(sudo )?tar (czf|czvf|cvzf|zcf) /root/etc\\.tar\\.gz /etc`],
+          why:()=>`<code>-c</code> create, <code>-z</code> gzip, <code>-f</code> file (name follows <code>-f</code>). Add <code>-v</code> for verbose.`}] },
+      { tag:"create bzip2",
+        situation:()=>`Make a bzip2-compressed archive of /etc (smaller, slower) at /root/etc.tar.bz2.`,
+        steps:[{goal:()=>`Create a bzip2-compressed tar archive of /etc at /root/etc.tar.bz2.`, answer:()=>`tar -cjf /root/etc.tar.bz2 /etc`,
+          accept:()=>[`(sudo )?tar -?[cj]+v?f /root/etc\\.tar\\.bz2 /etc`,`(sudo )?tar (cjf|cjvf|cvjf) /root/etc\\.tar\\.bz2 /etc`],
+          why:()=>`<code>-j</code> selects bzip2 instead of <code>-z</code> (gzip). Smaller files, more CPU.`}] },
+      { tag:"extract",
+        situation:()=>`Unpack /root/etc.tar.gz into the current directory.`,
+        steps:[{goal:()=>`Extract the gzip archive /root/etc.tar.gz.`, answer:()=>`tar -xzf /root/etc.tar.gz`,
+          accept:()=>[`(sudo )?tar -?[xz]+v?f /root/etc\\.tar\\.gz`,`(sudo )?tar (xzf|xzvf|xvzf) /root/etc\\.tar\\.gz`],
+          why:()=>`<code>-x</code> extract (vs <code>-c</code> create). Modern tar auto-detects compression, but stating <code>-z</code> is fine and explicit.`}] },
+      { tag:"list contents",
+        situation:()=>`See what's inside /root/etc.tar.gz without extracting it.`,
+        steps:[{goal:()=>`List the contents of /root/etc.tar.gz.`, answer:()=>`tar -tzf /root/etc.tar.gz`,
+          accept:()=>[`(sudo )?tar -?[tz]+v?f /root/etc\\.tar\\.gz`,`(sudo )?tar (tzf|tzvf|tvzf) /root/etc\\.tar\\.gz`],
+          why:()=>`<code>-t</code> lists the table of contents. Always inspect an unfamiliar archive before extracting it.`}] }
+    ]
+  },
+  {
+    id:"cron_backup", title:"Scheduling with cron", d:4, skill:"Write the right crontab schedule expression",
+    blurb:"Daily, hourly, weekly, and weekday schedules.",
+    variants:[
+      { tag:"daily at 02:00",
+        situation:()=>`/opt/backup.sh must run every day at 02:00.`,
+        steps:[{goal:()=>`Write the crontab line that runs /opt/backup.sh daily at 2:00 AM.`, answer:()=>`0 2 * * * /opt/backup.sh`,
+          accept:()=>[`0 2 \\* \\* \\* (sudo )?/opt/backup\\.sh`],
+          why:()=>`Fields are <code>min hour dom mon dow</code>. <code>0 2 * * *</code> = minute 0 of hour 2, every day. Use the absolute path (cron has a minimal PATH).`}] },
+      { tag:"every hour",
+        situation:()=>`/opt/backup.sh must run once an hour, on the hour.`,
+        steps:[{goal:()=>`Write the crontab line that runs /opt/backup.sh at the top of every hour.`, answer:()=>`0 * * * * /opt/backup.sh`,
+          accept:()=>[`0 \\* \\* \\* \\* (sudo )?/opt/backup\\.sh`],
+          why:()=>`<code>0 * * * *</code> = minute 0 of every hour. A <code>*</code> in the hour field means "every hour".`}] },
+      { tag:"weekly on Sunday",
+        situation:()=>`/opt/backup.sh must run weekly, Sundays at 03:00.`,
+        steps:[{goal:()=>`Write the crontab line that runs /opt/backup.sh every Sunday at 3:00 AM.`, answer:()=>`0 3 * * 0 /opt/backup.sh`,
+          accept:()=>[`0 3 \\* \\* (0|7|sun) (sudo )?/opt/backup\\.sh`],
+          why:()=>`The 5th field is day-of-week: 0 (or 7) = Sunday. <code>0 3 * * 0</code> = 03:00 every Sunday.`}] },
+      { tag:"every 15 minutes",
+        situation:()=>`/opt/backup.sh must run every 15 minutes.`,
+        steps:[{goal:()=>`Write the crontab line that runs /opt/backup.sh every 15 minutes.`, answer:()=>`*/15 * * * * /opt/backup.sh`,
+          accept:()=>[`\\*/15 \\* \\* \\* \\* (sudo )?/opt/backup\\.sh`],
+          why:()=>`<code>*/15</code> in the minute field is a step value: "every 15 minutes" (0,15,30,45).`}] }
+    ]
+  },
+  {
+    id:"lvm_grow", title:"Grow an LVM volume", d:1, skill:"Extend a logical volume and its filesystem",
+    blurb:"Extend an LV and resize the filesystem in one step.",
+    vars:{size:VAR_POOLS.sizes},
+    variants:[
+      { tag:"extend + resize",
+        situation:v=>`The ext4 LV /dev/vg0/data is nearly full and its VG has ${v.size}+ GB free.`,
+        steps:[{goal:v=>`Extend the logical volume by ${v.size} GB and grow its filesystem in one command.`, answer:v=>`lvextend -r -L +${v.size}G /dev/vg0/data`, alts:v=>[`lvextend --resizefs -L +${v.size}G /dev/vg0/data`],
+          why:v=>`<code>-L +${v.size}G</code> adds ${v.size} GB; <code>-r</code> (--resizefs) grows the filesystem in the same step (resize2fs for ext4, xfs_growfs for XFS).`}] },
+      { tag:"use 100% of free space",
+        situation:()=>`The VG has free extents and you want the LV /dev/vg0/data to consume all of them.`,
+        steps:[{goal:()=>`Extend /dev/vg0/data to use 100% of the free extents and resize the filesystem.`, answer:()=>`lvextend -r -l +100%FREE /dev/vg0/data`,
+          accept:()=>[`(sudo )?lvextend -r -l \\+100%free /dev/vg0/data`,`(sudo )?lvextend -l \\+100%free -r /dev/vg0/data`,`(sudo )?lvextend --resizefs -l \\+100%free /dev/vg0/data`],
+          why:()=>`<code>-l +100%FREE</code> uses extents (not a fixed size) to grab every remaining extent in the VG; <code>-r</code> resizes the filesystem too.`}] }
     ]
   },
   {
     id:"ssh_copy_id", title:"Passwordless SSH", d:3, skill:"Install a public key for key-based login",
-    blurb:"Set up key-based, passwordless SSH to a remote host.",
+    blurb:"Copy your public key to a remote account's authorized_keys.",
     vars:{user:VAR_POOLS.sshusers, host:VAR_POOLS.sshhosts},
-    situation:v=>`You want key-based, passwordless SSH from your laptop to ${v.host} as the ${v.user} user.`,
     steps:[
-      {goal:v=>`Install your public key into ${v.user}@${v.host}'s authorized_keys.`,
-       answer:v=>`ssh-copy-id ${v.user}@${v.host}`,
-       why:v=>`<code>ssh-copy-id</code> appends your <i>public</i> key to the remote account's authorized_keys. Never copy the private key &mdash; it stays on your machine.`}
+      {goal:v=>`Install your public key into ${v.user}@${v.host}'s authorized_keys.`, answer:v=>`ssh-copy-id ${v.user}@${v.host}`,
+       why:v=>`<code>ssh-copy-id</code> appends your <i>public</i> key to the remote authorized_keys. Never copy the private key \u2014 it stays on your machine.`}
+    ]
+  },
+  {
+    id:"dracut_rebuild", title:"Recover from a bad kernel update", d:5, skill:"Regenerate the initramfs",
+    blurb:"Rebuild the initramfs after a kernel update breaks boot.",
+    steps:[
+      {goal:()=>`Regenerate the initramfs for the running kernel, overwriting the existing image.`, answer:()=>`dracut -f`, alts:()=>[`dracut --force`],
+       why:()=>`<code>dracut -f</code> forces a rebuild so the needed storage/driver modules are included at boot. On Debian/Ubuntu the equivalent is <code>update-initramfs -u</code>.`}
     ]
   }
 ];
+
 function buildLabStep(ts,v){
   const answer=ts.answer?ts.answer(v):"";
   const alts=ts.alts?ts.alts(v):[];
@@ -2115,17 +2299,21 @@ function buildLabStep(ts,v){
   else { const specs=answers.map(specFromAnswer); check=(input)=>{const p=parseCommand(input); return specs.some(s=>matchSpec(p,s));}; }
   return {goal:ts.goal(v), answer, answers, why:ts.why(v), check};
 }
+function variantOf(t,seed){ if(!t.variants||!t.variants.length) return null; const i=Math.floor(seededRandom(seed+0.5)*t.variants.length)%t.variants.length; return {i,v:t.variants[i]}; }
+function genSig(t,seed){ const vr=variantOf(t,seed); return (vr?vr.i:"-")+":"+JSON.stringify(genVars(t,seed)); }
 function generateLab(t,seed){
-  const v=genVars(t,seed);
-  return {id:t.id, seed, vars:v, d:t.d, skill:t.skill||"",
+  const v=genVars(t,seed); const vr=variantOf(t,seed); const variant=vr?vr.v:null;
+  const steps=(variant&&variant.steps)?variant.steps:t.steps;
+  const sit=(variant&&variant.situation)?variant.situation:t.situation;
+  return {id:t.id, seed, vars:v, d:t.d, skill:t.skill||"", tag:variant?(variant.tag||""):"",
     title:"LAB: "+t.title,
-    situation:(typeof t.situation==="function")?t.situation(v):t.situation,
-    steps:t.steps.map(ts=>buildLabStep(ts,v))};
+    situation:(typeof sit==="function")?sit(v):sit,
+    steps:steps.map(ts=>buildLabStep(ts,v))};
 }
 function freshSeed(t){
-  const prev=LB.lastVars[t.id], multi=Object.keys(t.vars||{}).length>0;
-  for(let i=0;i<10;i++){ const s=Date.now()+i*7919+Math.floor(Math.random()*1e6); const vs=JSON.stringify(genVars(t,s)); if(!multi||vs!==prev){ LB.lastVars[t.id]=vs; return s; } }
-  const s=Date.now(); LB.lastVars[t.id]=JSON.stringify(genVars(t,s)); return s;
+  const prev=LB.lastVars[t.id], multi=(Object.keys(t.vars||{}).length>0)||(t.variants&&t.variants.length>1);
+  for(let i=0;i<16;i++){ const s=Date.now()+i*7919+Math.floor(Math.random()*1e6); const sig=genSig(t,s); if(!multi||sig!==prev){ LB.lastVars[t.id]=sig; return s; } }
+  const s=Date.now(); LB.lastVars[t.id]=genSig(t,s); return s;
 }
 function startLab(i){
   const t=LAB_TEMPLATES[i]; const seed=freshSeed(t);
@@ -2142,10 +2330,13 @@ function renderLabList(){
     const done=LB.done.has(t.id);
     const dn=(DOMAINS[t.d-1]||{}).name||"";
     const rand=Object.keys(t.vars||{}).length>0;
+    const nv=(t.variants&&t.variants.length)||0;
+    const nsteps=t.steps?t.steps.length:((t.variants&&t.variants[0]&&t.variants[0].steps)?t.variants[0].steps.length:1);
+    const meta=nv>1?`${nv} task variants &middot; ${t.d}.0 ${esc(dn)}`:`${nsteps} step${nsteps>1?"s":""} &middot; ${t.d}.0 ${esc(dn)}`;
     return `<div class="labcard" data-li="${i}">
-      <div class="labcard-h"><span class="labcard-t">LAB: ${esc(t.title)}${done?` <span class="labdone">&#10003; done</span>`:""}</span><span class="labcard-m">${t.steps.length} step${t.steps.length>1?"s":""} &middot; ${t.d}.0 ${esc(dn)}</span></div>
+      <div class="labcard-h"><span class="labcard-t">LAB: ${esc(t.title)}${done?` <span class="labdone">&#10003; done</span>`:""}</span><span class="labcard-m">${meta}</span></div>
       <div class="labcard-s">${esc(t.blurb||"")}</div>
-      ${t.skill?`<div class="labcard-skill">${esc(t.skill)}${rand?` &middot; <span class="randtag">randomized</span>`:""}</div>`:""}
+      ${t.skill?`<div class="labcard-skill">${esc(t.skill)}${(rand||nv>1)?` &middot; <span class="randtag">randomized</span>`:""}</div>`:""}
       <div class="labcard-go">start mission &rarr;</div>
     </div>`;
   }).join("");
@@ -2220,7 +2411,7 @@ function renderLabRun(){
   screen.innerHTML=navBar()+promptLine("lab --run")+`
     <div class="labbox">
       <div class="labhead">${esc(l.title)}</div>
-      ${l.skill?`<div class="labmeta">${l.d}.0 ${esc((DOMAINS[l.d-1]||{}).name||"")} &middot; ${esc(l.skill)}</div>`:""}
+      ${l.skill?`<div class="labmeta">${l.d}.0 ${esc((DOMAINS[l.d-1]||{}).name||"")} &middot; ${esc(l.skill)}${l.tag?` &middot; <span class="labtag">${esc(l.tag)}</span>`:""}</div>`:""}
       <div class="labrow"><span class="labk">Situation</span><span>${esc(l.situation)}</span></div>
       ${l.steps.length>1?`<div class="labstep">step ${LB.step+1} / ${l.steps.length}</div>`:""}
       <div class="labrow"><span class="labk">Goal</span><span>${esc(step.goal)}</span></div>

@@ -152,6 +152,9 @@ nav button.active{color:var(--green);border-color:var(--green-dim);background:rg
 .labwhy{margin-top:10px;display:flex;gap:10px;align-items:flex-start;background:rgba(70,211,105,.06);border:1px solid var(--green-dim);border-radius:7px;padding:10px 12px;line-height:1.62;font-size:13px}
 .labwhy .labk{border-color:var(--green-dim);color:var(--green)}
 .labwhy code{background:var(--term);border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--green)}
+.labwhy.yourcmd{background:rgba(227,179,65,.07);border-color:var(--amber)}
+.labwhy.yourcmd .labk{border-color:var(--amber);color:var(--amber)}
+.labwhy.yourcmd code{color:var(--amber)}
 .labcard{border:1px solid var(--line);border-radius:9px;margin-bottom:10px;background:var(--surface);padding:13px 15px;cursor:pointer;transition:.13s}
 .labcard:hover{border-color:var(--green-dim);background:var(--track)}
 .labcard-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
@@ -160,6 +163,19 @@ nav button.active{color:var(--green);border-color:var(--green-dim);background:rg
 .labdone{color:var(--green);font-size:10.5px;border:1px solid var(--green-dim);border-radius:10px;padding:0 7px;margin-left:4px;letter-spacing:.3px}
 .labcard-s{font-size:12.5px;color:var(--dim);margin:7px 0 8px;line-height:1.5}
 .labcard-go{font-size:12px;color:var(--green)}
+.wfnote{color:var(--dim)}
+.wfplacedwrap{margin:4px 0 12px}
+.wfplaced{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line)}
+.wfplaced:last-child{border-bottom:0}
+.wfnum{width:21px;height:21px;border:1px solid var(--green-dim);color:var(--green);border-radius:50%;font-size:11px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.wfpool{display:flex;flex-direction:column;gap:6px;margin:4px 0}
+.wfopt{width:100%;text-align:left}
+.hintbox{margin:11px 0 3px;border-left:2px solid var(--amber);padding-left:1px}
+.hintline{display:flex;gap:9px;align-items:flex-start;padding:5px 0 5px 11px;font-size:13px;line-height:1.55}
+.hintn{flex-shrink:0;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--amber);border:1px solid var(--amber);border-radius:5px;padding:1px 7px;height:fit-content;margin-top:1px}
+.hintbox code{background:var(--term);border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--txt)}
+.hmask{color:var(--dim2);font-style:italic}
+.hshape{color:var(--txt)}
 .cmdtoggle{cursor:pointer;display:inline-flex;align-items:baseline;gap:7px}
 .cmdtoggle:hover .ref-cmd.clickable{color:var(--green)}
 .cmdplus{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;font-size:13px;line-height:1;color:var(--green);border:1px solid var(--green-dim);border-radius:50%;flex-shrink:0;align-self:center}
@@ -808,7 +824,7 @@ const LETTERS=["1","2","3","4","5","6"];
 
 /* ---- state ---- */
 let tab="dash";
-const P={dom:0,q:null,answered:false,reviewAll:false,lastId:null,cool:{},shown:0,picked:null,typed:"",ok:false};
+const P={dom:0,q:null,answered:false,reviewAll:false,lastId:null,cool:{},shown:0,picked:null,typed:"",ok:false,hintLevel:0,lastTry:"",revealed:false};
 const E={phase:"setup",len:20,items:[],i:0,picked:[]};
 
 const screen=document.getElementById("screen");
@@ -913,7 +929,7 @@ function nextPractice(){
   const missed=pool.filter(q=>{const s=st(q.id);return s.wrong>0 && s.box<4;});
   P.q = (missed.length && Math.random()<0.33) ? missed[0] : (pool.length?pool[0]:null);
   P.lastId = P.q?P.q.id:null;
-  P.answered=false;P.order=null;P.sel=null;P.picked=null;P.typed="";P.ok=false;
+  P.answered=false;P.order=null;P.sel=null;P.picked=null;P.typed="";P.ok=false;P.hintLevel=0;P.lastTry="";P.revealed=false;
   R.fromPractice=false;
 }
 /* ---- jump from a practice question to the matching study reference ---- */
@@ -957,6 +973,26 @@ function goLookup(q){
   else { R.dom=q.d; R.search=""; R.domOpen.add(q.d); }
   setTab("ref");
 }
+function genHints(answer){
+  const a=String(answer||"").trim(); if(!a) return [];
+  const toks=a.split(/\s+/), base=toks[0], rest=toks.slice(1);
+  const flags=rest.filter(t=>/^-/.test(t));
+  const hints=["It starts with the <code>"+esc(base)+"</code> command."];
+  if(flags.length){
+    const masked=esc(base)+" "+rest.map(t=>/^-/.test(t)?'<span class="hmask">[option]</span>':esc(t)).join(" ");
+    hints.push('The shape is <code class="hshape">'+masked+"</code>");
+    hints.push("The option"+(flags.length>1?"s are ":" is ")+flags.map(f=>"<code>"+esc(f)+"</code>").join(" and ")+".");
+  } else if(rest.length){
+    hints.push("After <code>"+esc(base)+"</code> it takes "+rest.length+" argument"+(rest.length>1?"s":"")+".");
+  }
+  return hints;
+}
+function hintBlock(hints,level){
+  if(!level) return "";
+  return '<div class="hintbox">'+hints.slice(0,level).map((h,i)=>`<div class="hintline"><span class="hintn">hint ${i+1}</span><span>${h}</span></div>`).join("")+"</div>";
+}
+function pbqHints(q){ return (q.hints&&q.hints.length)?q.hints:genHints(q.a); }
+function labHints(step){ return (step.hints&&step.hints.length)?step.hints:genHints(step.answer); }
 function renderPractice(){
   if(!P.q || P.answered===false && !document.getElementById("opts")){ if(!P.q) nextPractice(); }
   const chips=[[0,"all"],[1,"1.0 sys"],[2,"2.0 svc/user"],[3,"3.0 security"],[4,"4.0 automation"],[5,"5.0 troublesh."]];
@@ -1050,32 +1086,44 @@ function answerPracticeMulti(){
   render();
 }
 function renderPracticePBQ(q,s,chipHtml,dname,dueCount,missedFlag){
-  const ans=P.answered;
-  const reviewBtn=(ans && !P.ok)?`<button class="lookbtn" id="lookupAfter">&#128270; review in study</button>`:"";
-  const fxHtml = ans ? `<div class="pbqrow"><span class="muted">you typed:</span> <code>${esc(P.typed)||"(empty)"}</code></div><div class="pbqrow"><span class="muted">expected:</span> <code class="exp">${esc(q.a)}</code></div><div style="margin-top:7px">${esc(q.x)}</div>` : "";
+  const ans=P.answered, hints=pbqHints(q);
+  let mid="";
+  if(ans){
+    const reviewBtn=(!P.ok)?`<button class="lookbtn" id="lookupAfter">&#128270; review in study</button>`:"";
+    const verdict=P.ok?"&#10003; correct":(P.revealed?"answer revealed":"&#10007; not an accepted answer");
+    mid=`<div class="fb show" id="fb"><div class="v ${P.ok?"ok":"no"}" id="fv">${verdict}</div>
+        <div class="x" id="fx"><div class="pbqrow"><span class="muted">you typed:</span> <code>${esc(P.typed)||"(nothing)"}</code></div><div class="pbqrow"><span class="muted">expected:</span> <code class="exp">${esc(q.a)}</code></div><div style="margin-top:7px">${esc(q.x)}</div></div></div>
+      <div class="row" id="afterrow" style="display:flex"><button class="btn" id="next">next &rarr;</button>${reviewBtn}<span class="kbd"><b>keys:</b> enter / n next</span></div>`;
+  } else {
+    const tried=P.lastTry?`<div class="fb show"><div class="v no">&#10007; not accepted &mdash; try again</div><div class="x"><div class="labwhy yourcmd"><span class="labk">Your cmd</span><span>${explainTyped(P.lastTry)||("<code>"+esc(P.lastTry)+"</code> isn't recognized.")}</span></div></div></div>`:"";
+    const lvl=P.hintLevel||0;
+    const moreHint=lvl<hints.length?`<button class="lookbtn" id="hintbtn">${lvl===0?"need a hint?":"another hint"}</button>`:"";
+    const revealBtn=(lvl>0||P.lastTry)?`<button class="lookbtn" id="revealbtn">reveal answer</button>`:"";
+    mid=`${tried}${hintBlock(hints,lvl)}
+      <div class="row" id="hintrow" style="display:flex"><button class="btn" id="check">check answer</button>${moreHint}${revealBtn}<button class="lookbtn" id="lookup">&#128270; look up in study</button></div>
+      <div class="row"><span class="kbd"><b>tip:</b> a wrong answer gives a hint, not the solution &mdash; keep trying</span></div>`;
+  }
   screen.innerHTML=navBar()+chipHtml+promptLine(`pbq --domain ${P.dom||"all"} --task`)+`
     <div class="qbox">
       <div class="qmeta">[domain ${q.d}.0 ${esc(dname)}] &middot; <span class="tytag ty-pbq">PBQ</span>${q.obj?` &middot; obj ${q.obj}`:""} &middot; ${dueCount} due &middot; ${s.box?"box "+s.box+"/5":"new"}${missedFlag}</div>
       <div class="qtext"><span class="pre">&gt;</span>${esc(q.q)}</div>
       <div class="pbqwrap"><span class="pbqprompt">$</span><input id="pbqin" class="pbqin ${ans?(P.ok?"okin":"noin"):""}" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" ${ans?"disabled":""} placeholder="type the command, then press enter"></div>
-      <div class="fb ${ans?"show":""}" id="fb"><div class="v ${ans?(P.ok?"ok":"no"):""}" id="fv">${ans?(P.ok?"&#10003; correct":"&#10007; not an accepted answer"):""}</div><div class="x" id="fx">${fxHtml}</div></div>
-      <div class="row" id="afterrow" style="display:${ans?"flex":"none"}">
-        <button class="btn" id="next">next &rarr;</button>
-        ${reviewBtn}
-        <span class="kbd"><b>keys:</b> enter / n next</span>
-      </div>
-      <div class="row" id="hintrow" style="display:${ans?"none":"flex"}"><button class="btn" id="check">check answer</button><button class="lookbtn" id="lookup">&#128270; look up in study</button><span class="kbd"><b>tip:</b> accepts common variants (optional sudo, flag order)</span></div>
+      ${mid}
     </div>`;
   hook();
   document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{P.dom=+c.dataset.dom;P.reviewAll=false;nextPractice();render();});
   {const ex=document.getElementById("exitMistakes"); if(ex) ex.onclick=()=>{P.mistakesOnly=false;nextPractice();render();};}
   {const lk=document.getElementById("lookup"); if(lk) lk.onclick=()=>goLookup(P.q);}
   {const la=document.getElementById("lookupAfter"); if(la) la.onclick=()=>goLookup(P.q);}
+  {const hb=document.getElementById("hintbtn"); if(hb) hb.onclick=()=>{P.hintLevel=Math.min((P.hintLevel||0)+1,hints.length);render();};}
+  {const rb=document.getElementById("revealbtn"); if(rb) rb.onclick=()=>revealPBQ();}
   const inp=document.getElementById("pbqin");
   if(ans && inp) inp.value=P.typed||"";
-  if(!ans){
+  if(!ans && inp){
+    if(P.lastTry) inp.value=P.lastTry;
+    inp.focus(); inp.setSelectionRange(inp.value.length,inp.value.length);
+    inp.onkeydown=(e)=>{ if(e.key==="Enter"){ e.preventDefault(); answerPBQ(); } };
     const chk=document.getElementById("check"); if(chk) chk.onclick=()=>answerPBQ();
-    if(inp){ inp.focus(); inp.onkeydown=(e)=>{ if(e.key==="Enter"){ e.preventDefault(); answerPBQ(); } }; }
   }
   const nb=document.getElementById("next"); if(nb) nb.onclick=()=>{nextPractice();render();};
 }
@@ -1083,11 +1131,14 @@ function answerPBQ(){
   if(P.answered) return;
   const inp=document.getElementById("pbqin"); const val=inp?inp.value:"";
   if(!norm(val)) return;
-  const q=P.q; const ok=pbqCheck(val,q);
-  P.answered=true; P.typed=val; P.ok=ok;
-  grade(q.id,ok); P.shown++;
-  if(ok) delete P.cool[q.id]; else P.cool[q.id]=P.shown+5;
-  render();
+  const q=P.q;
+  if(pbqCheck(val,q)){ P.answered=true; P.ok=true; P.typed=val; grade(q.id,true); P.shown++; delete P.cool[q.id]; render(); return; }
+  P.lastTry=val; P.hintLevel=Math.min((P.hintLevel||0)+1, pbqHints(q).length); render();
+}
+function revealPBQ(){
+  if(P.answered) return;
+  const q=P.q; P.answered=true; P.ok=false; P.revealed=true; P.typed=P.lastTry||"";
+  grade(q.id,false); P.shown++; P.cool[q.id]=P.shown+5; render();
 }
 function renderExam(){
   if(E.phase==="setup"){
@@ -1500,12 +1551,13 @@ function cmdPanel(it,d){
 function studySubnav(){
   const v=R.view;
   const b=(id,label)=>`<button class="subbtn ${v===id?"active":""}" data-view="${id}">${label}</button>`;
-  return `<div class="subnav">${b("cmd","commands")}${b("flags","flag cross-reference")}${b("pairs","confusing pairs")}${b("concepts","fundamentals")}</div>`;
+  return `<div class="subnav">${b("cmd","commands")}${b("flags","flags")}${b("pairs","pairs")}${b("concepts","fundamentals")}${b("workflows","workflows")}</div>`;
 }
 function renderRef(){
   if(R.view==="flags") return renderFlags();
   if(R.view==="pairs") return renderPairs();
   if(R.view==="concepts") return renderConcepts();
+  if(R.view==="workflows") return renderWorkflows();
   const chips=[[0,"all"],[1,"1.0 sys"],[2,"2.0 svc/user"],[3,"3.0 security"],[4,"4.0 automation"],[5,"5.0 troublesh."]];
   const back = R.fromPractice ? `<div class="lookback">&#8592; <button class="linkbtn" id="backToQ">back to the question</button> &middot; reference open to help you answer</div>` : "";
   screen.innerHTML=navBar()+studySubnav()+back+
@@ -1762,9 +1814,56 @@ function fillConcepts(){
   lst.querySelectorAll(".concept-h").forEach(h=>h.onclick=()=>{const i=+h.dataset.ci; if(CN.open.has(i))CN.open.delete(i); else CN.open.add(i); fillConcepts();});
 }
 
+/* ---- command-family workflows ---- */
+const WORKFLOWS=[{"title": "Troubleshoot a failed service", "d": 2, "goal": "A service won't start — diagnose it and bring it back for good.", "steps": [{"cmd": "systemctl status <service>", "note": "is it active or failed? shows the main PID and the last few log lines."}, {"cmd": "journalctl -u <service> -b", "note": "read this boot's logs for the actual error message."}, {"cmd": "systemctl restart <service>", "note": "apply your fix and start it again."}, {"cmd": "systemctl enable --now <service>", "note": "make sure it also comes up automatically on every boot."}]}, {"title": "Grow an LVM volume + filesystem", "d": 1, "goal": "A logical volume is full and there's free space (or a new disk) to add.", "steps": [{"cmd": "lsblk", "note": "see the disks, partitions, and what's mounted where."}, {"cmd": "pvcreate <device>", "note": "initialize a new disk/partition as an LVM physical volume (if adding one)."}, {"cmd": "vgextend <vg> <pv>", "note": "add that physical volume's space into the volume group."}, {"cmd": "lvextend -L +<size> <lv>", "note": "grow the logical volume into the free extents."}, {"cmd": "resize2fs <lv>  (or xfs_growfs <mnt>)", "note": "grow the filesystem to fill the larger volume."}, {"cmd": "df -h", "note": "confirm the new capacity is available."}]}, {"title": "No internet — diagnose the network", "d": 2, "goal": "A host can't reach the internet; work up the stack from the wire to DNS.", "steps": [{"cmd": "ip a", "note": "does the interface have an IP address?"}, {"cmd": "ip link", "note": "is the link state UP?"}, {"cmd": "ip route", "note": "is there a default gateway?"}, {"cmd": "ping <gateway>", "note": "can you reach the gateway (local network is OK)?"}, {"cmd": "dig <hostname>", "note": "does DNS resolve names? reaching an IP but not a name = DNS."}, {"cmd": "ss -tlnp / firewall-cmd --list-all / tcpdump", "note": "check listening ports, firewall rules, or capture traffic."}]}, {"title": "Provision a new user", "d": 2, "goal": "Create an account properly, with a password and the right group access.", "steps": [{"cmd": "useradd -m <user>", "note": "create the account with a home directory."}, {"cmd": "passwd <user>", "note": "set the initial password."}, {"cmd": "usermod -aG wheel <user>", "note": "grant sudo via the wheel/sudo group (-a keeps existing groups)."}, {"cmd": "id <user>", "note": "verify the UID, GID, and group membership."}]}, {"title": "Add and mount a new disk", "d": 1, "goal": "A brand-new disk needs to be partitioned, formatted, and mounted persistently.", "steps": [{"cmd": "lsblk", "note": "identify the new device (e.g. /dev/sdb)."}, {"cmd": "parted /dev/sdb  (or fdisk)", "note": "create a partition table and a partition."}, {"cmd": "mkfs.xfs /dev/sdb1", "note": "put a filesystem on the new partition."}, {"cmd": "mkdir /data", "note": "create a mount point."}, {"cmd": "mount /dev/sdb1 /data", "note": "mount it now to test."}, {"cmd": "blkid + edit /etc/fstab", "note": "add a UUID entry so it mounts at boot."}]}, {"title": "Open a service through firewalld", "d": 3, "goal": "Make a service reachable and keep the rule after a reboot.", "steps": [{"cmd": "firewall-cmd --add-service=https --permanent", "note": "allow HTTPS in the saved (permanent) config."}, {"cmd": "firewall-cmd --reload", "note": "apply the permanent rules to the running firewall."}, {"cmd": "firewall-cmd --list-all", "note": "verify the service/port is now allowed."}]}, {"title": "Diagnose high load", "d": 5, "goal": "The box is slow — find whether it's CPU, disk, or memory bound.", "steps": [{"cmd": "uptime", "note": "check the 1/5/15-minute load averages."}, {"cmd": "top   (or htop)", "note": "see CPU%, memory, and the heaviest processes; watch %wa."}, {"cmd": "iostat -x 1", "note": "high %util / await = a disk I/O bottleneck."}, {"cmd": "free -h", "note": "is memory exhausted? sustained swap (vmstat si/so) = thrashing."}, {"cmd": "renice / kill <pid>", "note": "tame or stop the offending process."}]}, {"title": "Fix an SELinux denial", "d": 3, "goal": "An app is blocked on a RHEL host even though file permissions look correct.", "steps": [{"cmd": "getenforce", "note": "confirm SELinux is Enforcing."}, {"cmd": "ausearch -m avc -ts recent", "note": "find the AVC denial and what was blocked."}, {"cmd": "restorecon -Rv <path>  /  setsebool -P <bool> on", "note": "relabel files, flip a boolean, or add a port with semanage."}, {"cmd": "re-test the app", "note": "confirm the denial is gone — don't just disable SELinux."}]}, {"title": "Investigate 'disk full'", "d": 5, "goal": "Writes fail with 'No space left on device' — find the real cause.", "steps": [{"cmd": "df -h", "note": "which filesystem is actually full?"}, {"cmd": "df -i", "note": "or have you run out of inodes (lots of tiny files)?"}, {"cmd": "du -sh /path/* | sort -h", "note": "find the directories eating the space."}, {"cmd": "lsof +L1", "note": "or a deleted-but-open file still held by a process."}, {"cmd": "delete/rotate, or restart the process", "note": "reclaim the space."}]}, {"title": "Schedule a recurring job", "d": 4, "goal": "Run a script automatically on a schedule and confirm it's set.", "steps": [{"cmd": "crontab -e", "note": "open your user crontab for editing."}, {"cmd": "add: 0 2 * * * /opt/backup.sh", "note": "minute hour dom mon dow + the absolute path to the script."}, {"cmd": "crontab -l", "note": "verify the entry was saved."}, {"cmd": "(alternative) systemctl list-timers", "note": "or use a systemd .timer for logging and dependencies."}]}];
+const WF={mode:"study", wf:null, order:[], placed:[], misses:0, lastWrong:-1, open:new Set()};
+function newWFQuiz(){ WF.wf=Math.floor(Math.random()*WORKFLOWS.length); WF.order=shuffle(WORKFLOWS[WF.wf].steps.map((_,i)=>i)); WF.placed=[]; WF.misses=0; WF.lastWrong=-1; }
+function renderWorkflows(){
+  const chips=[["study","study workflows"],["quiz","quiz the order"]];
+  let body;
+  if(WF.mode==="study"){
+    body=`<div class="muted" style="font-size:12px;margin:2px 2px 11px"># the command sequences you'll actually run, in order. Learn the flow, then switch to &ldquo;quiz the order&rdquo;.</div><div id="wflist">`+
+      WORKFLOWS.map((w,i)=>{const open=WF.open.has(i);
+        return `<div class="concept"><div class="concept-h" data-wi="${i}"><span class="concept-tt"><span class="ct">${esc(w.title)}</span><span class="cl">${esc(w.goal)}</span></span><span class="cmdplus">${open?"&minus;":"+"}</span></div>${open?`<div class="concept-body"><ol class="csteps">${w.steps.map(s=>`<li><code>${esc(s.cmd)}</code> &mdash; <span class="wfnote">${esc(s.note)}</span></li>`).join("")}</ol></div>`:""}</div>`;
+      }).join("")+`</div>`;
+  } else {
+    if(WF.wf===null) newWFQuiz();
+    const w=WORKFLOWS[WF.wf], n=w.steps.length, complete=WF.placed.length===n;
+    const placed=WF.placed.map((oi,pos)=>`<div class="wfplaced"><span class="wfnum">${pos+1}</span><code>${esc(w.steps[oi].cmd)}</code></div>`).join("");
+    const pool=complete?"":`<div class="wfpool">`+WF.order.filter(oi=>!WF.placed.includes(oi)).map(oi=>`<button class="opt wfopt ${WF.lastWrong===oi?"wrong":""}" data-oi="${oi}"><span>${esc(w.steps[oi].cmd)}</span></button>`).join("")+`</div>`;
+    const result=complete
+      ? `<div class="fb show"><div class="v ok">&#10003; correct order${WF.misses?` &middot; ${WF.misses} misclick${WF.misses>1?"s":""}`:" &middot; perfect!"}</div><div class="x"><ol class="csteps">${w.steps.map(s=>`<li><code>${esc(s.cmd)}</code> &mdash; <span class="wfnote">${esc(s.note)}</span></li>`).join("")}</ol></div></div><div class="row"><button class="btn" id="wfnext">next workflow &rarr;</button><span class="kbd"><b>keys:</b> n/enter next</span></div>`
+      : `<div class="row" style="margin-top:6px"><span class="kbd"><b>tip:</b> click the steps in the order you'd run them</span></div>`;
+    body=`<div class="qbox"><div class="qmeta">order the workflow &middot; ${WF.placed.length}/${n} placed${WF.misses?` &middot; ${WF.misses} miss`:""}</div>
+      <div class="qtext"><span class="pre">&gt;</span>Put these steps in order: <b>${esc(w.title.replace(/^.*?:\s*/,"").replace(/:$/,""))}</b></div>
+      <div class="muted" style="font-size:12px;margin:0 0 11px"># ${esc(w.goal)}</div>
+      ${WF.placed.length?`<div class="wfplacedwrap">${placed}</div>`:""}
+      ${pool}
+      ${result}</div>`;
+  }
+  screen.innerHTML=navBar()+studySubnav()+
+    `<div class="chips">${chips.map(([k,l])=>`<button class="chip ${WF.mode===k?"active":""}" data-m="${k}">${l}</button>`).join("")}</div>`+
+    promptLine(WF.mode==="study"?"cat ~/workflows/*":"quiz --order")+
+    body;
+  hook();
+  document.querySelectorAll(".subbtn").forEach(b=>b.onclick=()=>{R.view=b.dataset.view;renderRef();});
+  document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{WF.mode=c.dataset.m;if(WF.mode==="quiz")newWFQuiz();renderRef();});
+  if(WF.mode==="study"){
+    document.querySelectorAll(".concept-h").forEach(h=>h.onclick=()=>{const i=+h.dataset.wi; if(WF.open.has(i))WF.open.delete(i);else WF.open.add(i); renderRef();});
+  } else {
+    document.querySelectorAll(".wfopt").forEach(b=>b.onclick=()=>wfPick(+b.dataset.oi));
+    const nb=document.getElementById("wfnext"); if(nb) nb.onclick=()=>{newWFQuiz();renderRef();};
+  }
+}
+function wfPick(oi){
+  if(oi===WF.placed.length){ WF.placed.push(oi); WF.lastWrong=-1; }
+  else { WF.misses++; WF.lastWrong=oi; }
+  renderRef();
+}
+
 /* ---- labs (hands-on missions) ---- */
 const LABS=[{"title": "LAB: Service troubleshooting", "d": 2, "situation": "nginx fails to come up after a reboot and the site is down.", "steps": [{"goal": "Show the logs for the nginx service from the current boot only.", "answer": "journalctl -u nginx -b", "accept": ["(sudo )?journalctl -u nginx(\\.service)? -b", "(sudo )?journalctl -b -u nginx(\\.service)?"], "why": "<code>-u</code> filters by unit (the nginx service); <code>-b</code> limits output to the current boot, so you see only this session's failure."}, {"goal": "The logs show it simply never started. Make nginx start automatically on every boot.", "answer": "systemctl enable nginx", "accept": ["(sudo )?systemctl enable nginx(\\.service)?", "(sudo )?systemctl enable --now nginx(\\.service)?"], "why": "<code>enable</code> creates the boot-time symlink so nginx starts on every boot. Add <code>--now</code> to also start it immediately."}]}, {"title": "LAB: Disk filling up", "d": 5, "situation": "Users hit 'No space left on device'. /var is the prime suspect.", "steps": [{"goal": "Show usage of all mounted filesystems in human-readable units.", "answer": "df -h", "accept": ["(sudo )?df -h", "(sudo )?df -h /var"], "why": "<code>df -h</code> shows per-filesystem usage. If it reports free space yet writes still fail, suspect inodes (<code>df -i</code>) or a deleted-but-open file."}, {"goal": "Find which subdirectories of /var are consuming the most space.", "answer": "du -sh /var/*", "accept": ["(sudo )?du -sh /var/\\*( \\| sort -h)?", "(sudo )?du -h /var/\\*( \\| sort -h)?", "(sudo )?du -sh /var/?"], "why": "<code>df</code> tells you a filesystem is full; <code>du -sh</code> tells you <i>what</i> is filling it. Pipe to <code>sort -h</code> to rank the offenders."}]}, {"title": "LAB: Space that won't free up", "d": 5, "situation": "df shows the disk 100% full, but du only accounts for a fraction. A large log was deleted while a service still had it open.", "steps": [{"goal": "List open files that have been deleted but are still held by a running process.", "answer": "lsof +L1", "accept": ["(sudo )?lsof \\+l1", "(sudo )?lsof \\| ?grep deleted"], "why": "A process holding a deleted file keeps its disk blocks allocated until it closes the handle or restarts. <code>lsof +L1</code> lists files whose link count dropped below 1 (deleted-but-open). Restart that process to reclaim the space."}]}, {"title": "LAB: Permission denied", "d": 1, "situation": "You wrote deploy.sh, but running ./deploy.sh returns 'Permission denied'.", "steps": [{"goal": "Give the owner permission to execute deploy.sh.", "answer": "chmod u+x deploy.sh", "accept": ["(sudo )?chmod u\\+x deploy\\.sh", "(sudo )?chmod \\+x deploy\\.sh", "(sudo )?chmod 7[0-7][0-7] deploy\\.sh", "(sudo )?chmod u=rwx deploy\\.sh"], "why": "The script was missing its execute bit. <code>chmod u+x</code> adds execute for the owner; <code>+x</code> adds it for all classes."}]}, {"title": "LAB: Onboarding a teammate", "d": 2, "situation": "New teammate 'deploy' needs Docker access but must keep every group they already belong to.", "steps": [{"goal": "Add user deploy to the docker group without disturbing their existing groups.", "answer": "usermod -aG docker deploy", "accept": ["(sudo )?usermod -ag docker deploy", "(sudo )?usermod -a -g docker deploy", "(sudo )?gpasswd -a deploy docker"], "why": "<code>-a</code> (append) is the key: <code>usermod -G</code> on its own would <i>replace</i> all supplementary groups. The new membership takes effect at the user's next login."}]}, {"title": "LAB: SELinux is blocking you", "d": 3, "situation": "On a RHEL host your web app gets 'Permission denied' reaching its database, yet the file permissions are correct.", "steps": [{"goal": "Check whether SELinux is currently enforcing.", "answer": "getenforce", "accept": ["(sudo )?getenforce", "(sudo )?sestatus"], "why": "<code>getenforce</code> prints Enforcing, Permissive, or Disabled. If it's Enforcing, SELinux can block an app even when rwx is correct."}, {"goal": "Persistently allow the web server (httpd) to make outbound network connections.", "answer": "setsebool -P httpd_can_network_connect on", "accept": ["(sudo )?setsebool -p httpd_can_network_connect (on|1)"], "why": "<code>setsebool</code> flips an SELinux boolean; <code>-P</code> makes it survive a reboot. This is the correct fix &mdash; not <code>chmod</code> and not disabling SELinux."}]}, {"title": "LAB: Name resolution broken", "d": 2, "situation": "A server can ping 8.8.8.8 but reports 'cannot resolve host' for any name.", "steps": [{"goal": "Query DNS directly for the address of example.com.", "answer": "dig example.com", "accept": ["(sudo )?dig example\\.com( a)?", "(sudo )?nslookup example\\.com", "(sudo )?host example\\.com"], "why": "Reaching an IP but not a name points squarely at DNS. <code>dig</code> asks a resolver directly; no answer means the resolver or <code>/etc/resolv.conf</code> is the problem, not connectivity."}]}, {"title": "LAB: Open a firewall port", "d": 3, "situation": "A new HTTPS service must be reachable from outside. The host uses firewalld.", "steps": [{"goal": "Permanently allow inbound TCP traffic on port 443.", "answer": "firewall-cmd --permanent --add-port=443/tcp", "accept": ["(sudo )?firewall-cmd --permanent --add-port=443/tcp", "(sudo )?firewall-cmd --add-port=443/tcp --permanent"], "why": "<code>--permanent</code> writes the rule into the saved configuration so it survives a reboot. Without it, the rule is lost on restart."}, {"goal": "Apply the permanent rule to the running firewall right now.", "answer": "firewall-cmd --reload", "accept": ["(sudo )?firewall-cmd --reload"], "why": "Permanent rules don't take effect until you <code>--reload</code> (or restart firewalld). Reload re-applies the saved config without dropping existing connections."}]}, {"title": "LAB: Grow a full volume", "d": 1, "situation": "The ext4 logical volume /dev/vg0/data is nearly full, and its volume group still has free extents.", "steps": [{"goal": "Extend the logical volume by 5 GB and grow its filesystem in a single command.", "answer": "lvextend -r -L +5G /dev/vg0/data", "accept": ["(sudo )?lvextend -r -l \\+5g /dev/vg0/data", "(sudo )?lvextend -l \\+5g -r /dev/vg0/data", "(sudo )?lvextend --resizefs -l \\+5g /dev/vg0/data"], "why": "<code>-L +5G</code> adds 5 GB; <code>-r</code> (--resizefs) grows the filesystem to match in the same step (it calls resize2fs for ext4). Without <code>-r</code> you'd run resize2fs afterwards."}]}, {"title": "LAB: Runaway process", "d": 5, "situation": "System load is through the roof. A process named 'stress' is pegging the CPU.", "steps": [{"goal": "Print the PID(s) of every process named stress.", "answer": "pgrep stress", "accept": ["(sudo )?pgrep( -a)? stress", "(sudo )?pidof stress"], "why": "<code>pgrep</code> matches processes by name and prints their PIDs &mdash; cleaner and safer than parsing <code>ps</code> output by hand."}, {"goal": "Gracefully terminate all processes named stress.", "answer": "pkill stress", "accept": ["(sudo )?pkill stress", "(sudo )?killall stress"], "why": "<code>pkill</code>/<code>killall</code> send SIGTERM (graceful) by name, letting the process clean up. Reach for <code>-9</code> only if it ignores TERM."}]}, {"title": "LAB: Schedule a backup", "d": 4, "situation": "A backup script at /opt/backup.sh must run automatically every day at 02:00.", "steps": [{"goal": "Write the crontab line that runs /opt/backup.sh daily at 2:00 AM.", "answer": "0 2 * * * /opt/backup.sh", "accept": ["0 2 \\* \\* \\* (sudo )?/opt/backup\\.sh"], "why": "Cron fields are <code>minute hour day-of-month month day-of-week</code>. <code>0 2 * * *</code> means minute 0 of hour 2, every day. Cron runs with a minimal PATH, so use the absolute path."}]}, {"title": "LAB: Recover from a bad kernel update", "d": 5, "situation": "After a kernel update the machine drops to an emergency shell &mdash; the initramfs is missing a storage driver.", "steps": [{"goal": "Regenerate the initramfs for the running kernel, overwriting the existing image.", "answer": "dracut -f", "accept": ["(sudo )?dracut -f", "(sudo )?dracut --force"], "why": "<code>dracut -f</code> forces a rebuild of the initramfs so the needed drivers are included at boot. On Debian/Ubuntu the equivalent is <code>update-initramfs -u</code>."}]}, {"title": "LAB: Back up before editing", "d": 1, "situation": "Before changing system configs you want a compressed snapshot of /etc.", "steps": [{"goal": "Create a gzip-compressed tar archive of /etc at /root/etc.tar.gz.", "answer": "tar -czf /root/etc.tar.gz /etc", "accept": ["(sudo )?tar -?c?z?f? ?-?c?z?v?f /root/etc\\.tar\\.gz /etc", "(sudo )?tar -czf /root/etc\\.tar\\.gz /etc", "(sudo )?tar czf /root/etc\\.tar\\.gz /etc", "(sudo )?tar -czvf /root/etc\\.tar\\.gz /etc", "(sudo )?tar cvzf /root/etc\\.tar\\.gz /etc"], "why": "<code>-c</code> create, <code>-z</code> gzip, <code>-f</code> file (whose name comes right after <code>-f</code>). Add <code>-v</code> for verbose output."}]}, {"title": "LAB: Passwordless SSH", "d": 3, "situation": "You want key-based, passwordless SSH from your laptop to web01 as the deploy user.", "steps": [{"goal": "Install your public key into deploy@web01's authorized_keys.", "answer": "ssh-copy-id deploy@web01", "accept": ["(sudo )?ssh-copy-id deploy@web01", "(sudo )?ssh-copy-id -i [^ ]+ deploy@web01"], "why": "<code>ssh-copy-id</code> appends your <i>public</i> key to the remote account's authorized_keys. Never copy the private key &mdash; it stays on your machine."}]}];
-const LB={lab:null, step:0, answered:false, ok:false, typed:"", done:new Set()};
+const LB={lab:null, step:0, answered:false, ok:false, typed:"", hintLevel:0, lastTry:"", revealed:false, done:new Set()};
 async function loadLabs(){ try{const r=await DB.get("lxq006:labs"); if(r&&r.value){const a=JSON.parse(r.value); if(Array.isArray(a)) a.forEach(i=>LB.done.add(i));}}catch(e){} }
 function saveLabs(){ try{ DB.set("lxq006:labs", JSON.stringify([...LB.done])); }catch(e){} }
 function renderLabs(){ return LB.lab===null ? renderLabList() : renderLabRun(); }
@@ -1782,11 +1881,69 @@ function renderLabList(){
     `<div class="muted" style="font-size:12px;margin:2px 2px 13px"># hands-on missions &mdash; read the situation, type the command that solves it. ${LB.done.size}/${LABS.length} completed.</div>`+
     `<div id="lablist">${cards}</div>`;
   hook();
-  document.querySelectorAll(".labcard").forEach(c=>c.onclick=()=>{LB.lab=+c.dataset.li;LB.step=0;LB.answered=false;LB.ok=false;LB.typed="";render();});
+  document.querySelectorAll(".labcard").forEach(c=>c.onclick=()=>{LB.lab=+c.dataset.li;LB.step=0;LB.answered=false;LB.ok=false;LB.typed="";LB.hintLevel=0;LB.lastTry="";LB.revealed=false;render();});
+}
+let _refAll=null;
+function refAll(){
+  if(_refAll) return _refAll;
+  const arr=[];
+  REF.forEach(g=>g.items.forEach(it=>{
+    it.c.split("/").map(x=>x.trim()).filter(Boolean).forEach(p=>{ if(/^[a-z]/.test(p.toLowerCase())) arr.push({tok:p.toLowerCase(),len:p.length,it}); });
+  }));
+  arr.sort((a,b)=>b.len-a.len);
+  _refAll=arr; return arr;
+}
+const LABCOMMON={
+  systemctl:"controls systemd units \u2014 start, stop, enable, disable, or check the status of services.",
+  pgrep:"finds the process IDs of running programs by name.",
+  pidof:"prints the PID of a named running program.",
+  host:"does a DNS lookup for a name (similar to dig, simpler output).",
+  gpasswd:"administers membership of a group."
+};
+function explainTyped(input){
+  let s=norm(input); if(!s) return "";
+  s=s.replace(/^sudo /,"");
+  let hit=null;
+  for(const e of refAll()){ const t=e.tok.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"); if(new RegExp("^"+t+"(?: |$)").test(s)){hit=e;break;} }
+  if(!hit){
+    const base=s.split(" ")[0];
+    if(LABCOMMON[base]) return `<code>${esc(base)}</code> &mdash; ${esc(LABCOMMON[base])}`;
+    return ""; // unknown - don't show a misleading explanation
+  }
+  const it=hit.it, det=DETAIL[it.c]||{};
+  const purpose=det.use||it.d||"";
+  const used=(s.match(/(?:^| )(--?[a-z][\w-]*)/gi)||[]).map(x=>x.trim());
+  const known=[];
+  if(it.f&&it.f.length){
+    used.forEach(u=>{ const lc=u.toLowerCase();
+      const f=it.f.find(p=>{const names=(String(p[0]).toLowerCase().match(/--?[a-z0-9][\w-]*/g)||[]);return names.includes(lc);});
+      if(f && !known.some(k=>k.u===lc)) known.push({u:lc,m:f[1]});
+    });
+  }
+  const flagBits = known.length ? ` You used ${known.map(k=>`<code>${esc(k.u)}</code> (${esc(k.m)})`).join(", ")}.` : "";
+  return `<code>${esc(hit.tok)}</code> &mdash; ${esc(purpose)}${flagBits}`;
 }
 function renderLabRun(){
-  const l=LABS[LB.lab], step=l.steps[LB.step], ans=LB.answered, last=LB.step===l.steps.length-1;
-  const detail = ans ? `<div class="pbqrow"><span class="muted">you typed:</span> <code>${esc(LB.typed)||"(empty)"}</code></div><div class="pbqrow"><span class="muted">expected:</span> <code class="exp">${esc(step.answer)}</code></div><div class="labwhy"><span class="labk">Why</span><span>${step.why}</span></div>` : "";
+  const l=LABS[LB.lab], step=l.steps[LB.step], ans=LB.answered, last=LB.step===l.steps.length-1, hints=labHints(step);
+  let mid="";
+  if(ans){
+    const typedExpl=(!LB.ok)?explainTyped(LB.typed):"";
+    const yourBlock=typedExpl?`<div class="labwhy yourcmd"><span class="labk">Your cmd</span><span>${typedExpl}</span></div>`:"";
+    const verdict=LB.ok?"&#10003; correct":(LB.revealed?"answer revealed":"&#10007; not an accepted answer");
+    mid=`<div class="fb show" id="fb"><div class="v ${LB.ok?"ok":"no"}" id="fv">${verdict}</div><div class="x" id="fx"><div class="pbqrow"><span class="muted">you typed:</span> <code>${esc(LB.typed)||"(nothing)"}</code></div><div class="pbqrow"><span class="muted">expected:</span> <code class="exp">${esc(step.answer)}</code></div>${yourBlock}<div class="labwhy"><span class="labk">Why</span><span>${step.why}</span></div></div></div>
+      <div class="row" id="labafter" style="display:flex">
+        <button class="btn" id="labnext">${last?"finish mission &#10003;":"next step &rarr;"}</button>
+        <button class="lookbtn" id="labexit">back to labs</button>
+      </div>`;
+  } else {
+    const tried=LB.lastTry?`<div class="fb show"><div class="v no">&#10007; not accepted &mdash; try again</div><div class="x"><div class="labwhy yourcmd"><span class="labk">Your cmd</span><span>${explainTyped(LB.lastTry)||("<code>"+esc(LB.lastTry)+"</code> isn't recognized.")}</span></div></div></div>`:"";
+    const lvl=LB.hintLevel||0;
+    const moreHint=lvl<hints.length?`<button class="lookbtn" id="labhintbtn">${lvl===0?"need a hint?":"another hint"}</button>`:"";
+    const revealBtn=(lvl>0||LB.lastTry)?`<button class="lookbtn" id="labreveal">reveal answer</button>`:"";
+    mid=`${tried}${hintBlock(hints,lvl)}
+      <div class="row" id="labhint" style="display:flex"><button class="btn" id="labcheck">check answer</button>${moreHint}${revealBtn}<button class="lookbtn" id="labexit2">back to labs</button></div>
+      <div class="row"><span class="kbd"><b>tip:</b> a wrong answer gives a hint, not the solution &mdash; keep trying</span></div>`;
+  }
   screen.innerHTML=navBar()+promptLine("lab --run")+`
     <div class="labbox">
       <div class="labhead">${esc(l.title)}</div>
@@ -1794,21 +1951,16 @@ function renderLabRun(){
       ${l.steps.length>1?`<div class="labstep">step ${LB.step+1} / ${l.steps.length}</div>`:""}
       <div class="labrow"><span class="labk">Goal</span><span>${esc(step.goal)}</span></div>
       <div class="pbqwrap"><span class="pbqprompt">$</span><input id="labin" class="pbqin ${ans?(LB.ok?"okin":"noin"):""}" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" ${ans?"disabled":""} placeholder="type the command, then press enter"></div>
-      <div class="fb ${ans?"show":""}" id="fb"><div class="v ${ans?(LB.ok?"ok":"no"):""}" id="fv">${ans?(LB.ok?"&#10003; correct":"&#10007; not an accepted answer"):""}</div><div class="x" id="fx">${detail}</div></div>
-      <div class="row" id="labafter" style="display:${ans?"flex":"none"}">
-        ${last?`<button class="btn" id="labnext">finish mission &#10003;</button>`:`<button class="btn" id="labnext">next step &rarr;</button>`}
-        ${ans&&!LB.ok?`<button class="lookbtn" id="labretry">try again</button>`:""}
-        <button class="lookbtn" id="labexit">back to labs</button>
-      </div>
-      <div class="row" id="labhint" style="display:${ans?"none":"flex"}"><button class="btn" id="labcheck">check answer</button><button class="lookbtn" id="labexit2">back to labs</button><span class="kbd"><b>tip:</b> accepts common variants (optional sudo, flag order)</span></div>
+      ${mid}
     </div>`;
   hook();
   const inp=document.getElementById("labin");
   if(ans && inp) inp.value=LB.typed||"";
-  if(!ans && inp){ inp.focus(); inp.onkeydown=(e)=>{ if(e.key==="Enter"){e.preventDefault();answerLab();} }; }
+  if(!ans && inp){ if(LB.lastTry) inp.value=LB.lastTry; inp.focus(); inp.setSelectionRange(inp.value.length,inp.value.length); inp.onkeydown=(e)=>{ if(e.key==="Enter"){e.preventDefault();answerLab();} }; }
   {const b=document.getElementById("labcheck"); if(b) b.onclick=()=>answerLab();}
+  {const b=document.getElementById("labhintbtn"); if(b) b.onclick=()=>{LB.hintLevel=Math.min((LB.hintLevel||0)+1,hints.length);render();};}
+  {const b=document.getElementById("labreveal"); if(b) b.onclick=()=>revealLab();}
   {const b=document.getElementById("labnext"); if(b) b.onclick=()=>advanceLab();}
-  {const b=document.getElementById("labretry"); if(b) b.onclick=()=>{LB.answered=false;LB.ok=false;LB.typed="";render();};}
   {const b=document.getElementById("labexit"); if(b) b.onclick=()=>{LB.lab=null;render();};}
   {const b=document.getElementById("labexit2"); if(b) b.onclick=()=>{LB.lab=null;render();};}
 }
@@ -1817,13 +1969,17 @@ function answerLab(){
   const inp=document.getElementById("labin"); const val=inp?inp.value:"";
   if(!norm(val)) return;
   const step=LABS[LB.lab].steps[LB.step];
-  LB.ok=pbqCheck(val,step); LB.typed=val; LB.answered=true;
-  render();
+  if(pbqCheck(val,step)){ LB.ok=true; LB.typed=val; LB.answered=true; render(); return; }
+  LB.lastTry=val; LB.hintLevel=Math.min((LB.hintLevel||0)+1, labHints(step).length); render();
+}
+function revealLab(){
+  if(LB.answered) return;
+  LB.answered=true; LB.ok=false; LB.revealed=true; LB.typed=LB.lastTry||""; render();
 }
 function advanceLab(){
   const l=LABS[LB.lab];
   if(LB.step===l.steps.length-1){ LB.done.add(LB.lab); saveLabs(); LB.lab=null; }
-  else { LB.step++; LB.answered=false; LB.ok=false; LB.typed=""; }
+  else { LB.step++; LB.answered=false; LB.ok=false; LB.typed=""; LB.hintLevel=0; LB.lastTry=""; LB.revealed=false; }
   render();
 }
 
@@ -1854,6 +2010,10 @@ document.addEventListener("keydown",e=>{
     else if(k==="p"&&E.i>0){E.i--;render();}
   } else if(tab==="labs" && LB.lab!==null && LB.answered){
     if(k==="n"||k==="enter"){ advanceLab(); }
+  } else if(tab==="ref" && R.view==="workflows" && WF.mode==="quiz"){
+    const w=WORKFLOWS[WF.wf]; const complete=w&&WF.placed.length===w.steps.length;
+    if(complete && (k==="n"||k==="enter")){ newWFQuiz(); renderRef(); }
+    else if(!complete && /^[1-9]$/.test(k)){ const pool=WF.order.filter(oi=>!WF.placed.includes(oi)); const pick=pool[+k-1]; if(pick!==undefined) wfPick(pick); }
   } else if(tab==="ref" && R.view==="pairs" && PR.mode==="quiz"){
     if(!PR.answered && /^[12]$/.test(k)){const els=[...document.querySelectorAll(".pairopt")];const el=els[+k-1];if(el)answerPair(el.dataset.cmd);}
     else if(PR.answered && (k==="n"||k==="enter")){newPairQ();render();}

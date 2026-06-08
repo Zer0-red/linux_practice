@@ -40,6 +40,7 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:99;
 .dot.r{background:#ff5f56}.dot.y{background:#ffbd2e}.dot.g{background:#27c93f}
 .bar .title{margin-left:8px;font-size:12.5px;color:var(--dim)}
 .bar .title b{color:var(--txt);font-weight:500}
+.ver{color:var(--green);font-size:10.5px;border:1px solid var(--green-dim);border-radius:5px;padding:1px 6px;margin-left:5px;letter-spacing:.3px;vertical-align:1px}
 .bar .right{margin-left:auto;font-size:11px;color:var(--dim2)}
 .themebtn{font-family:var(--mono);font-size:11px;color:var(--dim);background:transparent;
   border:1px solid var(--line);border-radius:6px;padding:4px 9px;cursor:pointer;transition:.13s;line-height:1.3}
@@ -96,6 +97,7 @@ nav button.active{color:var(--green);border-color:var(--green-dim);background:rg
 .flagcard{border:1px solid var(--line);border-radius:9px;margin:8px 0;background:var(--surface);overflow:hidden}
 .flaghead{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--line);background:var(--track)}
 .flagkey{font-family:var(--mono);font-weight:700;color:var(--green);font-size:15px}
+.flagkey.concept{font-size:12.5px;text-transform:uppercase;letter-spacing:.7px}
 .flagcount{color:var(--dim);font-size:12px}
 .vary{margin-left:auto;font-size:10.5px;padding:1px 8px;border-radius:10px;border:1px solid;white-space:nowrap}
 .vary.varies{color:var(--amber);border-color:var(--amber)}
@@ -121,10 +123,11 @@ nav button.active{color:var(--green);border-color:var(--green-dim);background:rg
 .pairx{color:var(--txt);font-size:13px;margin-bottom:7px;line-height:1.5}
 .pairuse{font-size:12.5px;color:var(--dim);margin:2px 0;line-height:1.5}
 .pairuse .puk{color:var(--green);font-family:var(--mono);font-weight:600;margin-right:5px}
-.subnav{display:flex;gap:3px;margin:-2px 0 13px}
-.subbtn{background:transparent;border:0;border-bottom:2px solid transparent;color:var(--dim);font-family:var(--mono);font-size:12px;padding:5px 11px 7px;border-radius:0;cursor:pointer;transition:.13s}
-.subbtn:hover{color:var(--txt)}
-.subbtn.active{color:var(--green);border-bottom-color:var(--green)}
+.subnav{display:flex;width:fit-content;max-width:100%;gap:4px;margin:-2px 0 15px;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.subnav::-webkit-scrollbar{display:none}
+.subbtn{flex:0 0 auto;background:transparent;border:0;border-radius:7px;color:var(--dim);font-family:var(--mono);font-size:12.5px;font-weight:600;padding:7px 14px;cursor:pointer;transition:.13s;white-space:nowrap;letter-spacing:.2px}
+.subbtn:hover{color:var(--txt);background:var(--track)}
+.subbtn.active{color:var(--green);background:rgba(70,211,105,.14);box-shadow:inset 0 0 0 1px var(--green-dim)}
 .concept{border:1px solid var(--line);border-radius:9px;margin-bottom:9px;background:var(--surface);overflow:hidden}
 .concept-h{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;cursor:pointer}
 .concept-h:hover{background:var(--track)}
@@ -281,14 +284,24 @@ nav button.active{color:var(--green);border-color:var(--green-dim);background:rg
 .ref-flag{font-size:12.5px;display:flex;gap:10px;color:var(--dim)}
 .ref-flag .ff{color:var(--green);min-width:90px;flex-shrink:0}
 @media(max-width:560px){.ref-flag .ff{min-width:70px}}
-@media(max-width:560px){.screen{padding:14px}.domrow .nm{width:150px;font-size:11.5px}.qtext{font-size:14.5px}}
+@media(max-width:560px){
+  body{padding:9px}
+  .screen{padding:14px 13px 22px}
+  .domrow .nm{width:150px;font-size:11.5px}
+  .qtext{font-size:14.5px}
+  nav{gap:6px;padding-bottom:12px;margin-bottom:13px}
+  nav button{font-size:12.5px;padding:8px 13px;border-radius:7px}
+  .subnav{margin-bottom:13px}
+  .subbtn{font-size:12px;padding:6px 12px}
+  .chip{font-size:11px;padding:5px 11px}
+}
 </style>
 </head>
 <body>
 <div class="window">
   <div class="bar">
     <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
-    <span class="title">student@linuxplus: <b>~/xk0-006</b></span>
+    <span class="title">student@linuxplus: <b>~/xk0-006</b> <span class="ver">v1.8</span></span>
     <span class="right" id="barright"></span>
     <button class="themebtn" id="themeToggle" title="Toggle light / dark">&#9728; light</button>
   </div>
@@ -840,14 +853,20 @@ function navBar(){
   return `<nav>${tabs.map(([k,l])=>`<button data-tab="${k}" class="${tab===k?"active":""}">${l}</button>`).join("")}</nav>`;
 }
 
+function scrollActiveSub(){
+  const n=document.querySelector(".subnav"); if(!n) return;
+  const a=n.querySelector(".subbtn.active"); if(!a) return;
+  n.scrollLeft=Math.max(0, a.offsetLeft-(n.clientWidth-a.offsetWidth)/2);
+}
 function render(){
   barright.textContent = `${ALL.length} questions loaded`;
-  if(tab==="dash") return renderDash();
-  if(tab==="ref") return renderRef();
-  if(tab==="mistakes") return renderMistakes();
-  if(tab==="practice") return renderPractice();
-  if(tab==="labs") return renderLabs();
-  if(tab==="exam") return renderExam();
+  if(tab==="dash") renderDash();
+  else if(tab==="ref") renderRef();
+  else if(tab==="mistakes") renderMistakes();
+  else if(tab==="practice") renderPractice();
+  else if(tab==="labs") renderLabs();
+  else if(tab==="exam") renderExam();
+  scrollActiveSub();
 }
 
 /* ---------- DASHBOARD ---------- */
@@ -1648,6 +1667,45 @@ function fillRef(){
 /* ---------- FLAG CROSS-REFERENCE ---------- */
 const F={scope:"shared",search:""};
 let FLAGIDX=null;
+let CONCEPTIDX=null;
+const CONCEPT_RULES=[
+  ["case-insensitive", /case.?insensitive|ignore case/i],
+  ["line numbers", /line number/i],
+  ["count", /\bcount\b/i],
+  ["invert match", /invert|non-?matching|lines? not/i],
+  ["whole-word match", /whole word|word.?regexp/i],
+  ["gzip compression", /gzip/i],
+  ["bzip2 compression", /bzip2/i],
+  ["create archive", /create .*archive|new archive/i],
+  ["extract archive", /extract/i],
+  ["list contents", /list (the )?contents|table of contents/i],
+  ["human-readable sizes", /human.?read/i],
+  ["recursive", /recurs/i],
+  ["verbose output", /verbose/i],
+  ["force / no prompt", /\bforc|without prompting|no prompt/i],
+  ["interactive prompt", /interactiv|prompt before|ask .*confirm/i],
+  ["quiet / silent", /quiet|silent|suppress/i],
+  ["follow / live", /\bfollow/i],
+  ["show hidden / all", /hidden|do not ignore|dotfiles/i],
+  ["long listing", /long (listing|format|list)/i],
+  ["numeric (no resolve)", /numeric|n'?o?t resolve|without resolving/i],
+  ["preserve attributes", /preserve/i],
+  ["no overwrite", /overwrit|clobber/i],
+  ["follow symlinks", /symbolic link|dereference|follow .*link/i],
+  ["only if newer", /\bnewer\b|update if/i],
+  ["persistent / permanent", /permanent|persist/i],
+  ["append", /\bappend\b/i]
+];
+function buildConceptIndex(){
+  if(!FLAGIDX) FLAGIDX=buildFlagIndex();
+  const out={};
+  Object.keys(FLAGIDX).forEach(key=>FLAGIDX[key].forEach(e=>{
+    const text=(e.desc||"")+" "+(e.full||"");
+    for(const [label,re] of CONCEPT_RULES){ if(re.test(text)){ (out[label]=out[label]||[]).push({cmd:e.cmd,flag:key,full:e.full,desc:e.desc,dom:e.dom}); break; } }
+  }));
+  Object.keys(out).forEach(k=>{const seen=new Set();out[k]=out[k].filter(e=>{const id=e.cmd+"|"+e.flag+"|"+e.desc;if(seen.has(id))return false;seen.add(id);return true;});});
+  return out;
+}
 function buildFlagIndex(){
   const idx={};
   REF.forEach(g=>g.items.forEach(it=>{
@@ -1671,23 +1729,53 @@ function firstStem(s){const m=(s||"").toLowerCase().match(/[a-z]+/);return m?m[0
 function flagVaries(entries){return new Set(entries.map(e=>firstStem(e.desc))).size>1;}
 function renderFlags(){
   if(!FLAGIDX) FLAGIDX=buildFlagIndex();
-  const chips=[["shared","shared (2+ tools)"],["all","every flag"]];
+  const chips=[["shared","shared (2+ tools)"],["all","every flag"],["concept","by meaning"]];
   screen.innerHTML=navBar()+studySubnav()+
     `<div class="chips">${chips.map(([k,l])=>`<button class="chip ${F.scope===k?"active":""}" data-sc="${k}">${l}</button>`).join("")}</div>`+
-    promptLine("flags --group-by-flag --shared")+
+    promptLine(F.scope==="concept"?"flags --group-by-meaning":"flags --group-by-flag")+
     `<div class="searchbar"><span class="sp">flag &gt;</span><input id="flagsearch" type="text" placeholder="filter by flag, command, or meaning (e.g. -r, grep, recursive)" value="${esc(F.search)}" autocomplete="off" spellcheck="false"></div>
-     <div class="muted" style="font-size:12px;margin:2px 2px 11px"># one letter, many tools. Cards tagged <span class="vary varies">meaning varies</span> are where the same flag means different things &mdash; classic exam traps.</div>
+     <div class="muted" id="flaghelp" style="font-size:12px;margin:2px 2px 11px"></div>
      <div id="flaglist"></div>`;
   hook();
   document.querySelectorAll(".subbtn").forEach(b=>b.onclick=()=>{R.view=b.dataset.view;renderRef();});
-  document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{F.scope=c.dataset.sc;
-    document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x.dataset.sc===F.scope));fillFlags();});
+  document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{F.scope=c.dataset.sc;renderRef();});
   const inp=document.getElementById("flagsearch"); inp.oninput=()=>{F.search=inp.value;fillFlags();};
   fillFlags();
   if(F.search){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}
 }
+function fillFlagsConcept(term){
+  if(!CONCEPTIDX) CONCEPTIDX=buildConceptIndex();
+  let cards=Object.keys(CONCEPTIDX).map(k=>({k,entries:CONCEPTIDX[k]}));
+  if(term){
+    cards=cards.map(c=>{
+      if(c.k.toLowerCase().includes(term)) return c;
+      const ent=c.entries.filter(e=>(e.cmd+" "+e.flag+" "+e.desc).toLowerCase().includes(term));
+      return ent.length?{k:c.k,entries:ent}:null;
+    }).filter(Boolean);
+  } else {
+    cards=cards.filter(c=>distinctCmds(c.entries)>=2);
+  }
+  cards.sort((a,b)=>{const d=distinctCmds(b.entries)-distinctCmds(a.entries); return d||a.k.localeCompare(b.k);});
+  const html=cards.map(c=>{
+    const n=distinctCmds(c.entries);
+    const flagset=[...new Set(c.entries.map(e=>e.flag))].sort();
+    const rows=c.entries.slice().sort((a,b)=>a.cmd.localeCompare(b.cmd)||a.flag.localeCompare(b.flag)).map(e=>
+      `<div class="flagrow"><span class="fcmd">${esc(e.cmd)}</span><span class="ffull">${esc(e.flag)}</span><span class="fdesc">${esc(e.desc)}</span></div>`).join("");
+    return `<div class="flagcard">
+      <div class="flaghead"><span class="flagkey concept">${esc(c.k)}</span><span class="flagcount">${n} tool${n===1?"":"s"} &middot; ${flagset.map(esc).join(" ")}</span></div>
+      <div class="flagrows">${rows}</div>
+    </div>`;
+  }).join("");
+  const lst=document.getElementById("flaglist");
+  lst.innerHTML=(cards.length?`<div class="ref-count"># ${cards.length} shared behavior${cards.length===1?"":"s"}${term?" matching '"+esc(term)+"'":" (most tools first)"}</div>`:`<div class="ref-empty">no shared behaviors match '${esc(term)}'</div>`)+html;
+}
 function fillFlags(){
   const term=F.search.trim().toLowerCase();
+  const help=document.getElementById("flaghelp");
+  if(help) help.innerHTML = F.scope==="concept"
+    ? `# the same behavior, different letters &mdash; grouped by what the flag <b>does</b>. e.g. <span class="grn">recursive</span> is -r in grep/rm but -R in cp/ls/chmod.`
+    : `# one letter, many tools. Cards tagged <span class="vary varies">meaning varies</span> are where the same flag means different things &mdash; classic exam traps.`;
+  if(F.scope==="concept") return fillFlagsConcept(term);
   let cards=Object.keys(FLAGIDX).map(k=>({k,entries:FLAGIDX[k]}));
   if(term){
     cards=cards.map(c=>{
@@ -2459,6 +2547,7 @@ function advanceLab(){
 /* ---- nav wiring + keyboard ---- */
 function hook(){
   document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
+  document.addEventListener("click",e=>{ if(e.target&&e.target.closest&&e.target.closest(".subbtn")) setTimeout(scrollActiveSub,0); });
 }
 function setTab(t){
   tab=t;

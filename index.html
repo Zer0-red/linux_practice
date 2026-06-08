@@ -48,6 +48,10 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:99;
 .disclaimer{max-width:880px;margin:18px auto 0;padding:0 6px;text-align:center}
 .disclaimer p{font-family:var(--mono);font-size:10.5px;line-height:1.6;color:var(--dim2);margin:0 0 7px}
 .disclaimer p b{color:var(--dim);font-weight:500}
+#toTop{position:fixed;right:20px;bottom:20px;z-index:60;display:none;align-items:center;gap:6px;padding:9px 13px;border-radius:22px;border:1px solid var(--green-dim);background:var(--surface);color:var(--green);font-family:var(--mono);font-size:13px;font-weight:600;cursor:pointer;box-shadow:0 3px 14px rgba(0,0,0,.45)}
+#toTop .tt{font-size:11px;letter-spacing:.5px}
+#toTop:hover{background:var(--track);border-color:var(--green)}
+#toTop.show{display:inline-flex}
 .screen{padding:18px 20px 26px;min-height:520px}
 .cursor{display:inline-block;width:9px;height:16px;background:var(--green);transform:translateY(2px);animation:blink 1.1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
@@ -56,11 +60,11 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:99;
 .cmdline{margin-bottom:14px;font-size:13.5px;word-break:break-word}
 
 /* nav */
-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
-nav button{font-family:var(--mono);font-size:12.5px;color:var(--dim);background:transparent;border:1px solid var(--line);
-  border-radius:7px;padding:7px 13px;cursor:pointer;transition:.13s}
-nav button:hover{color:var(--txt);border-color:var(--line2)}
-nav button.active{color:var(--green);border-color:var(--green-dim);background:rgba(70,211,105,.07)}
+nav{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:16px;padding-bottom:15px;border-bottom:1px solid var(--line)}
+nav button{font-family:var(--mono);font-size:13.5px;font-weight:600;color:var(--dim);background:transparent;border:1px solid var(--line);
+  border-radius:8px;padding:9px 17px;cursor:pointer;transition:.13s;letter-spacing:.2px}
+nav button:hover{color:var(--txt);border-color:var(--line2);background:var(--surface)}
+nav button.active{color:var(--green);border-color:var(--green-dim);background:rgba(70,211,105,.13);font-weight:700}
 
 /* chips */
 .chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
@@ -86,6 +90,73 @@ nav button.active{color:var(--green);border-color:var(--green-dim);background:rg
 .pbqrow{font-size:13px;margin:2px 0}
 .pbqrow code{background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:1px 7px;color:var(--txt)}
 .pbqrow code.exp{color:var(--green);border-color:var(--green-dim)}
+.opt.sel{border-color:var(--green-dim);background:var(--track)}
+.opt .ck{display:inline-block;width:20px;text-align:center;color:var(--green);flex-shrink:0;font-size:15px}
+.multinote{color:var(--amber);font-size:12px;margin:2px 0 8px;letter-spacing:.3px}
+.flagcard{border:1px solid var(--line);border-radius:9px;margin:8px 0;background:var(--surface);overflow:hidden}
+.flaghead{display:flex;align-items:center;gap:10px;padding:9px 12px;border-bottom:1px solid var(--line);background:var(--track)}
+.flagkey{font-family:var(--mono);font-weight:700;color:var(--green);font-size:15px}
+.flagcount{color:var(--dim);font-size:12px}
+.vary{margin-left:auto;font-size:10.5px;padding:1px 8px;border-radius:10px;border:1px solid;white-space:nowrap}
+.vary.varies{color:var(--amber);border-color:var(--amber)}
+.vary.same{color:var(--green);border-color:var(--green-dim)}
+.flagrows{padding:4px 0}
+.flagrow{display:grid;grid-template-columns:140px 96px 1fr;gap:10px;padding:5px 12px;font-size:13px;align-items:baseline}
+.flagrow:nth-child(even){background:rgba(127,127,127,.045)}
+.fcmd{color:var(--txt);font-weight:600;font-family:var(--mono);word-break:break-word}
+.ffull{color:var(--green);font-family:var(--mono);font-size:12px}
+.fdesc{color:var(--dim)}
+.mbanner{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:var(--track);border:1px solid var(--amber);color:var(--amber);border-radius:8px;padding:7px 11px;margin-bottom:8px;font-size:12.5px}
+.linkbtn{background:none;border:0;color:var(--green);cursor:pointer;font-family:var(--mono);font-size:inherit;text-decoration:underline;padding:0}
+.lookbtn{font-family:var(--mono);font-size:11px;color:var(--dim);background:transparent;border:1px solid var(--line2);border-radius:6px;padding:3px 9px;cursor:pointer;white-space:nowrap}
+.lookbtn:hover{color:var(--green);border-color:var(--green-dim);background:rgba(70,211,105,.06)}
+.lookback{display:flex;align-items:center;gap:8px;flex-wrap:wrap;background:rgba(70,211,105,.07);border:1px solid var(--green-dim);color:var(--green);border-radius:8px;padding:7px 11px;margin-bottom:8px;font-size:12.5px}
+.domrow i.bad{background:var(--red)}
+.domrow i.warn{background:var(--amber)}
+.paircard{border:1px solid var(--line);border-radius:9px;margin:8px 0;padding:11px 13px;background:var(--surface)}
+.pairtop{display:flex;align-items:center;gap:10px;font-family:var(--mono);font-weight:700;margin-bottom:6px;flex-wrap:wrap}
+.pairtop .pa{color:var(--green)}
+.pairtop .pb{color:var(--blue)}
+.pairtop .vs{color:var(--dim);font-weight:400;font-size:12px}
+.pairx{color:var(--txt);font-size:13px;margin-bottom:7px;line-height:1.5}
+.pairuse{font-size:12.5px;color:var(--dim);margin:2px 0;line-height:1.5}
+.pairuse .puk{color:var(--green);font-family:var(--mono);font-weight:600;margin-right:5px}
+.subnav{display:flex;gap:3px;margin:-2px 0 13px}
+.subbtn{background:transparent;border:0;border-bottom:2px solid transparent;color:var(--dim);font-family:var(--mono);font-size:12px;padding:5px 11px 7px;border-radius:0;cursor:pointer;transition:.13s}
+.subbtn:hover{color:var(--txt)}
+.subbtn.active{color:var(--green);border-bottom-color:var(--green)}
+.concept{border:1px solid var(--line);border-radius:9px;margin-bottom:9px;background:var(--surface);overflow:hidden}
+.concept-h{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;cursor:pointer}
+.concept-h:hover{background:var(--track)}
+.concept-tt{flex:1;min-width:0}
+.concept-tt .ct{display:block;font-size:14px;color:var(--txt);font-weight:600}
+.concept-tt .cl{display:block;font-size:12px;color:var(--dim);margin-top:3px;line-height:1.45}
+.concept-body{padding:2px 15px 15px;font-size:13.5px;line-height:1.66;color:var(--txt)}
+.concept-body p{margin:9px 0}
+.concept-body code{background:var(--term);border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:12.5px;color:var(--green)}
+.csteps{margin:10px 0;padding:0;counter-reset:cs;list-style:none}
+.csteps li{position:relative;padding:6px 0 6px 32px;border-bottom:1px dashed var(--line)}
+.csteps li:last-child{border-bottom:0}
+.csteps li::before{counter-increment:cs;content:counter(cs);position:absolute;left:0;top:5px;width:21px;height:21px;border:1px solid var(--green-dim);color:var(--green);border-radius:50%;font-size:11px;display:flex;align-items:center;justify-content:center}
+.cpts{margin:9px 0;padding-left:20px}
+.cpts li{margin:5px 0}
+.cpts b,.csteps b,.concept-body p b{color:var(--txt);font-weight:600}
+.cnote{margin-top:11px;background:rgba(70,211,105,.06);border:1px solid var(--green-dim);border-radius:7px;padding:9px 12px;font-size:12.8px;color:var(--txt)}
+.cnote b{color:var(--green)}
+.cmdtoggle{cursor:pointer;display:inline-flex;align-items:baseline;gap:7px}
+.cmdtoggle:hover .ref-cmd.clickable{color:var(--green)}
+.cmdplus{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;font-size:13px;line-height:1;color:var(--green);border:1px solid var(--green-dim);border-radius:50%;flex-shrink:0;align-self:center}
+.cmdtoggle:hover .cmdplus{background:var(--track)}
+.cmddetail{margin:8px 0 4px;border-left:2px solid var(--green-dim);padding:6px 0 6px 11px;display:flex;flex-direction:column;gap:7px}
+.cd-row{display:grid;grid-template-columns:78px 1fr;gap:10px;align-items:baseline;font-size:13px}
+.cd-lab{color:var(--dim2);font-size:10.5px;text-transform:uppercase;letter-spacing:.5px;padding-top:2px}
+.cd-lab.exam{color:var(--amber)}
+.cd-syntax{color:var(--green);font-family:var(--mono);font-size:12.5px;background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:3px 8px;display:inline-block}
+.cd-ex{display:flex;flex-direction:column;gap:4px}
+.cd-ex code{color:var(--txt);font-family:var(--mono);font-size:12.5px;background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:3px 8px}
+.cd-txt{color:var(--dim);line-height:1.5}
+@media(max-width:560px){.cd-row{grid-template-columns:1fr;gap:2px}}
+@media(max-width:560px){.flagrow{grid-template-columns:1fr;gap:1px}.ffull{font-size:11px}}
 .qtext{font-size:15.5px;line-height:1.55;margin-bottom:16px;color:var(--txt)}
 .qtext .pre{color:var(--green);margin-right:6px}
 .opts{display:flex;flex-direction:column;gap:8px}
@@ -192,6 +263,7 @@ nav button.active{color:var(--green);border-color:var(--green-dim);background:rg
   <p>This application is an independent project created solely to help learners study for the CompTIA Linux+ (XK0-006) exam. It is not affiliated with, authorized by, endorsed by, sponsored by, or in any way officially connected to CompTIA, Inc. &ldquo;CompTIA&rdquo;, &ldquo;Linux+&rdquo;, and &ldquo;XK0-006&rdquo; are trademarks or registered trademarks of CompTIA, Inc., used here for identification and educational reference only.</p>
   <p>All questions and reference material are original content written from the publicly available exam objectives. No actual exam questions are reproduced, and no relationship with CompTIA is implied. Always refer to official CompTIA resources for authoritative exam preparation.</p>
 </footer>
+<button id="toTop" title="Back to top" aria-label="Back to top">&#8593;<span class="tt">top</span></button>
 
 <script>
 const Q = [
@@ -577,7 +649,48 @@ const Q = [
 {"d": 1, "q": "'mount | grep data' shows the filesystem mounted '(ro)'. Why do writes fail?", "o": ["It is mounted read-only", "The disk is full", "Permissions are 000", "It is an NFS share"], "c": 0, "x": "ro = read-only; remount rw (after fixing any underlying errors) to write.", "ty": "output", "obj": "1.3", "skill": "interpret mount", "diff": 1},
 {"d": 5, "q": "'uptime' shows 'load average: 8.10, 7.90, 7.40' on a 4-core server. How do you read this?", "o": ["Sustained load far above core count - the system is overloaded", "The system is idle", "Load is perfectly normal", "Memory is full"], "c": 0, "x": "Load near/above the core count for all three windows signals saturation.", "ty": "output", "obj": "5.1", "skill": "interpret load", "diff": 2},
 {"d": 5, "q": "dmesg shows 'Out of memory: Killed process 1402 (mysqld)'. What happened?", "o": ["The OOM killer terminated it because memory was exhausted", "mysqld segfaulted", "The disk filled up", "A user killed it"], "c": 0, "x": "When memory runs out, the kernel kills a process to recover.", "ty": "output", "obj": "5.1", "skill": "interpret oom", "diff": 2},
-{"d": 4, "q": "A crontab entry reads '*/5 * * * * /opt/run.sh'. How often does it run?", "o": ["Every 5 minutes", "Every 5 hours", "At 5 past every hour", "Daily at 05:00"], "c": 0, "x": "*/5 in the minute field means every 5 minutes.", "ty": "output", "obj": "4.1", "skill": "read cron", "diff": 1}
+{"d": 4, "q": "A crontab entry reads '*/5 * * * * /opt/run.sh'. How often does it run?", "o": ["Every 5 minutes", "Every 5 hours", "At 5 past every hour", "Daily at 05:00"], "c": 0, "x": "*/5 in the minute field means every 5 minutes.", "ty": "output", "obj": "4.1", "skill": "read cron", "diff": 1},
+{"d": 5, "q": "What term describes collecting log events from many systems into one central location for searching and analysis?", "o": ["Log aggregation", "Threshold monitoring", "Health checking", "Webhooks"], "c": 0, "x": "Aggregation ships logs from many hosts to a central store (e.g. a syslog server or ELK) so they can be searched together.", "ty": "recall", "obj": "5.1", "skill": "logging concepts", "diff": 1},
+{"d": 1, "q": "You need to create a container from the image 'app01' and immediately get an interactive shell in it, in a single step. Which command does this?", "o": ["docker run -it app01", "docker start -td app01", "docker build -ic app01", "docker exec -dc app01"], "c": 0, "x": "run creates and starts a new container; -i keeps STDIN open and -t allocates a TTY. exec needs an already-running container.", "ty": "scenario", "obj": "1.6", "skill": "run a container", "diff": 2},
+{"d": 1, "q": "A live VM migration between two hypervisors keeps failing. Which TWO attributes must match on both hosts for it to succeed? (Choose two.)", "o": ["CPU architecture/feature compatibility", "A shared storage path to the VM's disks", "Identical USB devices attached", "The same number of logged-in users", "Matching MOTD login banners", "The same system uptime"], "c": [0, 1], "x": "Live migration needs compatible CPUs (so the running instruction set still works) and shared/identical storage so the disk is reachable from both hosts.", "ty": "scenario", "obj": "1.6", "skill": "live migration", "diff": 3},
+{"d": 1, "q": "You must extract the contents of the gzip-compressed tar archive /home/dev/web.bkp into /var/www/html. Which command works?", "o": ["tar -xzf /home/dev/web.bkp -C /var/www/html", "tar -czf /home/dev/web.bkp /var/www/html", "unzip /home/dev/web.bkp -d /var/www/html", "gzip -d /var/www/html < /home/dev/web.bkp"], "c": 0, "x": "x extract, z gunzip, f file; -C changes into the target directory first. -czf would create, and unzip/gzip are the wrong tools for a tar.gz.", "ty": "scenario", "obj": "1.2", "skill": "extract archive", "diff": 2},
+{"d": 4, "q": "In Ansible, which component holds the list of managed hosts and host groups?", "o": ["Inventory", "Playbook", "Fact", "Collection"], "c": 0, "x": "The inventory lists hosts and groups; playbooks define tasks, facts are gathered system data, and collections bundle content.", "ty": "recall", "obj": "4.2", "skill": "ansible inventory", "diff": 1},
+{"d": 1, "q": "Which directory is a virtual filesystem that lives in memory, is generated by the kernel, and is not persisted to disk?", "o": ["/proc", "/var", "/usr", "/boot"], "c": 0, "x": "/proc is a runtime kernel/process view regenerated at boot; /var, /usr, and /boot hold on-disk data.", "ty": "recall", "obj": "1.1", "skill": "filesystem hierarchy", "diff": 1},
+{"d": 2, "q": "You need the UID, home directory, and login shell for the account 'accounting', resolved through all configured sources (files, LDAP, etc.). Which command is best?", "o": ["getent passwd accounting", "who accounting", "grep accounting /etc/shadow", "id -G accounting"], "c": 0, "x": "getent reads the passwd database via nsswitch and prints the full line (uid, home, shell). id shows IDs/groups, not the home or shell; /etc/shadow holds password data.", "ty": "scenario", "obj": "2.2", "skill": "query a user account", "diff": 2},
+{"d": 1, "q": "You want to download the latest 'debian' image from a registry without creating a container yet. Which command pulls it?", "o": ["docker image pull debian", "docker image init debian", "docker image import debian", "docker image save debian"], "c": 0, "x": "docker image pull (or docker pull) fetches an image. import builds from a tarball and save exports one.", "ty": "scenario", "obj": "1.6", "skill": "pull an image", "diff": 1},
+{"d": 4, "q": "In a script, the line echo \"profile-$num-$name\" makes $num run into the text that follows it. Which notation reliably delimits the variable so it expands correctly?", "o": ["echo \"profile-${num}-$name\"", "echo 'profile-${num}-${name}'", "echo \"profile-$[num]-$name\"", "echo profile-$num-$name"], "c": 0, "x": "Braces ${num} bound the variable name explicitly. Single quotes suppress expansion entirely, and $[...] is arithmetic, not variable delimiting.", "ty": "output", "obj": "4.1", "skill": "variable expansion", "diff": 2},
+{"d": 5, "q": "You want to watch an Apache error log in real time AND save that same stream to a file for later review. Which command does both at once?", "o": ["tail -f /var/log/apache2/error.log | tee logfile.txt", "tail -f /var/log/apache2/error.log > logfile.txt", "tail -f /var/log/apache2/error.log | logfile.txt", "tail -f /var/log/apache2/error.log >> logfile.txt"], "c": 0, "x": "tee writes its input to a file AND passes it to stdout, so you see it live and keep a copy. The redirections send output only to the file (nothing on screen).", "ty": "scenario", "obj": "5.1", "skill": "tee for live+save", "diff": 2},
+{"d": 4, "q": "You launched a long-running command in the background with '&' and now want to bring that job back into the foreground of your current shell. Which command?", "o": ["fg", "jobs", "exec", "renice"], "c": 0, "x": "fg moves a background/stopped job to the foreground. jobs only lists them, exec replaces the shell, and renice changes priority.", "ty": "scenario", "obj": "4.1", "skill": "job control", "diff": 1},
+{"d": 4, "q": "Which statement best describes a primary use of an Ansible playbook?", "o": ["It defines tasks and configuration to deploy and configure systems repeatably", "It stores a container's runtime secrets", "It implements branch protection on a Git repository", "It describes a Kubernetes pod's storage volumes"], "c": 0, "x": "Playbooks are YAML files describing desired tasks/state for automated, repeatable configuration and deployment.", "ty": "recall", "obj": "4.2", "skill": "playbooks", "diff": 1},
+{"d": 3, "q": "A secure site is unreachable. ufw shows '443/tcp DENY Anywhere' while the server confirms it is LISTENing on :443. Which command best fixes it without weakening the rest of the firewall?", "o": ["ufw delete deny 443/tcp", "ufw disable", "ufw allow 80/tcp", "ufw allow 4096/tcp"], "c": 0, "x": "The service is fine; a DENY rule is blocking 443. Remove that specific rule. Disabling ufw drops all protection, 80 is HTTP, and 4096 is a backlog value, not a port.", "ty": "output", "obj": "3.2", "skill": "fix a firewall rule", "diff": 2},
+{"d": 3, "q": "Which tool automates security-compliance scanning against baselines like CIS or DISA STIG using the SCAP standard?", "o": ["OpenSCAP", "Nmap", "AIDE", "SELinux"], "c": 0, "x": "OpenSCAP evaluates systems against SCAP content for compliance/vulnerability reporting. Nmap scans networks, AIDE checks file integrity, and SELinux enforces access policy.", "ty": "recall", "obj": "3.6", "skill": "compliance scanning", "diff": 2},
+{"d": 5, "q": "You must stop every running instance of a process by its name rather than hunting down each PID. Which command is most appropriate?", "o": ["killall firefox", "kill -all firefox", "ps -ef | grep firefox", "renice firefox"], "c": 0, "x": "killall (and pkill) match by name and signal all instances. kill needs PIDs, ps only lists, and renice changes priority.", "ty": "scenario", "obj": "5.1", "skill": "kill by name", "diff": 1},
+{"d": 4, "q": "You want every login to prepend $HOME/bin to PATH via ~/.bashrc. Which line is correct?", "o": ["export PATH=$HOME/bin:$PATH", "export $PATH=$HOME/bin:$PATH", "PATH=$HOME/bin;$PATH;export PATH", "export PATH=$HOME/bin;$PATH"], "c": 0, "x": "Assign first, then export: PATH=$HOME/bin:$PATH. You don't put $ before the name being assigned, and entries are separated by colons, not semicolons.", "ty": "scenario", "obj": "4.1", "skill": "set PATH in env", "diff": 2},
+{"d": 4, "q": "What must the first line of an executable script be so the kernel runs it with the right interpreter?", "o": ["#!/usr/bin/python3", "!#/usr/bin/python3", "#/usr/bin/python3", "#!python3"], "c": 0, "x": "The shebang is #! followed by the interpreter's absolute path. The characters must be in that order and the path must be absolute.", "ty": "recall", "obj": "4.1", "skill": "shebang line", "diff": 1},
+{"d": 4, "q": "A CI linter flags backtick command substitution, e.g. my_var=`grep -i user1 users.txt`, as deprecated. Which modern syntax replaces it?", "o": ["my_var=$(grep -i user1 users.txt)", "my_var={grep -i user1 users.txt}", "my_var=[[ grep -i user1 users.txt ]]", "my_var=<(grep -i user1 users.txt)"], "c": 0, "x": "$(...) is the preferred, nestable form of command substitution. {} is grouping, [[ ]] is a test, and <(...) is process substitution.", "ty": "scenario", "obj": "4.1", "skill": "command substitution", "diff": 2},
+{"d": 2, "q": "You installed httpd but it must not start at all (not now, not at boot, not even pulled in as a dependency) until you finish configuring it. Which command best enforces that?", "o": ["systemctl mask httpd", "systemctl disable httpd", "systemctl stop httpd", "systemctl reload httpd"], "c": 0, "x": "mask points the unit at /dev/null so nothing can start it. disable only removes boot autostart, and stop/reload act on the current run only.", "ty": "scenario", "obj": "2.5", "skill": "mask a service", "diff": 2},
+{"d": 4, "q": "A DevOps engineer wants a complete local copy of a coworker's existing Git repository, including its history. Which command?", "o": ["git clone <url>", "git fetch", "git checkout", "git init"], "c": 0, "x": "clone copies an entire remote repo locally. fetch updates refs in an existing clone, checkout switches branches/commits, and init creates a brand-new repo.", "ty": "scenario", "obj": "4.2", "skill": "clone a repo", "diff": 1},
+{"d": 3, "q": "Users cannot change their passwords: passwd reports 'Authentication token manipulation error', and ls -l shows '-rwxr-xr-x root root /usr/bin/passwd'. Which command restores the needed permission?", "o": ["chmod u+s /usr/bin/passwd", "chmod 757 /usr/bin/passwd", "chgrp users /usr/bin/passwd", "chown root /usr/bin/passwd"], "c": 0, "x": "passwd must be setuid root to update /etc/shadow; the listing shows the setuid bit is missing. chmod u+s restores it. 757 would not set setuid and is unsafe.", "ty": "output", "obj": "3.4", "skill": "setuid bit", "diff": 2},
+{"d": 3, "q": "You need to deny all inbound connections by default but still allow SSH. Which TWO commands together accomplish this? (Choose two.)", "o": ["ufw default deny incoming", "ufw allow 22/tcp", "ufw reject all", "ufw deny all", "ufw allow out 22", "ufw enable verbose"], "c": [0, 1], "x": "Set the inbound default to deny, then explicitly allow 22/tcp. 'reject all' / 'deny all' aren't valid default policies, and 'allow out' affects egress.", "ty": "scenario", "obj": "3.2", "skill": "default-deny firewall", "diff": 2},
+{"d": 4, "q": "Why would a team adopt Infrastructure as Code (IaC) in a cloud environment?", "o": ["To version, replicate, and scale infrastructure consistently", "To remove the need for any configuration files", "To let non-technical users write production scripts", "To patch mobile-device firmware"], "c": 0, "x": "IaC defines infrastructure in version-controlled, repeatable definitions, reducing drift and enabling reliable scaling.", "ty": "recall", "obj": "4.2", "skill": "IaC purpose", "diff": 1},
+{"d": 1, "q": "'docker run' for your image exits immediately, and you instead need an interactive shell inside an ALREADY-running container named 'web'. Which command?", "o": ["docker exec -it web bash", "docker run -it web bash", "docker attach -d web", "docker start -it web"], "c": 0, "x": "exec runs a new process (a shell) inside a running container; -it makes it interactive. run would start a new container, not enter the existing one.", "ty": "scenario", "obj": "1.6", "skill": "exec into a container", "diff": 2},
+{"d": 3, "q": "Hardening sshd: which TWO settings in sshd_config most directly reduce remote brute-force and root-login risk? (Choose two.)", "o": ["PermitRootLogin no", "PasswordAuthentication no", "X11Forwarding yes", "PermitEmptyPasswords yes", "TCPKeepAlive yes", "Compression yes"], "c": [0, 1], "x": "Disabling direct root login and password auth (favoring keys) removes the two easiest brute-force paths. PermitEmptyPasswords yes would weaken security.", "ty": "scenario", "obj": "3.1", "skill": "ssh hardening", "diff": 2},
+{"d": 3, "q": "ls -l on /tmp shows 'drwxrwxrwt'. Which special bit is set, and what does it do?", "o": ["The sticky bit - in a shared dir, only a file's owner (or root) can delete it", "setuid - files run as their owner", "setgid - new files inherit the directory's group", "Nothing special - these are ordinary permissions"], "c": 0, "x": "The trailing t is the sticky bit, used on world-writable dirs like /tmp so users can't delete each other's files.", "ty": "output", "obj": "3.4", "skill": "sticky bit", "diff": 2},
+{"d": 1, "q": "You need every *.log file under /var modified within the last 24 hours. Which command?", "o": ["find /var -name '*.log' -mtime -1", "find /var -name '*.log' -mtime +1", "grep -r '*.log' /var", "ls -R /var/*.log"], "c": 0, "x": "-mtime -1 means modified less than 1 day ago; +1 would mean more than a day ago.", "ty": "scenario", "obj": "1.2", "skill": "find by time", "diff": 2},
+{"d": 2, "q": "After running systemctl enable for a service, how do you confirm it is actually set to start at boot?", "o": ["systemctl is-enabled <service>", "systemctl is-active <service>", "systemctl status --boot", "systemctl list-units --now"], "c": 0, "x": "is-enabled reports the boot setting; is-active reports whether it's running right now.", "ty": "scenario", "obj": "2.5", "skill": "verify enabled", "diff": 1},
+{"d": 3, "q": "You want passwordless SSH login to web01 by installing your public key there. Which command does this cleanly?", "o": ["ssh-copy-id user@web01", "ssh-keygen -R web01", "scp ~/.ssh/id_rsa user@web01:", "ssh user@web01 keygen"], "c": 0, "x": "ssh-copy-id appends your public key to the server's authorized_keys. Never copy your PRIVATE key (id_rsa).", "ty": "scenario", "obj": "3.3", "skill": "ssh key auth", "diff": 2},
+{"d": 1, "q": "You must copy local file app.conf into /etc on remote host db01 over SSH. Which command?", "o": ["scp app.conf user@db01:/etc/", "scp user@db01:/etc/ app.conf", "rsync db01:app.conf /etc", "sftp /etc app.conf"], "c": 0, "x": "scp syntax is source then destination; the remote side uses user@host:/path.", "ty": "scenario", "obj": "1.4", "skill": "scp direction", "diff": 2},
+{"d": 1, "q": "You enlarged the disk and the LVM logical volume, but the ext4 filesystem still shows the old size. Which command makes the new space usable?", "o": ["resize2fs /dev/vg/lv", "mkfs.ext4 /dev/vg/lv", "lvcreate -r", "fsck -f /dev/vg/lv"], "c": 0, "x": "resize2fs grows the ext filesystem to fill the LV. mkfs would erase it.", "ty": "scenario", "obj": "1.3", "skill": "resize filesystem", "diff": 2},
+{"d": 5, "q": "A filesystem went read-only after errors. You've fixed the cause and want it writable again without rebooting. Which command?", "o": ["mount -o remount,rw /mountpoint", "mount -a", "chmod -R u+w /mountpoint", "umount -f /mountpoint"], "c": 0, "x": "remount,rw flips a mounted filesystem back to read-write in place.", "ty": "scenario", "obj": "5.4", "skill": "remount read-write", "diff": 2},
+{"d": 4, "q": "A crontab line reads '0 2 * * 0 /opt/backup.sh'. When does it run?", "o": ["At 02:00 every Sunday", "Every 2 hours on day 0", "At 00:02 every day", "On the 2nd of each month"], "c": 0, "x": "Fields are min hour dom month dow; dow 0 is Sunday, so 02:00 each Sunday.", "ty": "output", "obj": "4.1", "skill": "read weekly cron", "diff": 2},
+{"d": 4, "q": "In a script you must count log lines that do NOT contain 'DEBUG'. Which pipeline?", "o": ["grep -v DEBUG app.log | wc -l", "grep DEBUG app.log | wc -l", "grep -c DEBUG app.log", "sed DEBUG app.log | wc -l"], "c": 0, "x": "-v inverts the match (lines without the pattern); wc -l counts them.", "ty": "scenario", "obj": "4.1", "skill": "grep invert + count", "diff": 2},
+{"d": 4, "q": "You need the 3rd whitespace-separated field from each line of data.txt. Which command is most reliable?", "o": ["awk '{print $3}' data.txt", "cut -f3 data.txt", "sed -n 3p data.txt", "grep 3 data.txt"], "c": 0, "x": "awk splits on runs of whitespace by default; cut -f defaults to a single TAB delimiter, so it often fails on space-separated data.", "ty": "scenario", "obj": "4.1", "skill": "awk field extract", "diff": 2},
+{"d": 3, "q": "umask is 022. What permissions will a newly created regular file have?", "o": ["644 (rw-r--r--)", "755 (rwxr-xr-x)", "600 (rw-------)", "664 (rw-rw-r--)"], "c": 0, "x": "Files start from 666; 666 minus the 022 mask leaves 644.", "ty": "output", "obj": "3.4", "skill": "umask result", "diff": 2},
+{"d": 2, "q": "Policy requires user 'jdoe' to be forced to change passwords at least every 90 days. Which command sets that?", "o": ["chage -M 90 jdoe", "passwd -x 90 jdoe", "usermod -e 90 jdoe", "chage -d 90 jdoe"], "c": 0, "x": "chage -M sets the maximum password age. usermod -e sets an ACCOUNT expiry date, not password aging.", "ty": "scenario", "obj": "2.2", "skill": "password aging", "diff": 2},
+{"d": 3, "q": "You must edit the sudoers configuration so that a syntax mistake can't lock everyone out of sudo. Which command?", "o": ["visudo", "vi /etc/sudoers", "nano /etc/sudoers", "sudo edit /etc/sudoers"], "c": 0, "x": "visudo locks the file and validates syntax before saving, preventing a broken sudoers.", "ty": "scenario", "obj": "3.3", "skill": "edit sudoers safely", "diff": 2},
+{"d": 5, "q": "A process ignores SIGTERM and refuses to exit. Which signal forces it to stop immediately and cannot be caught or ignored?", "o": ["kill -9 (SIGKILL)", "kill -1 (SIGHUP)", "kill -15 (SIGTERM)", "kill -2 (SIGINT)"], "c": 0, "x": "SIGKILL (9) cannot be trapped, so it always terminates the process; prefer 15 first for a clean exit.", "ty": "scenario", "obj": "5.1", "skill": "signals", "diff": 2},
+{"d": 2, "q": "Which TWO commands can add the EXISTING user 'maria' to the existing 'docker' group? (Choose two.)", "o": ["usermod -aG docker maria", "gpasswd -a maria docker", "useradd -G docker maria", "groupadd docker maria", "newgrp docker", "chgrp docker maria"], "c": [0, 1], "x": "usermod -aG and gpasswd -a both add an existing user to a supplementary group. useradd would try to CREATE maria; groupadd makes a group.", "ty": "scenario", "obj": "2.2", "skill": "add user to group (two ways)", "diff": 2},
+{"d": 3, "q": "Which TWO actions make a new firewalld rule persist across reboots? (Choose two.)", "o": ["Add the rule with --permanent, then run firewall-cmd --reload", "Add it live, then run firewall-cmd --runtime-to-permanent", "Add it as a runtime-only rule", "Set SELinux to enforcing", "Disable firewalld", "Add the port to /etc/hosts"], "c": [0, 1], "x": "Either author it permanently and reload, or promote the running config to permanent. Runtime-only rules vanish on reload/reboot.", "ty": "scenario", "obj": "3.2", "skill": "firewalld persistence", "diff": 2}
 ];
 
 const REF=[{dom:1,g:"Kernel modules",items:[{c:"lsmod",d:"List modules currently loaded in memory",f:[]},{c:"modinfo",d:"Show details about a module (author, params, deps)",f:[]},{c:"modprobe",d:"Load a module AND its dependencies",f:[["-r","unload a module + unused deps"]]},{c:"insmod",d:"Insert a single module file (no dependency resolution)",f:[]},{c:"rmmod",d:"Remove a loaded module",f:[]},{c:"depmod",d:"Rebuild the modules.dep dependency database",f:[]}]},
@@ -625,7 +738,7 @@ const DOMAINS=[
  {n:2,name:"Services & User Mgmt",pct:20},
  {n:3,name:"Security",pct:18},
  {n:4,name:"Automation & Scripting",pct:17},
- {n:5,name:"Troubleshooting",pct:22},
+ {n:5,name:"Troubleshooting",pct:22}
 ];
 function hashId(s){let h=0;for(let i=0;i<s.length;i++){h=(h*31+s.charCodeAt(i))|0;}return "q"+(h>>>0).toString(36);}
 Q.forEach(q=>q.id=hashId(q.q));
@@ -647,8 +760,26 @@ function metaTags(q){var ty=q.ty||"recall"; var s=' &middot; <span class="tytag 
 
 /* ---- storage + SRS ---- */
 let progress={}; const mem={};
-async function load(){try{const r=await window.storage.get("lxq006:v1");if(r&&r.value)progress=JSON.parse(r.value);}catch(e){progress=mem["lxq006:v1"]||{};}if(!progress||typeof progress!=="object")progress={};}
-async function save(){mem["lxq006:v1"]=progress;try{await window.storage.set("lxq006:v1",JSON.stringify(progress));}catch(e){}}
+/* persistence: localStorage when hosted (GitHub Pages / local file), else in-preview store, else memory */
+const DB=(()=>{
+  let ls=null;
+  try{const t="__lxq_t__";window.localStorage.setItem(t,"1");window.localStorage.removeItem(t);ls=window.localStorage;}catch(e){ls=null;}
+  const ws=(typeof window!=="undefined"&&window.storage)?window.storage:null;
+  return {
+    async get(k){
+      if(ls){try{const v=ls.getItem(k);return v==null?null:{value:v};}catch(e){}}
+      if(ws){try{const r=await ws.get(k);return r||null;}catch(e){}}
+      return (k in mem)?{value:mem[k]}:null;
+    },
+    async set(k,v){
+      mem[k]=v;
+      if(ls){try{ls.setItem(k,v);return;}catch(e){}}
+      if(ws){try{await ws.set(k,v);}catch(e){}}
+    }
+  };
+})();
+async function load(){try{const r=await DB.get("lxq006:v1");if(r&&r.value)progress=JSON.parse(r.value);}catch(e){}if(!progress||typeof progress!=="object")progress={};}
+async function save(){try{await DB.set("lxq006:v1",JSON.stringify(progress));}catch(e){}}
 const DAY=864e5, INT=[0,0,DAY,3*DAY,7*DAY,16*DAY];
 function st(id){return progress[id]||{box:0,due:0,seen:0,correct:0,wrong:0};}
 function grade(id,ok){const s=st(id);s.seen++;if(ok){s.correct++;s.box=Math.min((s.box||0)+1,5);}else{s.wrong++;s.box=1;}s.due=Date.now()+INT[s.box];progress[id]=s;save();}
@@ -656,11 +787,11 @@ function isDue(q){const s=progress[q.id];return !s||!s.seen||s.due<=Date.now();}
 function queue(dom,reviewAll){let p=ALL.filter(q=>!dom||q.d===dom);if(!reviewAll)p=p.filter(isDue);p=shuffle(p);const pr=b=>b===0?1:b;return p.sort((a,b)=>{const pa=pr(st(a.id).box),pb=pr(st(b.id).box);if(pa!==pb)return pa-pb;return st(a.id).due-st(b.id).due;});}
 function esc(s){return String(s).replace(/[&<>]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]));}
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-const LETTERS=["1","2","3","4","5"];
+const LETTERS=["1","2","3","4","5","6"];
 
 /* ---- state ---- */
 let tab="dash";
-const P={dom:0,q:null,answered:false,reviewAll:false,lastId:null,cool:{},shown:0};
+const P={dom:0,q:null,answered:false,reviewAll:false,lastId:null,cool:{},shown:0,picked:null,typed:"",ok:false};
 const E={phase:"setup",len:20,items:[],i:0,picked:[]};
 
 const screen=document.getElementById("screen");
@@ -676,6 +807,7 @@ function render(){
   barright.textContent = `${ALL.length} questions loaded`;
   if(tab==="dash") return renderDash();
   if(tab==="ref") return renderRef();
+  if(tab==="mistakes") return renderMistakes();
   if(tab==="practice") return renderPractice();
   if(tab==="exam") return renderExam();
 }
@@ -687,6 +819,16 @@ function renderDash(){
   const due=ALL.filter(isDue).length;
   let tc=0,tw=0;ALL.forEach(q=>{const s=st(q.id);tc+=s.correct;tw+=s.wrong;});
   const acc=(tc+tw)>0?Math.round(tc/(tc+tw)*100):0;
+  const mistakes=mistakeQuestions();
+  const domMap={};
+  ALL.forEach(q=>{const s=st(q.id); if(!(s.correct+s.wrong))return; const m=domMap[q.d]||(domMap[q.d]={c:0,w:0,d:q.d}); m.c+=s.correct; m.w+=s.wrong;});
+  const weak=Object.keys(domMap).map(k=>{const m=domMap[k];const t=m.c+m.w;return{acc:Math.round(m.c/t*100),t,d:m.d};})
+    .filter(x=>x.acc<80).sort((a,b)=>a.acc-b.acc||b.t-a.t);
+  const weakHtml = weak.length ? `<div class="section">your weak spots (lowest accuracy first)</div>`+
+    weak.map(x=>{const dn=(DOMAINS[x.d-1]||{}).name||"";
+      return `<div class="domrow"><span class="nm">${x.d}.0 ${esc(dn)}</span>
+      <span class="barwrap"><i class="${x.acc<50?"bad":"warn"}" style="width:${x.acc}%"></i></span><span class="pc">${x.acc}% <small>(${x.t})</small></span></div>`;}).join("")
+    : (seen>0?`<div class="section">your weak spots</div><div class="muted" style="font-size:12px"># none yet &mdash; you're above 80% accuracy on every domain you've attempted. Keep going.</div>`:"");
   const rows=DOMAINS.map(d=>{
     const items=ALL.filter(q=>q.d===d.n);
     const m=items.filter(q=>st(q.id).box>=4).length;
@@ -704,9 +846,11 @@ function renderDash(){
     </div>
     <div class="section">mastery by exam domain</div>
     ${rows}
+    ${weakHtml}
     <div class="row">
       <button class="btn" id="goPractice">start practice &rarr;</button>
       <button class="btn ghost" id="goExam">exam simulation</button>
+      ${mistakes.length?`<button class="btn ghost" id="goMistakes">review my mistakes (${mistakes.length})</button>`:""}
       <button class="btn ghost" id="reset">reset progress</button>
     </div>
     <div class="cmdline" style="margin-top:18px;color:var(--dim2);font-size:11.5px"># mastered = answered correctly enough times to reach box 4/5 (spaced repetition). missed questions resurface sooner.</div>`;
@@ -714,11 +858,35 @@ function renderDash(){
   document.getElementById("goPractice").onclick=()=>setTab("practice");
   document.getElementById("goExam").onclick=()=>setTab("exam");
   document.getElementById("reset").onclick=()=>{if(confirm("Reset all progress? This cannot be undone.")){progress={};save();render();}};
+  const gm=document.getElementById("goMistakes"); if(gm) gm.onclick=()=>setTab("mistakes");
+}
+function renderMistakes(){
+  const ms=mistakeQuestions().sort((a,b)=>st(b.id).wrong-st(a.id).wrong);
+  const cards=ms.map(q=>{
+    const s=st(q.id);
+    const correct = q.kind==="pbq" ? q.a : (Array.isArray(q.c)? q.c.map(i=>q.o[i]).join("; ") : q.o[q.c]);
+    return `<div class="reviewq">
+      <div class="qmeta">[domain ${q.d}.0]${metaTags(q)} &middot; missed ${s.wrong}&times; &middot; box ${s.box}/5</div>
+      <div class="q">&gt; ${esc(q.q)}</div>
+      <div class="ln cor">correct: ${esc(correct)}</div>
+      <div class="ln muted" style="margin-top:5px"># ${esc(q.x)}</div>
+    </div>`;
+  }).join("");
+  screen.innerHTML=navBar()+promptLine("cat ~/mistakes.log")+
+    `<div class="section">review &mdash; questions you've missed (${ms.length})</div>`+
+    (ms.length
+      ? `<div class="row"><button class="btn" id="drillm">drill these now &rarr;</button><button class="btn ghost" id="backm">back to dashboard</button></div>
+         <div class="muted" style="font-size:11.5px;margin:6px 2px 4px"># a question leaves this list once you've answered it correctly enough times to master it.</div>${cards}`
+      : `<div class="qbox"><div class="grn">No outstanding mistakes &#10003;</div><div class="muted" style="margin-top:8px">Questions you miss collect here until you get them right. <button class="linkbtn" id="backm">back to dashboard</button></div></div>`);
+  hook();
+  const d=document.getElementById("drillm"); if(d) d.onclick=()=>{P.mistakesOnly=true;P.dom=0;P.reviewAll=false;nextPractice();setTab("practice");};
+  const b=document.getElementById("backm"); if(b) b.onclick=()=>setTab("dash");
 }
 
 /* ---------- PRACTICE ---------- */
+function mistakeQuestions(){return ALL.filter(q=>{const s=st(q.id);return s.wrong>0 && s.box<4;});}
 function nextPractice(){
-  const qq=queue(P.dom,P.reviewAll);
+  const qq=P.mistakesOnly ? shuffle(mistakeQuestions().filter(q=>!P.dom||q.d===P.dom)) : queue(P.dom,P.reviewAll);
   // prefer questions that are not the one just shown and not in their short session cooldown
   let pool=qq.filter(q=>q.id!==P.lastId && !(P.cool[q.id]>P.shown));
   if(!pool.length) pool=qq.filter(q=>q.id!==P.lastId); // small set: ignore cooldown
@@ -727,22 +895,69 @@ function nextPractice(){
   const missed=pool.filter(q=>{const s=st(q.id);return s.wrong>0 && s.box<4;});
   P.q = (missed.length && Math.random()<0.33) ? missed[0] : (pool.length?pool[0]:null);
   P.lastId = P.q?P.q.id:null;
-  P.answered=false;P.order=null;
+  P.answered=false;P.order=null;P.sel=null;P.picked=null;P.typed="";P.ok=false;
+  R.fromPractice=false;
+}
+/* ---- jump from a practice question to the matching study reference ---- */
+let _refIdx=null;
+function refIdx(){
+  if(_refIdx) return _refIdx;
+  // tokens that are also common English words (or generic subcommands) - skip to avoid bad matches
+  const bad=new Set(["at","set","run","file","logs","status","reload","exec","inspect","prune","images","pull","build","stop","rm","rmi","watch","source","export","local","unset","test","case","w","compose"]);
+  const arr=[];
+  REF.forEach(g=>g.items.forEach(it=>{
+    it.c.split("/").map(s=>s.trim()).filter(Boolean).forEach(p=>{
+      const tok=p.toLowerCase();
+      if(/^[a-z]/.test(tok) && !bad.has(tok)) arr.push({tok,len:tok.length,g,it});
+    });
+  }));
+  arr.sort((a,b)=>b.len-a.len); // match the most specific (longest) command phrase first
+  _refIdx=arr; return arr;
+}
+function findStudy(q){
+  const idx=refIdx();
+  const cands=[];
+  if(q.kind==="pbq") cands.push(q.a||"");
+  else if(Array.isArray(q.c)) cands.push(q.c.map(i=>q.o[i]).join("  "));
+  else if(typeof q.c==="number") cands.push(q.o[q.c]||"");
+  cands.push(q.x||""); // explanation often names the command
+  cands.push(q.q||""); // stem frequently contains the command itself (e.g. "what does restorecon -Rv do?")
+  for(const text of cands){
+    const lt=" "+String(text).toLowerCase().replace(/[^a-z0-9.\s_+-]/g," ")+" ";
+    for(const e of idx){
+      const t=e.tok.replace(/[.*+?^${}()|[\]\\]/g,"\\$&");
+      if(new RegExp("(?:^|[^a-z0-9])"+t+"(?:[^a-z0-9.]|$)").test(lt)) return e;
+    }
+  }
+  return null;
+}
+function goLookup(q){
+  if(!q) return;
+  const hit=findStudy(q);
+  R.view="cmd"; R.fromPractice=true;
+  if(hit){ R.dom=hit.g.dom; R.search=hit.tok; R.domOpen.add(hit.g.dom); R.open.add(gkey(hit.g)); R.openCmd.add(gkey(hit.g)+"::"+hit.it.c); }
+  else { R.dom=q.d; R.search=""; R.domOpen.add(q.d); }
+  setTab("ref");
 }
 function renderPractice(){
   if(!P.q || P.answered===false && !document.getElementById("opts")){ if(!P.q) nextPractice(); }
   const chips=[[0,"all"],[1,"1.0 sys"],[2,"2.0 svc/user"],[3,"3.0 security"],[4,"4.0 automation"],[5,"5.0 troublesh."]];
-  const chipHtml=`<div class="chips">${chips.map(([n,l])=>`<button class="chip ${P.dom===n?"active":""}" data-dom="${n}">${l}</button>`).join("")}</div>`;
+  const mban = P.mistakesOnly ? `<div class="mbanner">&#9873; drilling your mistakes &middot; <button class="linkbtn" id="exitMistakes">exit to normal practice</button></div>` : "";
+  const chipHtml=mban+`<div class="chips">${chips.map(([n,l])=>`<button class="chip ${P.dom===n?"active":""}" data-dom="${n}">${l}</button>`).join("")}</div>`;
   const poolAll=ALL.filter(q=>!P.dom||q.d===P.dom);
   const dueCount=poolAll.filter(isDue).length;
 
   if(!P.q){
-    screen.innerHTML=navBar()+chipHtml+promptLine("quiz --next")+
-      `<div class="qbox"><div class="grn">All caught up in this set. &#10003;</div>
-       <div class="muted" style="margin-top:8px">Spaced repetition is doing its job &mdash; nothing is due right now.</div>
-       <div class="row"><button class="btn" id="all">review the whole set anyway</button></div></div>`;
+    const emptyMsg = P.mistakesOnly
+      ? `<div class="qbox"><div class="grn">No more mistakes to drill in this set. &#10003;</div>
+         <div class="muted" style="margin-top:8px">Nicely done. <button class="linkbtn" id="exitMistakes">back to normal practice</button></div></div>`
+      : `<div class="qbox"><div class="grn">All caught up in this set. &#10003;</div>
+         <div class="muted" style="margin-top:8px">Spaced repetition is doing its job &mdash; nothing is due right now.</div>
+         <div class="row"><button class="btn" id="all">review the whole set anyway</button></div></div>`;
+    screen.innerHTML=navBar()+chipHtml+promptLine("quiz --next")+emptyMsg;
     hook(); document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{P.dom=+c.dataset.dom;nextPractice();render();});
     const a=document.getElementById("all"); if(a) a.onclick=()=>{P.reviewAll=true;nextPractice();render();};
+    const ex0=document.getElementById("exitMistakes"); if(ex0) ex0.onclick=()=>{P.mistakesOnly=false;nextPractice();render();};
     return;
   }
   const q=P.q, s=st(q.id);
@@ -750,79 +965,111 @@ function renderPractice(){
   const missedFlag=(s.wrong>0&&s.box<4)?` <span class="qflag" title="You missed this before. It clears once you have it mastered.">&#10007; missed before</span>`:"";
   if(q.kind==="pbq"){ renderPracticePBQ(q,s,chipHtml,dname,dueCount,missedFlag); return; }
   if(!P.order) P.order = shuffle(q.o.map((t,i)=>({t,i})));
-  const opts=P.order.map((o,idx)=>`<button class="opt" data-idx="${idx}"><span class="key">${LETTERS[idx]})</span><span>${esc(o.t)}</span></button>`).join("");
+  const multi=Array.isArray(q.c);
+  if(multi && !P.sel) P.sel=[];
+  const ans=P.answered;
+  const opts=P.order.map((o,idx)=>{
+    const orig=o.i; let cls="opt";
+    if(multi && P.sel.includes(idx)) cls+=" sel";
+    if(ans){ cls+=" dis";
+      const isRight = multi ? q.c.includes(orig) : orig===q.c;
+      if(isRight) cls+=" right";
+      else if(multi ? P.sel.includes(idx) : idx===P.picked) cls+=" wrong";
+    }
+    const mark = multi ? `<span class="ck">${P.sel.includes(idx)?"&#9746;":"&#9744;"}</span>` : `<span class="key">${LETTERS[idx]})</span>`;
+    return `<button class="${cls}" data-idx="${idx}">${mark}<span>${esc(o.t)}</span></button>`;
+  }).join("");
+  const selectNote = multi ? `<div class="multinote"># select all that apply (${q.c.length})</div>` : "";
+  const reviewBtn = (ans && !P.ok) ? `<button class="lookbtn" id="lookupAfter">&#128270; review in study</button>` : "";
   screen.innerHTML=navBar()+chipHtml+promptLine(`quiz --domain ${P.dom||"all"} --next`)+`
     <div class="qbox">
       <div class="qmeta">[domain ${q.d}.0 ${esc(dname)}]${metaTags(q)} &middot; ${dueCount} due${P.reviewAll?" &middot; review-all":""} &middot; ${s.box?"box "+s.box+"/5":"new"}${missedFlag}</div>
       <div class="qtext"><span class="pre">&gt;</span>${esc(q.q)}</div>
+      ${selectNote}
       <div class="opts" id="opts">${opts}</div>
-      <div class="fb" id="fb"><div class="v" id="fv"></div><div class="x" id="fx">${esc(q.x)}</div></div>
-      <div class="row" id="afterrow" style="display:none">
+      <div class="fb ${ans?"show":""}" id="fb"><div class="v ${ans?(P.ok?"ok":"no"):""}" id="fv">${ans?(P.ok?"&#10003; correct":"&#10007; incorrect"):""}</div><div class="x" id="fx">${esc(q.x)}</div></div>
+      <div class="row" id="afterrow" style="display:${ans?"flex":"none"}">
         <button class="btn" id="next">next &rarr;</button>
-        <span class="kbd"><b>keys:</b> 1-${P.order.length} answer &middot; n/enter next</span>
+        ${reviewBtn}
+        <span class="kbd"><b>keys:</b> 1-${P.order.length} ${multi?"toggle":"answer"} &middot; n/enter next</span>
       </div>
-      <div class="row" id="hintrow"><span class="kbd"><b>tip:</b> press 1-${P.order.length} or click an answer</span></div>
+      <div class="row" id="hintrow" style="display:${ans?"none":"flex"}"><button class="lookbtn" id="lookup">&#128270; look up in study</button>${multi?`<button class="btn" id="submitmulti">submit answer</button>`:""}<span class="kbd"><b>tip:</b> ${multi?"select all that apply, then submit (or press enter)":"press 1-"+P.order.length+" or click an answer"}</span></div>
     </div>`;
   hook();
   document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{P.dom=+c.dataset.dom;P.reviewAll=false;nextPractice();render();});
-  const optEls=[...document.querySelectorAll("#opts .opt")];
-  optEls.forEach(el=>el.onclick=()=>answerPractice(+el.dataset.idx));
+  {const ex=document.getElementById("exitMistakes"); if(ex) ex.onclick=()=>{P.mistakesOnly=false;nextPractice();render();};}
+  {const lk=document.getElementById("lookup"); if(lk) lk.onclick=()=>goLookup(P.q);}
+  {const la=document.getElementById("lookupAfter"); if(la) la.onclick=()=>goLookup(P.q);}
+  if(!ans){
+    const optEls=[...document.querySelectorAll("#opts .opt")];
+    if(multi){
+      optEls.forEach(el=>el.onclick=()=>{toggleSel(+el.dataset.idx);render();});
+      const sb=document.getElementById("submitmulti"); if(sb) sb.onclick=()=>{ if(P.sel.length) answerPracticeMulti(); };
+    } else {
+      optEls.forEach(el=>el.onclick=()=>answerPractice(+el.dataset.idx));
+    }
+  }
   const nb=document.getElementById("next"); if(nb) nb.onclick=()=>{nextPractice();render();};
 }
 function answerPractice(idx){
   if(P.answered) return;
-  P.answered=true;
-  const q=P.q;
-  const chosen=P.order[idx];
-  const ok = chosen.i===q.c;
-  grade(q.id,ok);
-  P.shown++;
+  const q=P.q; const chosen=P.order[idx]; const ok=chosen.i===q.c;
+  P.answered=true; P.picked=idx; P.ok=ok;
+  grade(q.id,ok); P.shown++;
   if(ok) delete P.cool[q.id]; else P.cool[q.id]=P.shown+5; // a miss comes back after ~5 other questions
-  const optEls=[...document.querySelectorAll("#opts .opt")];
-  optEls.forEach((el,i)=>{
-    el.classList.add("dis");
-    if(P.order[i].i===q.c) el.classList.add("right");
-    if(i===idx && !ok) el.classList.add("wrong");
-  });
-  const fb=document.getElementById("fb");fb.classList.add("show");
-  const fv=document.getElementById("fv");fv.textContent=ok?"\u2713 correct":"\u2717 incorrect";fv.className="v "+(ok?"ok":"no");
-  document.getElementById("afterrow").style.display="flex";
-  document.getElementById("hintrow").style.display="none";
+  render();
+}
+function toggleSel(idx){ if(!P.sel)P.sel=[]; const i=P.sel.indexOf(idx); if(i>=0)P.sel.splice(i,1); else P.sel.push(idx); }
+function answerPracticeMulti(){
+  if(P.answered) return;
+  const q=P.q;
+  const sel=P.sel.map(i=>P.order[i].i).sort((a,b)=>a-b);
+  const corr=[...q.c].sort((a,b)=>a-b);
+  const ok = sel.length===corr.length && sel.every((v,i)=>v===corr[i]);
+  P.answered=true; P.ok=ok;
+  grade(q.id,ok); P.shown++;
+  if(ok) delete P.cool[q.id]; else P.cool[q.id]=P.shown+5;
+  render();
 }
 function renderPracticePBQ(q,s,chipHtml,dname,dueCount,missedFlag){
+  const ans=P.answered;
+  const reviewBtn=(ans && !P.ok)?`<button class="lookbtn" id="lookupAfter">&#128270; review in study</button>`:"";
+  const fxHtml = ans ? `<div class="pbqrow"><span class="muted">you typed:</span> <code>${esc(P.typed)||"(empty)"}</code></div><div class="pbqrow"><span class="muted">expected:</span> <code class="exp">${esc(q.a)}</code></div><div style="margin-top:7px">${esc(q.x)}</div>` : "";
   screen.innerHTML=navBar()+chipHtml+promptLine(`pbq --domain ${P.dom||"all"} --task`)+`
     <div class="qbox">
       <div class="qmeta">[domain ${q.d}.0 ${esc(dname)}] &middot; <span class="tytag ty-pbq">PBQ</span>${q.obj?` &middot; obj ${q.obj}`:""} &middot; ${dueCount} due &middot; ${s.box?"box "+s.box+"/5":"new"}${missedFlag}</div>
       <div class="qtext"><span class="pre">&gt;</span>${esc(q.q)}</div>
-      <div class="pbqwrap"><span class="pbqprompt">$</span><input id="pbqin" class="pbqin" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="type the command, then press enter"></div>
-      <div class="fb" id="fb"><div class="v" id="fv"></div><div class="x" id="fx"></div></div>
-      <div class="row" id="afterrow" style="display:none">
+      <div class="pbqwrap"><span class="pbqprompt">$</span><input id="pbqin" class="pbqin ${ans?(P.ok?"okin":"noin"):""}" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" ${ans?"disabled":""} placeholder="type the command, then press enter"></div>
+      <div class="fb ${ans?"show":""}" id="fb"><div class="v ${ans?(P.ok?"ok":"no"):""}" id="fv">${ans?(P.ok?"&#10003; correct":"&#10007; not an accepted answer"):""}</div><div class="x" id="fx">${fxHtml}</div></div>
+      <div class="row" id="afterrow" style="display:${ans?"flex":"none"}">
         <button class="btn" id="next">next &rarr;</button>
+        ${reviewBtn}
         <span class="kbd"><b>keys:</b> enter / n next</span>
       </div>
-      <div class="row" id="hintrow"><button class="btn" id="check">check answer</button><span class="kbd"><b>tip:</b> accepts common variants (optional sudo, flag order)</span></div>
+      <div class="row" id="hintrow" style="display:${ans?"none":"flex"}"><button class="btn" id="check">check answer</button><button class="lookbtn" id="lookup">&#128270; look up in study</button><span class="kbd"><b>tip:</b> accepts common variants (optional sudo, flag order)</span></div>
     </div>`;
   hook();
   document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{P.dom=+c.dataset.dom;P.reviewAll=false;nextPractice();render();});
+  {const ex=document.getElementById("exitMistakes"); if(ex) ex.onclick=()=>{P.mistakesOnly=false;nextPractice();render();};}
+  {const lk=document.getElementById("lookup"); if(lk) lk.onclick=()=>goLookup(P.q);}
+  {const la=document.getElementById("lookupAfter"); if(la) la.onclick=()=>goLookup(P.q);}
   const inp=document.getElementById("pbqin");
-  const chk=document.getElementById("check"); if(chk) chk.onclick=()=>answerPBQ();
-  if(inp){ inp.focus(); inp.onkeydown=(e)=>{ if(e.key==="Enter"){ e.preventDefault(); if(!P.answered) answerPBQ(); else { nextPractice(); render(); } } }; }
+  if(ans && inp) inp.value=P.typed||"";
+  if(!ans){
+    const chk=document.getElementById("check"); if(chk) chk.onclick=()=>answerPBQ();
+    if(inp){ inp.focus(); inp.onkeydown=(e)=>{ if(e.key==="Enter"){ e.preventDefault(); answerPBQ(); } }; }
+  }
   const nb=document.getElementById("next"); if(nb) nb.onclick=()=>{nextPractice();render();};
 }
 function answerPBQ(){
   if(P.answered) return;
   const inp=document.getElementById("pbqin"); const val=inp?inp.value:"";
   if(!norm(val)) return;
-  P.answered=true;
   const q=P.q; const ok=pbqCheck(val,q);
+  P.answered=true; P.typed=val; P.ok=ok;
   grade(q.id,ok); P.shown++;
   if(ok) delete P.cool[q.id]; else P.cool[q.id]=P.shown+5;
-  if(inp){ inp.disabled=true; inp.classList.add(ok?"okin":"noin"); }
-  document.getElementById("fb").classList.add("show");
-  const fv=document.getElementById("fv"); fv.textContent=ok?"\u2713 correct":"\u2717 not an accepted answer"; fv.className="v "+(ok?"ok":"no");
-  document.getElementById("fx").innerHTML=`<div class="pbqrow"><span class="muted">you typed:</span> <code>${esc(val)||"(empty)"}</code></div><div class="pbqrow"><span class="muted">expected:</span> <code class="exp">${esc(q.a)}</code></div><div style="margin-top:7px">${esc(q.x)}</div>`;
-  document.getElementById("afterrow").style.display="flex";
-  document.getElementById("hintrow").style.display="none";
+  render();
 }
 function renderExam(){
   if(E.phase==="setup"){
@@ -841,7 +1088,7 @@ function renderExam(){
       const n=Math.min(E.len,ALL.length);
       E.items=buildExam(n).map(q=> q.kind==="pbq"
         ? {q,kind:"pbq",typed:""}
-        : {q,kind:"mcq",order:shuffle(q.o.map((t,i)=>({t,i}))),pick:null});
+        : {q,kind:"mcq",order:shuffle(q.o.map((t,i)=>({t,i}))),pick:Array.isArray(q.c)?[]:null});
       E.i=0;E.phase="run";render();
     };
     return;
@@ -853,8 +1100,9 @@ function renderExam(){
       body=`<div class="pbqwrap"><span class="pbqprompt">$</span><input id="pbqin" class="pbqin" type="text" value="${esc(it.typed||"")}" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" placeholder="type the command (scored at the end)"></div>`;
       keyhint=`type the command &middot; n next &middot; p prev`;
     } else {
-      body=`<div class="opts" id="opts">${it.order.map((o,idx)=>`<button class="opt ${it.pick===idx?"right":""}" data-idx="${idx}"><span class="key">${LETTERS[idx]})</span><span>${esc(o.t)}</span></button>`).join("")}</div>`;
-      keyhint=`1-${it.order.length} select &middot; n next &middot; p prev`;
+      const emulti=Array.isArray(q.c); const epick=emulti?(it.pick||[]):it.pick;
+      body=`<div class="opts" id="opts">${it.order.map((o,idx)=>{const onsel=emulti?epick.includes(idx):(epick===idx);const mark=emulti?`<span class="ck">${onsel?"&#9746;":"&#9744;"}</span>`:`<span class="key">${LETTERS[idx]})</span>`;return `<button class="opt ${onsel?"sel":""}" data-idx="${idx}">${mark}<span>${esc(o.t)}</span></button>`;}).join("")}</div>${emulti?`<div class="multinote"># select all that apply (${q.c.length})</div>`:""}`;
+      keyhint=`1-${it.order.length} ${emulti?"toggle":"select"} &middot; n next &middot; p prev`;
     }
     const tyLabel = it.kind==="pbq"?"PBQ":(q.ty||"recall");
     screen.innerHTML=navBar()+promptLine(`exam-sim --question $((${E.i+1}/${E.items.length}))`)+`
@@ -874,7 +1122,7 @@ function renderExam(){
       if(inp){ inp.focus(); inp.setSelectionRange(inp.value.length,inp.value.length); inp.oninput=()=>{it.typed=inp.value;};
         inp.onkeydown=(e)=>{ if(e.key==="Enter"){ e.preventDefault(); it.typed=inp.value; if(E.i===E.items.length-1)scoreExam(); else {E.i++;render();} } }; }
     } else {
-      [...document.querySelectorAll("#opts .opt")].forEach(el=>el.onclick=()=>{it.pick=+el.dataset.idx;render();});
+      [...document.querySelectorAll("#opts .opt")].forEach(el=>el.onclick=()=>{ const idx=+el.dataset.idx; if(Array.isArray(it.q.c)){ it.pick=it.pick||[]; const j=it.pick.indexOf(idx); if(j>=0)it.pick.splice(j,1); else it.pick.push(idx); } else { it.pick=idx; } render(); });
     }
     const pv=document.getElementById("prev"); if(pv && E.i>0) pv.onclick=()=>{E.i--;render();};
     document.getElementById("next").onclick=()=>{ if(E.i===E.items.length-1){scoreExam();} else {E.i++;render();} };
@@ -882,13 +1130,22 @@ function renderExam(){
   }
   if(E.phase==="results"){
     let correct=0;
-    E.items.forEach(it=>{ const ok = it.kind==="pbq" ? pbqCheck(it.typed||"",it.q) : (it.pick!=null && it.order[it.pick].i===it.q.c); it._ok=ok; grade(it.q.id,ok); if(ok)correct++; });
+    const setEq=(a,b)=>{a=[...a].sort((x,y)=>x-y);b=[...b].sort((x,y)=>x-y);return a.length===b.length&&a.every((v,i)=>v===b[i]);};
+    E.items.forEach(it=>{
+      let ok;
+      if(it.kind==="pbq") ok=pbqCheck(it.typed||"",it.q);
+      else if(Array.isArray(it.q.c)) ok=setEq((it.pick||[]).map(i=>it.order[i].i), it.q.c);
+      else ok=(it.pick!=null && it.order[it.pick].i===it.q.c);
+      it._ok=ok; grade(it.q.id,ok); if(ok)correct++;
+    });
     const total=E.items.length, pct=Math.round(correct/total*100);
     const pass=pct>=80;
     const misses=E.items.filter(it=>!it._ok);
     const reviewHtml=misses.map(it=>{
-      const yours = it.kind==="pbq" ? (it.typed||"(no answer)") : (it.pick!=null ? it.order[it.pick].t : "(no answer)");
-      const corr = it.kind==="pbq" ? it.q.a : it.q.o[it.q.c];
+      let yours, corr;
+      if(it.kind==="pbq"){ yours=it.typed||"(no answer)"; corr=it.q.a; }
+      else if(Array.isArray(it.q.c)){ yours=(it.pick&&it.pick.length)?it.pick.map(i=>it.order[i].t).join("; "):"(no answer)"; corr=it.q.c.map(ci=>it.q.o[ci]).join("; "); }
+      else { yours=it.pick!=null?it.order[it.pick].t:"(no answer)"; corr=it.q.o[it.q.c]; }
       return `<div class="reviewq">
         <div class="q">&gt; ${esc(it.q.q)}</div>
         <div class="ln you">your answer: ${esc(yours)}</div>
@@ -928,19 +1185,321 @@ function buildExam(n){
 
 
 /* ---------- STUDY / REFERENCE ---------- */
-const R={dom:0,search:"",open:new Set(),domOpen:new Set()};
+const R={dom:0,search:"",open:new Set(),domOpen:new Set(),view:"cmd",openCmd:new Set(),fromPractice:false};
 const REFDOMNAMES={1:"System Management",2:"Services & User Management",3:"Security",4:"Automation & Scripting",5:"Troubleshooting"};
 function gkey(g){return g.dom+":"+g.g;}
+const DETAIL={
+ "journalctl":{syntax:"journalctl [options]",examples:["journalctl -u sshd","journalctl -u sshd -b","journalctl -f","journalctl -p err","journalctl --since '10 min ago'"],use:"Read systemd logs when troubleshooting services, failed units, or boot problems.",similar:"dmesg = kernel ring buffer; journalctl = the systemd journal.",exam:"Clues: 'service failed', 'current boot' (-b), 'unit logs' (-u), 'follow live' (-f)."},
+ "find":{syntax:"find <path> <tests> [actions]",examples:["find /var -name '*.log'","find . -type f -mtime -7","find / -size +100M","find /tmp -type f -delete"],use:"Search a directory tree by name, type, time, size, or permissions, optionally acting on matches.",similar:"locate uses a prebuilt db (fast but can be stale); find scans live.",exam:"Clues: 'modified in last N days' (-mtime -N), 'larger than' (-size +N), 'only directories' (-type d)."},
+ "grep":{syntax:"grep [options] '<pattern>' <file...>",examples:["grep -i error app.log","grep -r 'TODO' /etc","grep -v DEBUG app.log","grep -c fail app.log"],use:"Search text for lines matching a pattern; the workhorse for logs and config.",similar:"egrep = grep -E (extended regex); awk/sed also filter but can transform.",exam:"Clues: 'recursively' (-r), 'ignore case' (-i), 'lines that do NOT match' (-v), 'count' (-c)."},
+ "tar":{syntax:"tar -czf <archive.tar.gz> <path>   |   tar -xzf <archive.tar.gz>",examples:["tar -czf backup.tar.gz /etc","tar -xzf backup.tar.gz","tar -xzf backup.tar.gz -C /target","tar -tzf backup.tar.gz"],use:"Bundle files into one archive (c) or extract them (x); z adds gzip, f names the file.",similar:"gzip compresses a single file; tar bundles many (often with gzip).",exam:"Clues: 'create' (-c), 'extract' (-x), '.gz' (-z), 'into a directory' (-C). f always precedes the filename."},
+ "rsync":{syntax:"rsync [options] <src> <dest>",examples:["rsync -av /src/ /dst/","rsync -av --delete /src/ /dst/","rsync -avz /src/ user@host:/dst/","rsync -n -av /src/ /dst/"],use:"Efficiently sync/copy files locally or over SSH, transferring only the differences.",similar:"scp copies everything every time; rsync copies only changes and can mirror.",exam:"Clues: 'mirror / delete extras' (--delete), 'preview' (-n / --dry-run), 'archive mode' (-a)."},
+ "chmod":{syntax:"chmod <mode> <file>   (e.g. 755 or u+x)",examples:["chmod 644 file","chmod 755 script.sh","chmod u+x script.sh","chmod -R 750 /dir"],use:"Set the owner/group/other permission bits on files and directories.",similar:"chmod = the three classic classes; setfacl = extra per-user/group ACLs.",exam:"Octal: rwx=7, rw-=6, r-x=5, r--=4. Symbolic: u/g/o with +/-/= and rwx. Recursive: -R."},
+ "chown":{syntax:"chown <user>[:<group>] <file>",examples:["chown nginx file","chown nginx:nginx file","chown -R app:app /var/www","chown :devs file"],use:"Change a file's owner and/or group.",similar:"chgrp changes only the group; chown can change both at once.",exam:"Clues: 'user and group' (user:group), 'recursively' (-R)."},
+ "setfacl":{syntax:"setfacl -m u:<user>:<perms> <file>",examples:["setfacl -m u:bob:rw file","setfacl -m g:devs:rx dir","setfacl -x u:bob file","setfacl -R -m u:bob:rx /dir"],use:"Grant permissions to specific extra users/groups beyond owner/group/other.",similar:"chmod sets the three base classes; setfacl adds named ACL entries (ls -l shows a trailing +).",exam:"Clue: 'give just user X access without changing the group' -> ACL with setfacl."},
+ "getfacl":{syntax:"getfacl <file>",examples:["getfacl file","getfacl /dir"],use:"Show the ACL entries (named user/group permissions) on a file.",similar:"ls -l shows a trailing + when ACLs exist; getfacl shows the detail.",exam:"Clue: 'permissions look correct but access is denied' -> check ACLs with getfacl."},
+ "firewall-cmd":{syntax:"firewall-cmd [--permanent] --add-port=<port>/<proto>   then --reload",examples:["firewall-cmd --add-port=8080/tcp --permanent","firewall-cmd --reload","firewall-cmd --add-service=https --permanent","firewall-cmd --list-all"],use:"Manage firewalld zones, services, and ports on RHEL-family systems.",similar:"ufw is the Ubuntu equivalent; nftables/iptables are the lower layers.",exam:"Clue: to persist, use --permanent THEN --reload. Runtime-only rules vanish on reload."},
+ "restorecon":{syntax:"restorecon -Rv <path>",examples:["restorecon -Rv /var/www","restorecon -v /etc/file","restorecon -R /home"],use:"Reset SELinux contexts to the policy defaults after copying or moving files.",similar:"chcon sets a context now (lost on relabel); semanage fcontext + restorecon is permanent.",exam:"Clue: 'enforcing, 403/denied, perms look fine' -> wrong context -> restorecon."},
+ "semanage":{syntax:"semanage fcontext -a -t <type> '<path-regex>'   then restorecon",examples:["semanage fcontext -a -t httpd_sys_content_t '/web(/.*)?'","restorecon -Rv /web","semanage port -a -t http_port_t -p tcp 8080","semanage boolean -l"],use:"Edit persistent SELinux policy: file contexts, ports, and booleans (survives relabels).",similar:"chcon = temporary; semanage fcontext = permanent definition.",exam:"Clues: 'permanent SELinux context', 'allow a non-standard port under SELinux'."},
+ "chcon":{syntax:"chcon -t <type> <file>",examples:["chcon -t httpd_sys_content_t /web/index.html","chcon -R -t httpd_sys_content_t /web"],use:"Change a file's SELinux context immediately, for testing - NOT relabel-safe.",similar:"semanage fcontext + restorecon makes the change permanent.",exam:"Clue: 'quick test' -> chcon; 'permanent / survives relabel' -> semanage fcontext."},
+ "ss":{syntax:"ss -tulnp",examples:["ss -tulnp","ss -lntp","ss -t state established"],use:"List sockets/ports and the owning process; the modern replacement for netstat.",similar:"netstat is the deprecated legacy equivalent.",exam:"Clues: listening (-l), TCP/UDP (-t/-u), numeric (-n), process (-p). Bound to 127.0.0.1 = local only."},
+ "dig":{syntax:"dig [@server] <name> [type]",examples:["dig example.com","dig +short example.com","dig example.com MX","dig @8.8.8.8 example.com"],use:"Query DNS records in detail; script-friendly.",similar:"nslookup is the older interactive tool; host is a terse alternative.",exam:"Clues: 'resolve a name', 'a specific record type', 'query a specific resolver' (@server)."},
+ "tcpdump":{syntax:"tcpdump -i <iface> [filter]",examples:["tcpdump -i eth0","tcpdump -i eth0 port 443","tcpdump -i any -w capture.pcap","tcpdump -n host 10.0.0.5"],use:"Capture and inspect packets on an interface for network troubleshooting.",similar:"ss/ip show socket state, not packets; Wireshark/tshark decode deeper.",exam:"Clues: 'capture traffic', 'on interface' (-i), 'write a pcap' (-w)."},
+ "mount":{syntax:"mount [-o <opts>] <device> <mountpoint>",examples:["mount /dev/sdb1 /mnt","mount -a","mount -o remount,rw /","mount -o ro /dev/sdb1 /mnt"],use:"Attach a filesystem; -a mounts everything listed in /etc/fstab.",similar:"/etc/fstab defines boot-time mounts; umount detaches.",exam:"Clues: 'mounted read-only' -> mount -o remount,rw; 'mount all fstab entries' (-a)."},
+ "rpm":{syntax:"rpm -q[a|l|f|i] <pkg-or-file>",examples:["rpm -qa","rpm -ql httpd","rpm -qf /etc/ssh/sshd_config","rpm -V httpd"],use:"Low-level RHEL package queries and verification (no dependency resolution).",similar:"dnf/yum resolve dependencies on top of rpm. Debian equivalent: dpkg.",exam:"Clues: 'which package owns a file' (-qf), 'files in a package' (-ql), 'verify' (-V)."},
+ "apt":{syntax:"apt <update|upgrade|install|remove|purge> [pkg]",examples:["apt update","apt upgrade","apt install nginx","apt purge nginx"],use:"Debian/Ubuntu package front end (resolves dependencies).",similar:"dnf/yum on RHEL; dpkg is the low-level Debian tool.",exam:"Clues: 'refresh index' (update) vs 'install updates' (upgrade); 'remove + config' (purge)."},
+ "dpkg":{syntax:"dpkg -<i|l|L|S> <pkg-or-file>",examples:["dpkg -i pkg.deb","dpkg -l","dpkg -L nginx","dpkg -S /etc/nginx/nginx.conf"],use:"Low-level Debian package tool (install .deb, query files); no dependency resolution.",similar:"apt resolves dependencies on top of dpkg; rpm is the RHEL equivalent.",exam:"Clues: 'which package owns a file' (-S), 'files in a package' (-L)."},
+ "dnf / yum":{syntax:"dnf <install|remove|update|provides|history> ...",examples:["dnf install httpd","dnf provides /usr/bin/dig","dnf downgrade httpd","dnf history undo last"],use:"RHEL-family package manager with dependency resolution.",similar:"apt on Debian/Ubuntu; rpm is the low-level layer.",exam:"Clues: 'which package provides a file' (provides), 'roll back' (downgrade / history undo)."},
+ "lvcreate":{syntax:"lvcreate -L <size> -n <name> <vg>",examples:["lvcreate -L 10G -n data vg0","lvcreate -l 100%FREE -n data vg0"],use:"Create a logical volume from a volume group's free space.",similar:"lvextend grows an existing LV; pvcreate/vgcreate build the layers beneath.",exam:"Build order: pvcreate -> vgcreate/vgextend -> lvcreate -> mkfs -> mount."},
+ "lvextend":{syntax:"lvextend -L +<size> -r <lv-path>",examples:["lvextend -L +5G /dev/vg0/data","lvextend -l +100%FREE -r /dev/vg0/data"],use:"Grow a logical volume; -r also grows the filesystem on it.",similar:"resize2fs (ext) / xfs_growfs (XFS) grow the FS if you didn't use -r.",exam:"Add-space order: grow disk -> pvresize -> lvextend -> resize2fs / xfs_growfs."},
+ "ip addr":{syntax:"ip addr [add <ip>/<cidr> dev <iface>]",examples:["ip addr","ip -br addr","ip addr add 10.0.0.5/24 dev eth0"],use:"Show or set IP addresses on interfaces.",similar:"ifconfig is the deprecated equivalent; nmcli persists changes.",exam:"Clue: 'what IP does the interface have' -> ip addr. 'state DOWN' = link is down."},
+ "ip route":{syntax:"ip route [add <net> via <gw>]",examples:["ip route","ip route add default via 10.0.0.1","ip route get 8.8.8.8"],use:"Show or change the routing table and default gateway.",similar:"route is the legacy tool.",exam:"Clue: 'reaches the LAN but not the internet' -> check the default route."},
+ "useradd":{syntax:"useradd -m -s <shell> <user>",examples:["useradd -m -s /bin/bash app","useradd -m -G wheel,docker dev","useradd -r svc"],use:"Create a user account (low-level; set home and shell explicitly).",similar:"usermod modifies an existing user; userdel removes one.",exam:"Clues: 'home directory' (-m), 'login shell' (-s), 'supplementary groups' (-G)."},
+ "usermod":{syntax:"usermod [-aG <groups>] [-s <shell>] <user>",examples:["usermod -aG wheel bob","usermod -s /sbin/nologin svc","usermod -L bob"],use:"Modify an existing user: groups, shell, lock/unlock.",similar:"useradd creates a user; gpasswd -a also adds a user to a group.",exam:"Clue: 'add to a group without removing existing ones' -> -aG (the -a is critical)."},
+ "start / stop / restart":{syntax:"systemctl <start|stop|restart> <unit>",examples:["systemctl start nginx","systemctl restart sshd","systemctl stop firewalld"],use:"Control a service's running state right now (not persisted across reboot).",similar:"reload re-reads config without a full restart; enable controls boot start.",exam:"restart = stop then start; prefer reload when supported to avoid dropping connections."},
+ "reload":{syntax:"systemctl reload <unit>",examples:["systemctl reload nginx","systemctl reload sshd"],use:"Tell a running service to re-read its own config without restarting.",similar:"daemon-reload re-reads systemd UNIT files; reload re-reads the service's app config.",exam:"'apply new config without dropping connections' = reload, not daemon-reload."},
+ "enable / disable":{syntax:"systemctl <enable|disable> <unit>   (add --now to also start/stop)",examples:["systemctl enable --now nginx","systemctl disable firewalld","systemctl enable sshd"],use:"Set or unset whether a unit starts automatically at boot.",similar:"mask is stronger than disable; start/stop affect only the current session.",exam:"enable = boot only; enable --now = boot + start now."},
+ "daemon-reload":{syntax:"systemctl daemon-reload",examples:["systemctl daemon-reload"],use:"Make systemd re-read unit files after you create or edit one.",similar:"reload re-reads a service's app config; daemon-reload re-reads systemd unit files.",exam:"'edited a .service file and the change is ignored' = daemon-reload."},
+ "mask / unmask":{syntax:"systemctl <mask|unmask> <unit>",examples:["systemctl mask httpd","systemctl unmask httpd"],use:"mask links a unit to /dev/null so it cannot start at all; unmask reverses it.",similar:"disable only stops boot autostart; mask blocks manual and dependency starts too.",exam:"'service must never start, even as a dependency' = mask."},
+ "status":{syntax:"systemctl status <unit>",examples:["systemctl status nginx","systemctl status sshd"],use:"Show a unit's state, enabled status, main PID, and recent log lines.",similar:"journalctl -u <unit> shows the full logs; status is a summary.",exam:"'Active: failed (Result: exit-code)' = it ran and exited non-zero; check journalctl -u."},
+ "dmesg":{syntax:"dmesg [-T] [-w]",examples:["dmesg -T","dmesg | tail","dmesg -T | grep -i error"],use:"Read kernel ring-buffer messages: hardware, drivers, OOM kills, disk errors.",similar:"journalctl -k shows the same kernel messages via the journal.",exam:"'Out of memory: Killed process' and driver/disk errors appear here."},
+ "lsblk":{syntax:"lsblk [-f]",examples:["lsblk","lsblk -f"],use:"List block devices and mountpoints as a tree.",similar:"blkid shows UUID/type; df shows usage of mounted filesystems.",exam:"-f adds filesystem type and UUID; good for spotting unmounted disks."},
+ "blkid":{syntax:"blkid [<device>]",examples:["blkid","blkid /dev/sda1"],use:"Show the UUID and filesystem type of block devices.",similar:"lsblk -f shows similar info as a tree; use UUIDs in /etc/fstab.",exam:"'mount fails: wrong fs type' -> confirm the type with blkid."},
+ "fsck":{syntax:"fsck [-y] <device>",examples:["fsck /dev/sdb1","fsck -y /dev/sdb1"],use:"Check and repair a filesystem - run it UNMOUNTED.",similar:"xfs_repair for XFS; fsck covers ext and others.",exam:"'bad superblock / corrupted FS' -> unmount, then fsck (-y auto-answers yes)."},
+ "resize2fs":{syntax:"resize2fs <device> [size]",examples:["resize2fs /dev/vg0/data","resize2fs /dev/vg0/data 20G"],use:"Grow or shrink an ext2/3/4 filesystem after the LV/partition changed.",similar:"xfs_growfs grows XFS (which cannot shrink); lvextend -r does this for you.",exam:"LVM grow order: lvextend -> resize2fs (ext) or xfs_growfs (XFS)."},
+ "xfs_growfs":{syntax:"xfs_growfs <mountpoint>",examples:["xfs_growfs /data","xfs_growfs /"],use:"Grow a MOUNTED XFS filesystem to fill its device. XFS cannot shrink.",similar:"resize2fs grows/shrinks ext filesystems.",exam:"'grow an XFS filesystem' = xfs_growfs; shrinking XFS is impossible."},
+ "df":{syntax:"df -h [-i]",examples:["df -h","df -i","df -h /var"],use:"Show free/used space per mounted filesystem.",similar:"du sizes files/dirs; df reports the filesystem as a whole.",exam:"'No space left' but df shows room -> check inodes with df -i."},
+ "du":{syntax:"du -sh <path>",examples:["du -sh /var","du -sh /var/* | sort -h","du -h -d1 /home"],use:"Sum the disk usage of files and directories.",similar:"df reports whole-filesystem free space; du finds what is consuming it.",exam:"'find which directory is eating space' = du -sh (then sort -h)."},
+ "umount":{syntax:"umount <mountpoint|device>",examples:["umount /mnt","umount /dev/sdb1"],use:"Detach a mounted filesystem.",similar:"mount attaches; lsof/fuser find who is holding a busy mount.",exam:"Unmount before fsck; 'target is busy' = a process is using it."},
+ "ip link":{syntax:"ip link set <iface> <up|down>",examples:["ip link","ip link set eth0 up","ip link set eth0 down"],use:"Show interfaces and bring links administratively up or down.",similar:"ip addr handles IPs; ip route handles the routing table.",exam:"'state DOWN' in ip a -> ip link set <iface> up."},
+ "ip neigh":{syntax:"ip neigh",examples:["ip neigh","ip neigh show dev eth0"],use:"Show the ARP/neighbor table mapping IPs to MAC addresses.",similar:"arp is the legacy equivalent.",exam:"Duplicate-IP or layer-2 issues -> check ip neigh."},
+ "nmcli":{syntax:"nmcli <device|connection> ...",examples:["nmcli device status","nmcli connection show","nmcli con up eth0"],use:"NetworkManager CLI to view and change network config persistently.",similar:"ip changes are runtime-only; nmcli/netplan persist across reboot.",exam:"'static IP works now but gone after reboot' = it was not saved to the connection profile."},
+ "ping / ping6":{syntax:"ping [-c <n>] <host>",examples:["ping -c 4 8.8.8.8","ping -c 4 example.com"],use:"Test basic ICMP reachability to a host.",similar:"mtr/traceroute show the path; ping just tests reachability.",exam:"'pings IP but not hostname' = DNS problem, not connectivity."},
+ "curl":{syntax:"curl [-O|-L|-I|-X] <url>",examples:["curl -I https://example.com","curl -O https://host/file","curl -L https://sh.rt/x"],use:"Transfer data to/from URLs; test HTTP endpoints and headers.",similar:"wget is better for plain downloads and recursive mirroring.",exam:"-I headers only, -O save as remote name, -L follow redirects."},
+ "wget":{syntax:"wget [-c|-r|-O <file>] <url>",examples:["wget https://host/file","wget -c https://host/big.iso","wget -O out.html https://site"],use:"Download files over HTTP/HTTPS/FTP, with resume and recursion.",similar:"curl is more flexible for APIs/headers; wget excels at downloads.",exam:"-c continues a partial download; -r recurses."},
+ "awk":{syntax:"awk '{print $N}'   |   awk -F: '{...}'",examples:["awk '{print $1}' file","awk -F: '{print $1}' /etc/passwd","awk '$3>100' data"],use:"Field-based text processing: extract or compute on columns.",similar:"cut grabs columns by one delimiter; awk handles whitespace and logic.",exam:"$1..$N are fields, $0 the whole line; -F sets the separator."},
+ "sed":{syntax:"sed 's/old/new/g' file   |   sed -i ...",examples:["sed 's/foo/bar/g' file","sed -i 's/foo/bar/g' file","sed -n '5,10p' file"],use:"Stream editor: substitute, delete, or print selected lines.",similar:"awk transforms by field; grep only filters.",exam:"-i edits in place; s/a/b/g substitutes all matches on each line."},
+ "cut":{syntax:"cut -d <delim> -f <fields> file",examples:["cut -d: -f1 /etc/passwd","cut -f2 data.tsv","cut -c1-8 file"],use:"Extract columns by delimiter or character position.",similar:"awk is more flexible (whitespace runs, logic); cut is simple and fast.",exam:"Default delimiter is TAB; for space-separated data prefer awk."},
+ "sort":{syntax:"sort [-n|-r|-k|-u|-h] file",examples:["sort file","sort -n nums","du -sh * | sort -h","sort -k2 -n data"],use:"Sort lines numerically, by key/column, reversed, or unique.",similar:"uniq collapses ADJACENT duplicates - sort first.",exam:"-n numeric, -h human sizes, -r reverse, -k column, -u unique."},
+ "ps":{syntax:"ps aux   |   ps -ef",examples:["ps aux","ps -ef","ps aux --sort=-%mem | head"],use:"Snapshot of running processes.",similar:"top/htop are live; ps is a one-time snapshot.",exam:"aux (BSD) and -ef (SysV) are the two common full listings."},
+ "kill":{syntax:"kill [-SIGNAL] <pid>",examples:["kill 1234","kill -9 1234","kill -HUP 1234"],use:"Send a signal to a process by PID (default TERM).",similar:"pkill/killall signal by name; kill needs the PID.",exam:"-15 TERM (graceful, default), -9 KILL (force, uncatchable), -1 HUP (often reload)."},
+ "pkill / killall":{syntax:"pkill <name>   |   killall <name>",examples:["pkill nginx","killall firefox","pkill -9 java"],use:"Signal processes by name or pattern instead of PID.",similar:"kill targets one PID; these match by name.",exam:"'stop all instances by name' = killall/pkill."},
+ "crontab":{syntax:"crontab -e   (min hour dom mon dow cmd)",examples:["crontab -e","crontab -l","*/5 * * * * /opt/run.sh","0 2 * * 0 /opt/backup.sh"],use:"Schedule recurring per-user jobs.",similar:"at runs a one-time job; systemd timers are the modern alternative.",exam:"*/5 = every 5 min; dow 0 = Sunday. Cron has a minimal PATH - use absolute paths."},
+ "passwd":{syntax:"passwd [-l|-u] [user]",examples:["passwd","passwd bob","passwd -l svc"],use:"Set or change a password; lock/unlock an account.",similar:"chage manages password AGING; passwd sets the password itself.",exam:"'Authentication token manipulation error' + missing setuid on /usr/bin/passwd -> chmod u+s."},
+ "chage":{syntax:"chage [-l|-M|-E] <user>",examples:["chage -l bob","chage -M 90 bob","chage -E 2026-12-31 bob"],use:"View or set password-aging policy for an account.",similar:"usermod -e sets ACCOUNT expiry; chage -M sets max PASSWORD age.",exam:"'force a password change every N days' = chage -M N."},
+ "id / groups / whoami":{syntax:"id [user] | groups [user] | whoami",examples:["id","id bob","groups","whoami"],use:"Show UID/GID and group memberships, or the current user.",similar:"getent passwd shows home + shell; id shows IDs and groups.",exam:"After usermod -aG, new groups appear only after re-login."},
+ "getent passwd":{syntax:"getent passwd [user]",examples:["getent passwd","getent passwd bob","getent group wheel"],use:"Query the passwd/group databases via NSS (includes LDAP/SSSD, not just files).",similar:"id shows IDs/groups; grep /etc/passwd misses network sources.",exam:"'UID, home, and shell for a user' = getent passwd <user>."},
+ "ssh-keygen":{syntax:"ssh-keygen -t ed25519",examples:["ssh-keygen -t ed25519","ssh-keygen -t rsa -b 4096","ssh-keygen -R host"],use:"Generate SSH key pairs and manage known_hosts.",similar:"ssh-copy-id installs the resulting public key on a server.",exam:"-t sets key type; never share the private key - only the .pub."},
+ "ssh-copy-id":{syntax:"ssh-copy-id <user>@<host>",examples:["ssh-copy-id bob@web01"],use:"Install your PUBLIC key into a server's authorized_keys for passwordless login.",similar:"ssh-keygen creates the keys; ssh-copy-id deploys the public one.",exam:"'passwordless SSH' = ssh-copy-id (copies the .pub, not the private key)."},
+ "scp / sftp":{syntax:"scp <src> <user>@<host>:<dest>",examples:["scp file user@db01:/etc/","scp user@db01:/etc/file .","sftp user@host"],use:"Copy files (scp) or transfer interactively (sftp) over SSH.",similar:"rsync copies only differences and can mirror; scp copies wholesale.",exam:"scp order is source then destination; remote side is user@host:/path."},
+ "ufw":{syntax:"ufw <allow|deny|default> ...",examples:["ufw allow 22/tcp","ufw default deny incoming","ufw enable","ufw status"],use:"Ubuntu's simple firewall front end.",similar:"firewall-cmd (firewalld) is the RHEL equivalent.",exam:"Default-deny + allow SSH = 'ufw default deny incoming' AND 'ufw allow 22/tcp'."},
+ "setenforce":{syntax:"setenforce <0|1>",examples:["setenforce 0","setenforce 1"],use:"Switch SELinux between permissive (0) and enforcing (1) at runtime.",similar:"getenforce shows the mode; /etc/selinux/config sets it persistently.",exam:"'temporarily test if SELinux is the cause' = setenforce 0 (reverts on reboot)."},
+ "getsebool / setsebool":{syntax:"setsebool -P <boolean> on",examples:["getsebool -a","setsebool -P httpd_can_network_connect on"],use:"Read or set SELinux booleans that toggle allowed behaviors.",similar:"semanage manages contexts/ports; booleans toggle policy switches.",exam:"-P makes the boolean change persist across reboots."},
+ "lsof":{syntax:"lsof [+L1] [<path>]",examples:["lsof /var/log/app.log","lsof +L1","lsof -i :443"],use:"List open files and sockets; find what holds a file or port.",similar:"ss lists sockets; lsof links files/ports to processes.",exam:"'df full but du does not add up' -> a deleted file is still open; find it with lsof."},
+ "free":{syntax:"free -h",examples:["free -h","free -m"],use:"Show memory and swap usage.",similar:"vmstat shows si/so swap activity over time.",exam:"Low 'free' but high 'available' is fine - cache is reclaimable."},
+ "top / htop":{syntax:"top   |   htop",examples:["top","htop"],use:"Live view of CPU, memory, load, and per-process usage.",similar:"ps is a snapshot; iostat/vmstat dig into I/O and memory.",exam:"High load but idle CPU with high %wa -> disk I/O bottleneck (check iostat)."},
+ "uptime":{syntax:"uptime",examples:["uptime"],use:"Show uptime and the 1/5/15-minute load averages.",similar:"top shows the same load plus live detail.",exam:"Load near/above the core count across all three windows = overloaded."},
+ "modprobe":{syntax:"modprobe [-r] <module>",examples:["modprobe e1000e","modprobe -r e1000e"],use:"Load a kernel module AND its dependencies by name (-r unloads).",similar:"insmod loads one file with no deps; rmmod removes one.",exam:"'load a driver and its dependencies' = modprobe (not insmod)."},
+ "tee":{syntax:"<cmd> | tee [-a] <file>",examples:["tail -f log | tee out.txt","echo hi | tee -a log"],use:"Write a stream to a file AND pass it through to the screen.",similar:"> and >> write only to the file (nothing on screen).",exam:"'watch live AND save to a file' = pipe to tee."},
+ "nmap":{syntax:"nmap [-sV|-p|-sn] <target>",examples:["nmap -p 22,80,443 host","nmap -sV host","nmap -sn 10.0.0.0/24"],use:"Scan hosts for open ports and running services.",similar:"ss shows local sockets; nmap probes remote hosts.",exam:"-p ports, -sV service versions, -sn ping sweep (host discovery)."},
+ "nc":{syntax:"nc [-l] [-z] [-v] <host> <port>",examples:["nc -zv host 22","nc -l 9000","nc host 80"],use:"netcat: open raw TCP/UDP connections; test a port or run a simple listener.",similar:"nmap scans many ports; nc opens one connection.",exam:"-l listen, -z scan without sending data, -v verbose."},
+ "mtr":{syntax:"mtr <host>",examples:["mtr example.com","mtr -r -c 100 host"],use:"Combined traceroute + ping showing per-hop latency and packet loss.",similar:"traceroute shows the path once; mtr updates continuously.",exam:"Use to pinpoint WHERE along the path packets are lost."},
+ "traceroute / tracepath":{syntax:"traceroute <host>",examples:["traceroute example.com","tracepath example.com"],use:"Show the network path (hops) to a host.",similar:"mtr adds continuous per-hop loss; tracepath needs no root.",exam:"Identifies where connectivity breaks along the route."},
+ "nslookup":{syntax:"nslookup <name> [server]",examples:["nslookup example.com","nslookup example.com 8.8.8.8"],use:"Older interactive DNS lookup tool.",similar:"dig is preferred - detailed and scriptable.",exam:"Legacy tool; dig is the modern choice for DNS queries."},
+ "ethtool":{syntax:"ethtool <iface>",examples:["ethtool eth0","ethtool -s eth0 speed 1000 duplex full"],use:"Query or set NIC speed, duplex, and link status.",similar:"ip link shows up/down; ethtool shows the physical link details.",exam:"Use for speed/duplex mismatches on a physical NIC."},
+ "netplan":{syntax:"netplan apply | netplan try",examples:["netplan apply","netplan try"],use:"Apply YAML network configuration on Ubuntu.",similar:"nmcli on NetworkManager systems; both persist config.",exam:"apply renders+applies; try applies with automatic rollback."},
+ "arp":{syntax:"arp [-n]",examples:["arp -n","arp -a"],use:"View or edit the ARP cache (legacy).",similar:"ip neigh is the modern replacement.",exam:"Prefer ip neigh; arp is legacy."},
+ "iperf3":{syntax:"iperf3 -s | iperf3 -c <server>",examples:["iperf3 -s","iperf3 -c 10.0.0.5"],use:"Measure throughput (bandwidth) between two hosts.",similar:"ping tests latency; iperf3 tests bandwidth.",exam:"Run -s (server) on one host, -c <server> on the other."},
+ "pvcreate":{syntax:"pvcreate <device>",examples:["pvcreate /dev/sdb","pvcreate /dev/sdb1"],use:"Initialize a disk/partition as an LVM physical volume.",similar:"First LVM step, before vgcreate.",exam:"LVM stack: pvcreate -> vgcreate -> lvcreate -> mkfs -> mount."},
+ "vgcreate":{syntax:"vgcreate <vg> <pv...>",examples:["vgcreate vg0 /dev/sdb","vgcreate data /dev/sdb /dev/sdc"],use:"Create a volume group from one or more physical volumes.",similar:"vgextend adds PVs to an existing VG.",exam:"A VG pools PVs; LVs are carved from the VG's free space."},
+ "vgextend":{syntax:"vgextend <vg> <pv>",examples:["vgextend vg0 /dev/sdc"],use:"Add a physical volume to an existing volume group for more space.",similar:"lvextend then grows an LV using that new space.",exam:"Add a disk: pvcreate -> vgextend -> lvextend -> grow FS."},
+ "lvremove":{syntax:"lvremove <lv-path>",examples:["lvremove /dev/vg0/data"],use:"Delete a logical volume (its data is lost).",similar:"lvcreate makes one; unmount before removing.",exam:"Destructive - ensure it's unmounted and backed up."},
+ "fdisk / gdisk":{syntax:"fdisk <disk> | gdisk <disk>   (-l lists)",examples:["fdisk -l","fdisk /dev/sdb","gdisk /dev/sdb"],use:"Edit MBR (fdisk) or GPT (gdisk) partition tables.",similar:"parted is scriptable and handles both.",exam:"fdisk = MBR, gdisk = GPT; -l lists partitions."},
+ "parted":{syntax:"parted <disk> [command]",examples:["parted /dev/sdb print","parted /dev/sdb mklabel gpt"],use:"Scriptable partition editor for GPT and MBR.",similar:"fdisk/gdisk are interactive; parted can script.",exam:"Use mklabel gpt for disks larger than 2 TB."},
+ "growpart":{syntax:"growpart <disk> <part#>",examples:["growpart /dev/sda 1"],use:"Grow a partition into adjacent free space (common on cloud VMs).",similar:"After growpart, grow the FS (resize2fs/xfs_growfs) or pvresize for LVM.",exam:"Cloud disk grow: growpart -> (pvresize) -> resize2fs/xfs_growfs."},
+ "mkfs.ext4 / mkfs.xfs":{syntax:"mkfs.ext4 <device> | mkfs.xfs <device>",examples:["mkfs.ext4 /dev/sdb1","mkfs.xfs /dev/vg0/data"],use:"Create a new ext4 or XFS filesystem (erases the device).",similar:"fsck checks; resize2fs/xfs_growfs grow.",exam:"Destructive - it formats. XFS can't shrink; ext4 can."},
+ "xfs_repair":{syntax:"xfs_repair <device>",examples:["xfs_repair /dev/sdb1"],use:"Repair an XFS filesystem (run it unmounted).",similar:"fsck repairs ext; XFS uses xfs_repair.",exam:"fsck.xfs does nothing - use xfs_repair for XFS corruption."},
+ "mdadm":{syntax:"mdadm --create|--detail|--assemble ...",examples:["mdadm --detail /dev/md0","mdadm --create /dev/md0 --level=1 --raid-devices=2 /dev/sd[bc]"],use:"Create and manage software RAID arrays.",similar:"cat /proc/mdstat shows live array status.",exam:"--detail inspects an array; /proc/mdstat shows sync state."},
+ "lscpu":{syntax:"lscpu",examples:["lscpu"],use:"Show CPU architecture, cores, sockets, and flags.",similar:"/proc/cpuinfo has the raw per-core data.",exam:"Quick way to see core count and virtualization flags."},
+ "dmidecode":{syntax:"dmidecode [-t <type>]",examples:["dmidecode -t memory","dmidecode -t bios"],use:"Decode SMBIOS/DMI: BIOS, serial numbers, RAM slots.",similar:"lshw gives a broader hardware listing.",exam:"Use -t memory/bios/system to target a section."},
+ "uname":{syntax:"uname [-r|-a|-m]",examples:["uname -r","uname -a","uname -m"],use:"Print kernel and system information.",similar:"hostnamectl shows OS and kernel together.",exam:"-r kernel release, -m architecture, -a everything."},
+ "insmod":{syntax:"insmod <file.ko>",examples:["insmod ./mymod.ko"],use:"Insert a single module file with NO dependency resolution.",similar:"modprobe loads by name and pulls in dependencies.",exam:"Almost always use modprobe instead; insmod ignores deps."},
+ "depmod":{syntax:"depmod",examples:["depmod","depmod -a"],use:"Rebuild the modules.dep dependency database.",similar:"modprobe relies on this map to resolve dependencies.",exam:"Run after adding modules so modprobe can find their deps."},
+ "dracut":{syntax:"dracut -f",examples:["dracut -f"],use:"Regenerate the initramfs image on modern systems.",similar:"mkinitrd is the legacy builder.",exam:"-f forces overwrite of the existing initramfs."},
+ "head / tail":{syntax:"head -n <N> file | tail -n <N> file",examples:["head -n 20 file","tail -n 50 file","tail -f /var/log/syslog"],use:"Show the first or last lines of a file; -f follows new lines live.",similar:"less pages a file; tee saves a stream.",exam:"tail -f watches a log live; pipe to tee to also save it."},
+ "wc":{syntax:"wc [-l|-w|-c] file",examples:["wc -l file","grep error log | wc -l"],use:"Count lines, words, bytes, or characters.",similar:"grep -c counts matching lines directly.",exam:"-l lines, -w words, -c bytes."},
+ "uniq":{syntax:"sort file | uniq [-c|-d|-u]",examples:["sort file | uniq","sort file | uniq -c","sort f | uniq -d"],use:"Collapse ADJACENT duplicate lines - sort first.",similar:"sort -u also dedupes; uniq -c counts occurrences.",exam:"Always sort before uniq, since it only compares adjacent lines."},
+ "tr":{syntax:"tr [-d|-s] <set1> [set2]",examples:["tr 'a-z' 'A-Z'","tr -d ' '","tr -s ' '"],use:"Translate or delete characters in a stream.",similar:"sed does richer pattern substitution.",exam:"-d delete, -s squeeze repeated characters."},
+ "xargs":{syntax:"... | xargs [-I{}] <cmd>",examples:["find . -name '*.tmp' | xargs rm","ls | xargs -I{} mv {} /dst"],use:"Build and run commands from items on stdin.",similar:"find -exec does the same without a pipe.",exam:"Pair find -print0 with xargs -0 to handle spaces in names."},
+ "hostnamectl":{syntax:"hostnamectl [set-hostname <name>]",examples:["hostnamectl","hostnamectl set-hostname web01"],use:"View or persistently set the system hostname.",similar:"hostname (no args) changes it for the session only.",exam:"'permanently change hostname' = hostnamectl set-hostname."},
+ "timedatectl":{syntax:"timedatectl [set-timezone <tz>]",examples:["timedatectl","timedatectl set-timezone America/New_York","timedatectl set-ntp true"],use:"View or set time, date, timezone, and NTP sync.",similar:"chronyd/ntpd perform the actual time syncing.",exam:"set-ntp true enables sync; set-timezone changes the zone."},
+ "userdel":{syntax:"userdel [-r] <user>",examples:["userdel bob","userdel -r bob"],use:"Delete a user account.",similar:"useradd creates; usermod modifies.",exam:"-r also removes the home directory and mail spool."},
+ "groupadd / groupdel / groupmod":{syntax:"groupadd <name> | groupmod -n <new> <old> | groupdel <name>",examples:["groupadd devs","groupmod -n team devs","groupdel devs"],use:"Create, rename, or delete groups.",similar:"usermod -aG adds users into a group.",exam:"groupmod -n renames a group."},
+ "chsh":{syntax:"chsh -s <shell> <user>",examples:["chsh -s /bin/bash bob","chsh -s /sbin/nologin svc"],use:"Change a user's login shell.",similar:"usermod -s does the same thing.",exam:"/sbin/nologin blocks interactive login for service accounts."},
+ "nice / renice":{syntax:"nice -n <N> <cmd> | renice <N> -p <pid>",examples:["nice -n 10 ./job.sh","renice -n 5 -p 1234"],use:"Set scheduling priority at launch (nice) or on a running process (renice).",similar:"Lower number = higher priority (range -20..19).",exam:"renice changes a running PID; nice sets priority at start."},
+ "strace":{syntax:"strace [-p <pid>] <cmd>",examples:["strace ./app","strace -p 1234","strace -f -e open ./app"],use:"Trace the system calls a process makes.",similar:"lsof shows open files; strace shows live syscalls.",exam:"Use to find why a program fails - e.g. a missing file in an open() call."},
+ "vmstat":{syntax:"vmstat [interval]",examples:["vmstat 1","vmstat 2 5"],use:"Report memory, CPU, and I/O at a repeating interval.",similar:"iostat focuses on disks; free on memory.",exam:"Watch the si/so columns for swapping (memory pressure)."},
+ "iostat":{syntax:"iostat -x [interval]",examples:["iostat -x 1","iostat -xz 2"],use:"Per-device disk I/O statistics.",similar:"vmstat shows the system overall; iostat drills into disks.",exam:"High %util and await = disk bottleneck (high load + idle CPU)."},
+ "sar":{syntax:"sar -u | -r | -n DEV [interval]",examples:["sar -u 1 3","sar -r","sar -n DEV 1"],use:"Collect and report historical performance (sysstat).",similar:"vmstat/iostat are live; sar keeps history.",exam:"-u CPU, -r memory, -n DEV network."},
+ "watch":{syntax:"watch [-n <sec>] <cmd>",examples:["watch -n 1 'ss -s'","watch -d free -h"],use:"Re-run a command periodically and show the latest output.",similar:"A simple way to monitor a changing value.",exam:"-n sets the interval; -d highlights what changed."},
+ "sudo":{syntax:"sudo [-i|-l] <cmd>",examples:["sudo systemctl restart nginx","sudo -i","sudo -l"],use:"Run a command with elevated privileges per sudoers policy (uses YOUR password).",similar:"su - becomes another user with a full login shell.",exam:"sudo = one command as root with your password; su - = full login."},
+ "su -":{syntax:"su - [user]",examples:["su -","su - bob"],use:"Switch to another user with a full login environment (their password).",similar:"sudo runs single commands using your own password.",exam:"The dash loads the target user's login environment."},
+ "visudo":{syntax:"visudo",examples:["visudo","visudo -f /etc/sudoers.d/app"],use:"Safely edit the sudoers file with locking and syntax checking.",similar:"Never edit /etc/sudoers directly - a typo can lock out sudo.",exam:"'edit sudoers safely' = visudo (validates before saving)."},
+ "fail2ban":{syntax:"fail2ban-client status [jail]",examples:["fail2ban-client status","fail2ban-client status sshd"],use:"Ban IPs after repeated failed logins.",similar:"Complements key-based auth and firewall rules.",exam:"Mitigates SSH brute-force by jailing offending IPs."},
+ "chgrp":{syntax:"chgrp [-R] <group> <file>",examples:["chgrp devs file","chgrp -R devs /srv"],use:"Change only the group ownership of files.",similar:"chown user:group changes both owner and group.",exam:"Use when only the group needs to change."},
+ "umask":{syntax:"umask [mask]",examples:["umask","umask 022","umask 077"],use:"Set the default-permission mask for new files and directories.",similar:"chmod sets permissions explicitly after a file exists.",exam:"022 -> files 644, dirs 755; 077 -> files 600, dirs 700."},
+ "chattr / lsattr":{syntax:"chattr +i <file> | lsattr <file>",examples:["chattr +i /etc/resolv.conf","lsattr file","chattr -i file"],use:"Set or view low-level attributes like immutable (+i) and append-only (+a).",similar:"Beyond rwx/ACLs; even root must clear +i before editing.",exam:"+i makes a file unmodifiable until you run chattr -i."},
+ "getenforce / sestatus":{syntax:"getenforce | sestatus",examples:["getenforce","sestatus"],use:"Show the current SELinux mode / detailed status.",similar:"setenforce changes the mode at runtime.",exam:"getenforce returns Enforcing, Permissive, or Disabled."},
+ "ansible":{syntax:"ansible <pattern> -m <module> -a <args>",examples:["ansible all -m ping","ansible web -m service -a 'name=nginx state=restarted'"],use:"Run ad-hoc tasks across hosts over SSH (agentless).",similar:"ansible-playbook runs YAML playbooks for repeatable config.",exam:"-m module, -a args; the inventory lists the target hosts."},
+ "ansible-playbook":{syntax:"ansible-playbook -i <inv> <playbook.yml>",examples:["ansible-playbook -i hosts site.yml","ansible-playbook site.yml --check"],use:"Run a YAML playbook of tasks against inventory hosts.",similar:"ansible (ad-hoc) for one-offs; playbooks for repeatable runs.",exam:"--check is a dry run; -i selects the inventory."},
+ "git init / clone":{syntax:"git init | git clone <url>",examples:["git init","git clone https://github.com/u/repo.git"],use:"Start a new repo (init) or copy an existing remote one with history (clone).",similar:"fetch/pull update an existing clone.",exam:"'copy a coworker's repo with history' = git clone."},
+ "lsmod":{"syntax": "lsmod", "examples": ["lsmod", "lsmod | grep e1000e"], "use": "List currently loaded kernel modules.", "similar": "modinfo shows details about one module.", "exam": "Reads from /proc/modules; pipe to grep to check a specific driver."},
+ "modinfo":{"syntax": "modinfo <module>", "examples": ["modinfo e1000e", "modinfo -p e1000e"], "use": "Show information and parameters for a kernel module.", "similar": "modprobe loads it; lsmod lists loaded ones.", "exam": "-p lists the module's accepted parameters."},
+ "rmmod":{"syntax": "rmmod <module>", "examples": ["rmmod e1000e"], "use": "Remove a single loaded module (no dependency handling).", "similar": "modprobe -r removes a module AND its now-unused dependencies.", "exam": "'remove a module and its dependencies' = modprobe -r; rmmod removes just the one."},
+ "mkinitrd":{"syntax": "mkinitrd <image> <kernel-version>", "examples": ["mkinitrd /boot/initramfs-$(uname -r).img $(uname -r)"], "use": "Legacy tool to build the initramfs image.", "similar": "dracut -f is the modern replacement.", "exam": "Old systems use mkinitrd; modern ones use dracut."},
+ "lspci":{"syntax": "lspci [-v]", "examples": ["lspci", "lspci -v"], "use": "List PCI devices such as GPUs and network cards.", "similar": "lsusb does the same for USB devices.", "exam": "Use to find a NIC/GPU and the driver bound to it."},
+ "lsusb":{"syntax": "lsusb [-v]", "examples": ["lsusb"], "use": "List connected USB devices.", "similar": "lspci covers PCI devices.", "exam": "Identifies attached USB hardware and IDs."},
+ "lsmem":{"syntax": "lsmem", "examples": ["lsmem"], "use": "Show online memory blocks and their state.", "similar": "free shows usage; dmidecode -t memory shows physical slots.", "exam": "Used for memory hotplug / online-offline state."},
+ "lshw":{"syntax": "lshw [-short] [-class <class>]", "examples": ["lshw -short", "lshw -class network"], "use": "Produce a detailed hardware inventory.", "similar": "dmidecode reads DMI/SMBIOS specifically.", "exam": "-short gives a quick table; -class filters by hardware type."},
+ "sensors":{"syntax": "sensors", "examples": ["sensors"], "use": "Show temperatures, fan speeds, and voltages (lm-sensors).", "similar": "Run sensors-detect once first to configure it.", "exam": "Reads hardware monitoring (hwmon) data."},
+ "ipmitool":{"syntax": "ipmitool <command>", "examples": ["ipmitool sensor", "ipmitool chassis status"], "use": "Query the server's BMC/IPMI for hardware health and power.", "similar": "Out-of-band management, independent of the OS.", "exam": "Used for server sensor readings and remote power control."},
+ "pvs / pvdisplay":{"syntax": "pvs | pvdisplay [<pv>]", "examples": ["pvs", "pvdisplay /dev/sdb"], "use": "Show LVM physical volumes (pvs = table, pvdisplay = detailed).", "similar": "vgs/lvs are the VG and LV counterparts.", "exam": "pvs for a quick overview, pvdisplay for full detail."},
+ "pvmove":{"syntax": "pvmove <src-pv> [dest-pv]", "examples": ["pvmove /dev/sdb", "pvmove /dev/sdb /dev/sdc"], "use": "Migrate allocated extents off a physical volume.", "similar": "Follow with vgreduce to drop the PV from the VG.", "exam": "Evacuate a failing disk before removing it."},
+ "vgs / vgdisplay":{"syntax": "vgs | vgdisplay [<vg>]", "examples": ["vgs", "vgdisplay vg0"], "use": "Show LVM volume groups (vgs = table, vgdisplay = detailed).", "similar": "pvs/lvs show PVs and LVs.", "exam": "vgs for size/free at a glance, vgdisplay for detail."},
+ "lvs / lvdisplay":{"syntax": "lvs | lvdisplay [<lv>]", "examples": ["lvs", "lvdisplay /dev/vg0/data"], "use": "Show LVM logical volumes (lvs = table, lvdisplay = detailed).", "similar": "pvs/vgs show PVs and VGs.", "exam": "lvs lists LVs and their sizes; lvdisplay is verbose."},
+ "fio":{"syntax": "fio --name=<job> --rw=<mode> --bs=<size> --size=<n>", "examples": ["fio --name=t --rw=randread --bs=4k --size=1G"], "use": "Benchmark disk I/O with configurable workloads.", "similar": "iostat measures live I/O; fio generates it.", "exam": "Used for synthetic storage performance testing."},
+ "autofs":{"syntax": "/etc/auto.master + map files", "examples": ["cat /etc/auto.master", "cat /etc/auto.misc"], "use": "Mount filesystems on demand and unmount them when idle.", "similar": "/etc/fstab mounts statically at boot.", "exam": "Good for NFS/removable mounts that shouldn't always be mounted."},
+ "cpio":{"syntax": "cpio -o > arch | cpio -i < arch", "examples": ["find . | cpio -o > a.cpio", "cpio -idv < a.cpio"], "use": "Archive utility used by initramfs and RPM.", "similar": "tar is the more common archiver.", "exam": "initramfs images are cpio archives; -o create, -i extract."},
+ "gzip / gunzip":{"syntax": "gzip <file> | gunzip <file.gz>", "examples": ["gzip big.log", "gunzip big.log.gz", "gzip -k file"], "use": "Compress or decompress single files (.gz).", "similar": "bzip2/xz give better ratios; tar -z bundles + gzips.", "exam": "-k keeps the original file instead of replacing it."},
+ "bzip2 / xz":{"syntax": "bzip2 <file> | xz <file>", "examples": ["xz big.tar", "bzip2 -d file.bz2"], "use": "Higher-ratio compressors producing .bz2 / .xz.", "similar": "gzip is faster but compresses less.", "exam": "tar -j uses bzip2, -J uses xz; xz gives the best ratio."},
+ "zip / unzip":{"syntax": "zip [-r] <a.zip> <files> | unzip <a.zip>", "examples": ["zip -r site.zip site/", "unzip site.zip"], "use": "Cross-platform archive + compression.", "similar": "tar.gz is the Linux norm; zip helps Windows interop.", "exam": "-r recurses into directories."},
+ "dd":{"syntax": "dd if=<in> of=<out> bs=<size> [count=<n>]", "examples": ["dd if=/dev/zero of=f bs=1M count=100", "dd if=/dev/sda of=/dev/sdb bs=4M status=progress"], "use": "Low-level block copy and imaging.", "similar": "cp copies files; dd copies raw devices/blocks.", "exam": "Mind if=/of= direction - reversing them can wipe a disk."},
+ "ddrescue":{"syntax": "ddrescue <src> <dest> <mapfile>", "examples": ["ddrescue /dev/sdb out.img rescue.map"], "use": "Copy from failing media, retrying and logging bad sectors.", "similar": "dd stops on errors; ddrescue keeps going.", "exam": "Used to recover data from a dying disk."},
+ "zcat / zgrep / zless":{"syntax": "zcat f.gz | zgrep <pat> f.gz | zless f.gz", "examples": ["zcat app.log.gz", "zgrep error syslog.1.gz"], "use": "Read or search compressed files without unpacking them.", "similar": "Plain cat/grep/less work on uncompressed files.", "exam": "Search rotated/compressed logs directly."},
+ "virsh":{"syntax": "virsh <command>", "examples": ["virsh list --all", "virsh start vm1", "virsh shutdown vm1"], "use": "Manage KVM/libvirt virtual machines from the CLI.", "similar": "virt-manager is the graphical front end.", "exam": "list/start/shutdown control libvirt domains."},
+ "qemu-img":{"syntax": "qemu-img create|convert|info ...", "examples": ["qemu-img create -f qcow2 disk.qcow2 20G", "qemu-img info disk.qcow2"], "use": "Create and convert VM disk images.", "similar": "VirtIO is the paravirtualized device driver.", "exam": "qcow2 supports snapshots and thin allocation."},
+ "ls":{"syntax": "ls [-l -a -h -t -R]", "examples": ["ls -l", "ls -lah", "ls -lt"], "use": "List directory contents.", "similar": "stat shows full detail for a single file.", "exam": "-a hidden, -l long, -h human sizes, -t sort by time."},
+ "cp":{"syntax": "cp [-r -p -a] <src> <dest>", "examples": ["cp file /tmp/", "cp -r dir /backup/", "cp -a src dst"], "use": "Copy files and directories.", "similar": "mv moves; rsync is better for large/incremental copies.", "exam": "-r recursive, -p preserve attributes, -a archive (both)."},
+ "mv":{"syntax": "mv <src> <dest>", "examples": ["mv old new", "mv file /tmp/"], "use": "Move or rename files and directories.", "similar": "cp copies; mv removes the source.", "exam": "Renaming = mv within the same directory."},
+ "rm":{"syntax": "rm [-r -f] <path>", "examples": ["rm file", "rm -rf dir/"], "use": "Delete files and directories.", "similar": "rmdir removes only empty directories.", "exam": "-rf is force-recursive and irreversible - be careful."},
+ "mkdir / rmdir":{"syntax": "mkdir [-p] <dir> | rmdir <dir>", "examples": ["mkdir -p a/b/c", "rmdir empty"], "use": "Create or remove directories.", "similar": "rm -r removes non-empty directories.", "exam": "-p creates parent dirs; rmdir only removes empty ones."},
+ "locate":{"syntax": "locate <name>", "examples": ["locate sshd_config", "updatedb"], "use": "Fast filename search using a prebuilt database.", "similar": "find searches live (slower but current).", "exam": "Run updatedb to refresh; find is real-time."},
+ "file":{"syntax": "file <path>", "examples": ["file /bin/ls", "file data.bin"], "use": "Identify a file's type by inspecting its contents.", "similar": "stat shows metadata, not type.", "exam": "Tells script vs binary vs data regardless of extension."},
+ "stat":{"syntax": "stat [-c <fmt>] <file>", "examples": ["stat file", "stat -c '%a %n' file"], "use": "Show detailed file metadata: perms, timestamps, inode.", "similar": "ls -l is a shorter summary.", "exam": "Shows atime/mtime/ctime and octal permissions."},
+ "ln":{"syntax": "ln -s <target> <link> | ln <target> <link>", "examples": ["ln -s /opt/app /usr/local/app", "ln file hardlink"], "use": "Create symbolic (-s) or hard links.", "similar": "A symlink points by path; a hard link shares the inode.", "exam": "-s symlink (can cross filesystems); no -s = hard link (same FS only)."},
+ "diff / sdiff":{"syntax": "diff [-u] <a> <b> | sdiff <a> <b>", "examples": ["diff old new", "diff -u old new", "sdiff a b"], "use": "Compare files line by line.", "similar": "sdiff shows differences side by side.", "exam": "-u gives unified (patch) format used by patch and git."},
+ "touch":{"syntax": "touch [-t <stamp>] <file>", "examples": ["touch newfile", "touch -t 202601010000 file"], "use": "Create empty files or update timestamps.", "similar": "stat shows the resulting timestamps.", "exam": "Updates mtime/atime, and creates the file if missing."},
+ "who / w":{"syntax": "who | w", "examples": ["who", "w"], "use": "Show logged-in users (w also shows load and activity).", "similar": "last shows historical logins.", "exam": "w reveals what each logged-in user is doing."},
+ "last / lastlog":{"syntax": "last | lastlog", "examples": ["last", "last reboot", "lastlog"], "use": "Login history (last) and last login per user (lastlog).", "similar": "who shows current sessions.", "exam": "Audit recent logins and reboots."},
+ "top / htop / atop":{"syntax": "top | htop | atop", "examples": ["top", "htop"], "use": "Live process and resource monitor.", "similar": "ps is a snapshot; atop adds historical logging.", "exam": "High %wa points to a disk I/O bottleneck."},
+ "pstree":{"syntax": "pstree [-p]", "examples": ["pstree", "pstree -p"], "use": "Show processes as a parent/child tree.", "similar": "ps lists them flat.", "exam": "-p shows PIDs - see what spawned what."},
+ "mpstat / pidstat":{"syntax": "mpstat [interval] | pidstat [interval]", "examples": ["mpstat -P ALL 1", "pidstat 1"], "use": "Per-CPU (mpstat) and per-process (pidstat) statistics.", "similar": "Part of sysstat, like sar and iostat.", "exam": "mpstat -P ALL shows each core separately."},
+ "nohup":{"syntax": "nohup <cmd> &", "examples": ["nohup ./job.sh &", "nohup ./run.sh > out.log 2>&1 &"], "use": "Run a command immune to hangup so it survives logout.", "similar": "disown, screen, and tmux solve the same problem.", "exam": "Keeps a background job alive after the terminal closes."},
+ "jobs / fg / bg":{"syntax": "jobs | fg %n | bg %n", "examples": ["jobs", "fg %1", "bg %1"], "use": "Shell job control for backgrounded/suspended jobs.", "similar": "Ctrl+Z suspends; trailing & backgrounds at launch.", "exam": "fg foregrounds, bg resumes in the background."},
+ "at":{"syntax": "at <time>", "examples": ["at now + 1 hour", "at 02:00"], "use": "Schedule a ONE-TIME job.", "similar": "cron repeats; atq lists, atrm removes.", "exam": "One-shot scheduling vs cron's recurring jobs."},
+ "anacron":{"syntax": "/etc/anacrontab", "examples": ["cat /etc/anacrontab"], "use": "Run periodic jobs that were missed while the machine was off.", "similar": "cron assumes the system is always on.", "exam": "Good for laptops/desktops not running 24/7."},
+ "systemd timers":{"syntax": "systemctl list-timers", "examples": ["systemctl list-timers", "systemctl enable --now backup.timer"], "use": "Modern scheduled jobs using .timer + .service units.", "similar": "Replaces cron, adding logging and dependencies.", "exam": "list-timers shows each timer's next run."},
+ "is-enabled / is-active":{"syntax": "systemctl is-enabled <u> | is-active <u>", "examples": ["systemctl is-enabled sshd", "systemctl is-active nginx"], "use": "Script-friendly checks of a unit's state.", "similar": "status is the human-readable version.", "exam": "is-enabled = starts at boot; is-active = running now."},
+ "list-units / list-unit-files":{"syntax": "systemctl list-units | list-unit-files", "examples": ["systemctl list-units --type=service", "systemctl list-unit-files --state=enabled"], "use": "List active units / all installed unit files and their enablement.", "similar": "status inspects a single unit.", "exam": "list-unit-files shows enabled/disabled/masked state."},
+ "resolvectl":{"syntax": "resolvectl status | query <name>", "examples": ["resolvectl status", "resolvectl query example.com"], "use": "Inspect or query systemd-resolved DNS.", "similar": "dig issues raw DNS queries.", "exam": "Shows which DNS servers each network link uses."},
+ "systemd-analyze":{"syntax": "systemd-analyze [blame|critical-chain]", "examples": ["systemd-analyze", "systemd-analyze blame"], "use": "Analyze boot time and find slow units.", "similar": "blame ranks units by startup duration.", "exam": "Used to find what is slowing the boot."},
+ "run":{"syntax": "docker run [-d -p -v] <image>", "examples": ["docker run -d -p 80:80 nginx", "docker run -it ubuntu bash"], "use": "Create and start a new container from an image.", "similar": "exec runs a command in an already-running container.", "exam": "-d detached, -p publish port, -v mount volume."},
+ "exec":{"syntax": "docker exec -it <container> <cmd>", "examples": ["docker exec -it web bash"], "use": "Run a command inside a running container.", "similar": "run starts a brand-new container.", "exam": "-it gives an interactive shell into the container."},
+ "logs":{"syntax": "docker logs [-f] <container>", "examples": ["docker logs -f web"], "use": "View a container's stdout/stderr.", "similar": "journalctl does this for host services.", "exam": "-f follows the log live."},
+ "inspect":{"syntax": "docker inspect <object>", "examples": ["docker inspect web"], "use": "Show low-level JSON config and state.", "similar": "ps lists containers; inspect drills into one.", "exam": "Find IP, mounts, and env vars in the JSON output."},
+ "images / pull / build":{"syntax": "docker images | pull <img> | build -t <tag> .", "examples": ["docker pull nginx", "docker build -t myapp ."], "use": "Manage images: list, download, or build.", "similar": "run launches a container from an image.", "exam": "build reads the Dockerfile in the given context directory."},
+ "stop / rm / rmi":{"syntax": "docker stop <c> | rm <c> | rmi <img>", "examples": ["docker stop web", "docker rm web", "docker rmi nginx"], "use": "Stop a container, remove a container, or remove an image.", "similar": "prune bulk-cleans unused objects.", "exam": "rm removes a container; rmi removes an image."},
+ "prune":{"syntax": "docker system prune [-a]", "examples": ["docker system prune", "docker image prune -a"], "use": "Bulk-remove unused containers, images, and volumes.", "similar": "Targeted rm/rmi remove one object.", "exam": "-a also deletes unused images, freeing the most space."},
+ "gpg":{"syntax": "gpg --encrypt|--decrypt|--verify ...", "examples": ["gpg -c file", "gpg --verify file.sig file"], "use": "Encrypt, sign, and verify files and data.", "similar": "openssl handles TLS certs and connections.", "exam": "-c is symmetric encryption; --verify checks a signature."},
+ "openssl":{"syntax": "openssl <subcommand> ...", "examples": ["openssl req -new -x509 -days 365 -key key.pem -out cert.pem", "openssl s_client -connect host:443"], "use": "Work with TLS certificates, keys, hashing, and connections.", "similar": "gpg is for file/email crypto.", "exam": "s_client tests a TLS endpoint; req creates CSRs/certs."},
+ "cryptsetup (LUKS2)":{"syntax": "cryptsetup luksFormat|open <device>", "examples": ["cryptsetup luksFormat /dev/sdb1", "cryptsetup open /dev/sdb1 secure"], "use": "Set up and unlock LUKS-encrypted volumes.", "similar": "Encryption sits below the filesystem layer.", "exam": "luksFormat initializes; open maps it under /dev/mapper."},
+ "shred / badblocks -w":{"syntax": "shred -u <file> | badblocks -w <device>", "examples": ["shred -u secret.key", "badblocks -wsv /dev/sdb"], "use": "Securely erase a file (shred) or destructively test/wipe a disk (badblocks -w).", "similar": "rm only unlinks; shred overwrites the data.", "exam": "shred -u overwrites then deletes; badblocks -w is destructive."},
+ "ausearch / aureport":{"syntax": "ausearch -m <type> | aureport", "examples": ["ausearch -m avc -ts recent", "aureport -au"], "use": "Query (ausearch) and summarize (aureport) the audit log.", "similar": "auditd is the daemon that generates these logs.", "exam": "ausearch -m avc finds SELinux AVC denials."},
+ "git add / commit":{"syntax": "git add <files>; git commit -m '<msg>'", "examples": ["git add .", "git commit -m 'fix bug'", "git commit -am 'msg'"], "use": "Stage changes and record a commit.", "similar": "git status shows what is staged.", "exam": "-a stages tracked files; -m sets the commit message."},
+ "git push / pull / fetch":{"syntax": "git push | git pull | git fetch", "examples": ["git push origin main", "git pull", "git fetch origin"], "use": "Synchronize commits with a remote.", "similar": "fetch downloads without merging; pull = fetch + merge.", "exam": "pull merges into your branch; fetch only downloads."},
+ "git branch / checkout / switch":{"syntax": "git branch | git switch <b> | git checkout -b <b>", "examples": ["git branch", "git switch -c feature", "git checkout main"], "use": "List, create, and change branches.", "similar": "switch is the newer command for branch changes.", "exam": "-c (switch) / -b (checkout) create and move in one step."},
+ "git merge / rebase":{"syntax": "git merge <branch> | git rebase <branch>", "examples": ["git merge feature", "git rebase main"], "use": "Combine branch histories.", "similar": "merge preserves history; rebase rewrites it linearly.", "exam": "rebase replays your commits on top of another branch."},
+ "git reset / stash":{"syntax": "git reset [--soft|--hard] <ref> | git stash", "examples": ["git reset --hard HEAD", "git stash", "git stash pop"], "use": "Undo/move commits (reset) or shelve changes (stash).", "similar": "restore/checkout discard edits to specific files.", "exam": "--hard discards changes; stash saves them for later."},
+ "git log / diff / status":{"syntax": "git log | git diff | git status", "examples": ["git log --oneline", "git diff", "git status"], "use": "Review history, changes, and working-tree state.", "similar": "diff -u format feeds patch and review tools.", "exam": "status shows staged vs unstaged; log --oneline is compact."},
+ "git tag / config":{"syntax": "git tag <name> | git config <key> <value>", "examples": ["git tag v1.0", "git config --global user.email me@x.com"], "use": "Mark releases (tag) and set git options (config).", "similar": "config --global applies user-wide.", "exam": "Annotated tags mark release points in history."},
+ "ansible-vault":{"syntax": "ansible-vault encrypt|edit|view <file>", "examples": ["ansible-vault encrypt secrets.yml", "ansible-vault view secrets.yml"], "use": "Encrypt sensitive variables/files used by Ansible.", "similar": "Keeps secrets out of plaintext playbooks.", "exam": "encrypt protects secrets at rest in the repo."},
+ "python3 -m venv":{"syntax": "python3 -m venv <dir>", "examples": ["python3 -m venv .venv"], "use": "Create an isolated Python virtual environment.", "similar": "Then 'source .venv/bin/activate' to use it.", "exam": "Isolates project dependencies from the system Python."},
+ "source venv/bin/activate":{"syntax": "source <venv>/bin/activate", "examples": ["source .venv/bin/activate", "deactivate"], "use": "Enter a virtual environment in the current shell.", "similar": "deactivate exits it.", "exam": "Changes which python/pip the shell uses."},
+ "pip":{"syntax": "pip install <pkg> [-r requirements.txt]", "examples": ["pip install requests", "pip install -r requirements.txt", "pip freeze"], "use": "Install Python packages.", "similar": "Use inside a venv to avoid touching system packages.", "exam": "-r installs from a requirements file; freeze lists versions."},
+ ">":{"syntax": "<cmd> > <file>", "examples": ["echo hi > file", "ls > out.txt"], "use": "Redirect stdout to a file, OVERWRITING it.", "similar": ">> appends instead of overwriting.", "exam": "> truncates the file; >> appends to it."},
+ ">>":{"syntax": "<cmd> >> <file>", "examples": ["echo line >> app.log"], "use": "Append stdout to a file.", "similar": "> overwrites the whole file.", "exam": "Use >> to add output without erasing existing content."},
+ "2>":{"syntax": "<cmd> 2> <file>", "examples": ["cmd 2> errors.log", "cmd 2>/dev/null"], "use": "Redirect stderr (file descriptor 2).", "similar": "1> redirects stdout.", "exam": "2>/dev/null discards error messages."},
+ "2>&1":{"syntax": "<cmd> > <file> 2>&1", "examples": ["cmd > out.log 2>&1", "cmd 2>&1 | tee log"], "use": "Send stderr to wherever stdout is currently going.", "similar": "Order matters - redirect stdout before 2>&1.", "exam": "'> file 2>&1' merges both streams into the file."},
+ "|":{"syntax": "<cmd1> | <cmd2>", "examples": ["ps aux | grep nginx", "du -sh * | sort -h"], "use": "Pipe one command's stdout into the next command's stdin.", "similar": "xargs turns stdin into command arguments instead.", "exam": "Chains filters like grep, sort, and awk."},
+ "< / << / <<<":{"syntax": "cmd < file | cmd <<EOF | cmd <<< string", "examples": ["mysql < dump.sql", "grep x <<< $var"], "use": "Input redirection: file (<), here-doc (<<), here-string (<<<).", "similar": "> is output redirection.", "exam": "<< feeds a block of text; <<< feeds a single string."},
+ "1 HUP":{"syntax": "kill -1 <pid> | kill -HUP <pid>", "examples": ["kill -HUP 1234"], "use": "Hangup signal; many daemons reload their config on HUP.", "similar": "TERM(15) stops gracefully; KILL(9) forces.", "exam": "HUP often means reload-config without a restart."},
+ "9 KILL":{"syntax": "kill -9 <pid>", "examples": ["kill -9 1234"], "use": "Force-kill a process; cannot be caught or ignored.", "similar": "TERM(15) is the graceful default.", "exam": "Last resort - no cleanup, risk of data loss."},
+ "15 TERM":{"syntax": "kill -15 <pid> | kill <pid>", "examples": ["kill 1234"], "use": "Graceful termination - the default signal.", "similar": "-9 forces termination without cleanup.", "exam": "TERM lets the process clean up; try it before -9."},
+ "2 INT / 19 STOP":{"syntax": "kill -2 <pid> | kill -19 <pid>", "examples": ["kill -2 1234", "kill -STOP 1234"], "use": "INT = Ctrl+C interrupt; STOP = pause (uncatchable).", "similar": "-CONT resumes a stopped process.", "exam": "STOP/CONT pause and resume; INT is the Ctrl+C signal."},
+ "source / .":{"syntax": "source <file> | . <file>", "examples": ["source ~/.bashrc", ". ./env.sh"], "use": "Run a script in the CURRENT shell so its vars/functions persist.", "similar": "Executing it normally runs in a subshell.", "exam": "Use source to apply environment changes to your shell."},
+ "#!":{"syntax": "#!/bin/bash   (first line of a script)", "examples": ["#!/bin/bash", "#!/usr/bin/env python3"], "use": "Shebang: tells the kernel which interpreter runs the script.", "similar": "Must be the very first line.", "exam": "#!/bin/bash on line 1, then chmod +x to run it."},
+ "$(cmd) / `cmd`":{"syntax": "$(command)", "examples": ["now=$(date +%F)", "files=$(ls)"], "use": "Command substitution: capture a command's output into a value.", "similar": "$(...) nests more cleanly than backticks.", "exam": "Prefer $(...) over backticks for readability/nesting."},
+ "${var}":{"syntax": "${var} | ${var:-default}", "examples": ["echo ${HOME}", "echo ${NAME:-guest}"], "use": "Expand a variable; braces enable defaults and operations.", "similar": "$var works for the simple case.", "exam": "${var:-x} substitutes x when var is unset or empty."},
+ "$? / $# / $@ / $0":{"syntax": "$?  $#  $@  $0", "examples": ["cmd; echo $?", "echo $#"], "use": "Special vars: last exit code, arg count, all args, script name.", "similar": "exit sets $? for the next command.", "exam": "$? is 0 on success, nonzero on failure."},
+ "test [ ]":{"syntax": "[ <expr> ] | test <expr>", "examples": ["[ -f /etc/passwd ]", "[ \"$a\" = \"$b\" ]"], "use": "Evaluate a condition: file, string, or numeric test.", "similar": "[[ ]] is the bash-enhanced form.", "exam": "-f file exists, -d directory, -z empty string."},
+ "[[ $x =~ re ]]":{"syntax": "[[ <expr> ]]", "examples": ["[[ $x =~ ^[0-9]+$ ]]", "[[ -n $x ]]"], "use": "Bash conditional with regex matching and safer parsing.", "similar": "[ ] is POSIX; [[ ]] is bash-only.", "exam": "=~ does regex; no word-splitting happens inside [[ ]]."},
+ "if / case / for / while / until":{"syntax": "if cond; then ...; fi", "examples": ["for f in *.log; do gzip $f; done", "while read l; do echo $l; done < file"], "use": "Shell control-flow constructs.", "similar": "case is a multi-branch switch on a value.", "exam": "Mind the terminators: fi, done, esac."},
+ "export / local / set / unset":{"syntax": "export VAR=val | local x | unset VAR", "examples": ["export PATH=$PATH:/opt/bin", "unset TMPVAR"], "use": "Manage variables, scope, and shell options.", "similar": "export makes a variable visible to child processes.", "exam": "export = environment var; local = function-scoped var."},
+ "IFS":{"syntax": "IFS=<delimiter>", "examples": ["IFS=, read -ra arr <<< 'a,b,c'"], "use": "The internal field separator the shell splits words on.", "similar": "Defaults to space, tab, and newline.", "exam": "Change IFS to parse delimited data in scripts."},
+ "PATH":{"syntax": "echo $PATH", "examples": ["echo $PATH", "export PATH=$PATH:/opt/bin"], "use": "Colon-separated list of directories searched for commands.", "similar": "which/type show where a command resolves.", "exam": "'command not found' for an existing binary often means PATH."},
+ "HOME / USER / SHELL":{"syntax": "echo $HOME ; echo $USER ; echo $SHELL", "examples": ["echo $HOME", "echo $SHELL"], "use": "Standard environment variables for home dir, username, and login shell.", "similar": "getent passwd shows the same fields from the account.", "exam": "Set from /etc/passwd at login."},
+ "PS1":{"syntax": "PS1='<format>'", "examples": ["PS1='\\u@\\h:\\w$ '"], "use": "Defines the interactive shell prompt format.", "similar": "Set it in ~/.bashrc to persist.", "exam": "\\u user, \\h host, \\w working directory."},
+ ".bashrc / .bash_profile":{"syntax": "~/.bashrc , ~/.bash_profile", "examples": ["source ~/.bashrc"], "use": "Per-user shell startup files (aliases, env, prompt).", "similar": ".bash_profile runs on login shells; .bashrc on interactive ones.", "exam": "Put PATH/exports where they'll be sourced for your shell type."},
+ "~ . .. -":{"syntax": "cd ~ | cd . | cd .. | cd -", "examples": ["cd ~", "cd ..", "cd -"], "use": "Path shortcuts: home (~), current (.), parent (..), previous (-).", "similar": "Used with cd and in relative paths.", "exam": "cd - jumps back to the previous directory."},
+ "/etc/fstab":{"syntax": "<device> <mount> <fstype> <options> <dump> <pass>", "examples": ["UUID=abc /data xfs defaults 0 0"], "use": "Defines filesystems to mount at boot.", "similar": "mount -a mounts everything in fstab.", "exam": "Prefer UUID over device names; a bad entry can break boot (use nofail)."},
+ "/etc/passwd":{"syntax": "name:x:UID:GID:comment:home:shell", "examples": ["bob:x:1001:1001:Bob:/home/bob:/bin/bash"], "use": "One line per user account (world-readable).", "similar": "/etc/shadow holds the actual password hashes.", "exam": "7 colon-separated fields; the x means the hash is in shadow."},
+ "/etc/shadow":{"syntax": "name:hash:lastchg:min:max:warn:inactive:expire", "examples": ["bob:$6$...:19000:0:90:7:::"], "use": "Stores password hashes and aging info (root-only).", "similar": "chage edits the aging fields here.", "exam": "Readable only by root; field 5 is max password age."},
+ "/etc/group":{"syntax": "groupname:x:GID:members", "examples": ["devs:x:1005:bob,alice"], "use": "Defines groups and their members.", "similar": "getent group shows merged file+network groups.", "exam": "The last field is a comma-separated member list."},
+ "/etc/skel":{"syntax": "/etc/skel/", "examples": ["ls -a /etc/skel"], "use": "Template files copied into a new user's home directory.", "similar": "useradd -m copies skel into the new home.", "exam": "Edit skel to give every new user default dotfiles."},
+ "/etc/hosts":{"syntax": "<ip>  <hostname> [aliases]", "examples": ["127.0.0.1 localhost", "10.0.0.5 web01"], "use": "Static hostname-to-IP mappings, checked before DNS.", "similar": "/etc/nsswitch.conf sets the files-vs-DNS order.", "exam": "A stale entry here can override DNS resolution."},
+ "/etc/resolv.conf":{"syntax": "nameserver <ip> ; search <domain>", "examples": ["nameserver 8.8.8.8", "search example.com"], "use": "Configures the DNS resolvers the system uses.", "similar": "Often managed by NetworkManager/systemd-resolved.", "exam": "Manual edits may be overwritten by the network manager."},
+ "/etc/nsswitch.conf":{"syntax": "hosts: files dns", "examples": ["hosts: files dns", "passwd: files sss"], "use": "Sets the lookup order for hosts, passwd, group, etc.", "similar": "Controls whether files or DNS/LDAP is consulted first.", "exam": "'hosts: files dns' = check /etc/hosts before DNS."},
+ "/etc/sudoers, /etc/sudoers.d":{"syntax": "user host=(runas) commands", "examples": ["bob ALL=(ALL) NOPASSWD: /usr/bin/systemctl"], "use": "Defines who may run what via sudo.", "similar": "Drop-in files live in /etc/sudoers.d.", "exam": "Always edit with visudo; %group grants to a whole group."},
+ "mount options":{"syntax": "mount -o <opt,opt> ... | fstab field 4", "examples": ["mount -o ro,noexec /dev/sdb1 /mnt"], "use": "Per-filesystem behavior flags (ro, noexec, nosuid, nodev, noatime).", "similar": "Set live with mount -o or persistently in fstab.", "exam": "noexec blocks running binaries; ro mounts read-only."},
+ "special bits":{"syntax": "chmod u+s|g+s|+t <path>", "examples": ["chmod u+s /usr/bin/passwd", "chmod +t /tmp", "chmod g+s /srv/team"], "use": "SetUID, SetGID, and the sticky bit.", "similar": "Shown in ls -l as s (setuid/setgid) or t (sticky).", "exam": "Sticky on /tmp stops users deleting others' files; setgid on a dir inherits the group."},
+ "ls -Z / audit2allow / sealert":{"syntax": "ls -Z <path> | audit2allow | sealert", "examples": ["ls -Z /var/www", "audit2allow -a"], "use": "Inspect SELinux contexts and analyze denials.", "similar": "restorecon fixes contexts; setsebool toggles policy.", "exam": "ls -Z shows contexts; audit2allow suggests a policy from denials."},
+ "/etc/ssh/sshd_config":{"syntax": "Key Value (one per line)", "examples": ["PermitRootLogin no", "PasswordAuthentication no", "Port 2222"], "use": "The SSH server configuration file.", "similar": "Run systemctl restart sshd after editing.", "exam": "Harden by disabling root login and password auth."},
+ "WireGuard":{"syntax": "wg | wg-quick up <iface>", "examples": ["wg-quick up wg0", "wg show"], "use": "Modern, fast VPN using key-pair peers.", "similar": "Lighter and simpler than IPsec/OpenVPN.", "exam": "wg-quick brings an interface up from its config."},
+ "net.ipv4.ip_forward":{"syntax": "sysctl net.ipv4.ip_forward", "examples": ["sysctl -w net.ipv4.ip_forward=1", "sysctl -p"], "use": "Kernel toggle that enables IP forwarding (routing).", "similar": "Set persistently in /etc/sysctl.conf or sysctl.d.", "exam": "Must be 1 for a host to route/NAT between networks."},
+ "logrotate":{"syntax": "/etc/logrotate.conf + logrotate.d", "examples": ["logrotate -d /etc/logrotate.conf"], "use": "Rotate, compress, and prune log files on a schedule.", "similar": "rsyslog writes the logs; logrotate manages their size.", "exam": "Prevents /var/log from filling the disk."},
+ "auditd":{"syntax": "auditctl -l | /etc/audit/rules.d", "examples": ["auditctl -l", "auditctl -w /etc/passwd -p wa"], "use": "The Linux audit daemon recording security-relevant events.", "similar": "ausearch/aureport query its logs.", "exam": "Add watch rules to track access to sensitive files."},
+ "cron fields":{"syntax": "min hour dom mon dow command", "examples": ["*/5 * * * * /opt/run.sh", "0 2 * * 0 /opt/backup.sh"], "use": "The five time fields of a crontab line, then the command.", "similar": "crontab -e edits them.", "exam": "*/5 = every 5 min; field 5 (dow) 0 = Sunday."},
+ "pip / cargo / npm":{"syntax": "pip install <pkg> | cargo <cmd> | npm install [pkg]", "examples": ["pip install requests", "cargo build", "npm install"], "use": "Language package managers for Python, Rust, and Node.js.", "similar": "apt/dnf manage OS packages instead.", "exam": "Project-scoped dependencies vs OS-wide packages."},
+ "nftables / iptables / ipset":{"syntax": "nft list ruleset | iptables -L | ipset list", "examples": ["nft list ruleset", "iptables -L -n", "ipset list"], "use": "Kernel packet-filtering frameworks (nftables is the modern one).", "similar": "firewall-cmd and ufw are higher-level front ends.", "exam": "nftables replaces legacy iptables; ipset holds IP sets used by rules."},
+ ".gitignore":{"syntax": "patterns, one per line", "examples": ["*.log", "node_modules/", "/build"], "use": "Lists paths that git should not track.", "similar": "git status honors it for untracked files.", "exam": "Already-tracked files need git rm --cached before being ignored."},
+ "Dockerfile":{"syntax": "FROM ... ; RUN ... ; COPY ... ; CMD ...", "examples": ["FROM ubuntu:22.04", "RUN apt-get update", "CMD [\"/app/run\"]"], "use": "Build recipe for a container image.", "similar": "docker build reads it to produce an image.", "exam": "Each instruction creates a cached image layer."},
+ "compose":{"syntax": "docker compose up -d | down", "examples": ["docker compose up -d", "docker compose down"], "use": "Define and run multi-container apps from a YAML file.", "similar": "A single docker run handles just one container.", "exam": "compose.yaml describes services, networks, and volumes."},
+ "/proc/mdstat":{"syntax": "cat /proc/mdstat", "examples": ["cat /proc/mdstat"], "use": "Live status of software RAID arrays.", "similar": "mdadm --detail gives per-array detail.", "exam": "Shows resync/rebuild progress for md devices."},
+ "rsyslog":{"syntax": "/etc/rsyslog.conf + /etc/rsyslog.d", "examples": ["systemctl status rsyslog"], "use": "The system logging daemon that writes to /var/log.", "similar": "journald is the systemd journal; logrotate trims the files.", "exam": "Routes messages by facility/severity to log files."},
+ "/var/log":{"syntax": "/var/log/", "examples": ["ls /var/log", "tail -f /var/log/syslog"], "use": "Standard location for system and service log files.", "similar": "journalctl reads the systemd journal instead of flat files.", "exam": "syslog/messages, auth.log/secure, and per-service logs live here."},
+ "QEMU / KVM":{"use": "KVM is the Linux kernel hypervisor; QEMU provides the device emulation. Together they run full virtual machines.", "files": ["/dev/kvm", "virsh", "virt-install"], "similar": "libvirt (virsh/virt-manager) manages them; containers share the host kernel instead of running a full VM.", "exam": "KVM = kernel virtualization (needs CPU VT-x/AMD-V); QEMU emulates the hardware."},
+ "virt-manager":{"use": "Graphical front end for creating and managing KVM/libvirt virtual machines.", "files": ["virt-manager (GUI)", "virsh (CLI equivalent)"], "similar": "virsh does the same from the command line.", "exam": "GUI tool; on a headless server you'd manage VMs with virsh instead."},
+ "VirtIO":{"use": "Paravirtualized drivers that let a guest VM talk to virtual disk and network devices efficiently.", "files": ["virtio_net", "virtio_blk", "virtio_scsi"], "similar": "Fully emulated devices are slower; VirtIO is near-native.", "exam": "Choose VirtIO disk/NIC in a VM for the best performance."},
+ "PAM":{"use": "Pluggable Authentication Modules - the framework services use to authenticate users and enforce login rules (lockouts, password quality, limits).", "files": ["/etc/pam.d/", "/etc/pam.d/sshd", "/etc/security/limits.conf"], "similar": "NSS (nsswitch.conf) resolves identities; PAM handles the authentication step.", "exam": "Account lockout and password rules live in /etc/pam.d/ via modules like pam_faillock and pam_pwquality."},
+ "SSSD":{"use": "System Security Services Daemon - connects Linux logins to LDAP/Active Directory and caches credentials for offline use.", "files": ["/etc/sssd/sssd.conf", "realm join", "getent passwd"], "similar": "Plugs into PAM and NSS; realmd joins a machine to AD.", "exam": "Enables central (AD/LDAP) logins with offline caching; configured in /etc/sssd/sssd.conf."},
+ "LDAP / Kerberos":{"use": "LDAP is the directory of users and groups; Kerberos is the ticket-based authentication protocol.", "files": ["/etc/krb5.conf", "kinit", "klist", "/etc/openldap/"], "similar": "SSSD ties both into PAM/NSS so Linux can log users in against them.", "exam": "LDAP = who/what (the directory); Kerberos = proof of identity (tickets via kinit)."},
+ "Samba":{"use": "Provides Windows-style SMB/CIFS file and print sharing from a Linux host.", "files": ["/etc/samba/smb.conf", "smbclient", "testparm"], "similar": "NFS is the Unix-native file share.", "exam": "Shares are defined in smb.conf; testparm validates it. Use for Windows interop."},
+ "SHA-256 / HMAC":{"use": "SHA-256 is a one-way hash used to verify integrity; HMAC adds a secret key so a message's authenticity can also be checked.", "files": ["sha256sum file", "openssl dgst -sha256 file"], "similar": "Encryption (gpg/openssl) hides data; hashing only verifies it.", "exam": "Hashes prove integrity, not secrecy; HMAC also proves it came from someone with the key."},
+ "AIDE":{"use": "Advanced Intrusion Detection Environment - builds a baseline database of file checksums and reports anything that changed.", "files": ["/etc/aide.conf", "aide --init", "aide --check"], "similar": "rkhunter looks for rootkits; AIDE tracks file integrity broadly.", "exam": "Run --init to create the baseline, then --check to detect tampering."},
+ "rkhunter":{"use": "Rootkit Hunter - scans the system for rootkits, backdoors, and suspicious local modifications.", "files": ["rkhunter --update", "rkhunter --check"], "similar": "AIDE does general file integrity; rkhunter targets rootkits specifically.", "exam": "Update its database first, then --check runs the scan."},
+ "oscap (OpenSCAP)":{"use": "Scans and audits a system against SCAP security policies such as CIS or DISA STIG, and can generate remediation.", "files": ["oscap xccdf eval ...", "/usr/share/xml/scap/"], "similar": "Implements the machine-checkable form of CIS Benchmarks.", "exam": "Used for automated compliance scanning and hardening reports."},
+ "CIS Benchmarks":{"use": "Consensus-based security-hardening guidelines for operating systems and software.", "files": ["OpenSCAP / oscap", "Lynis"], "similar": "STIG is the DoD equivalent; OpenSCAP automates the checks.", "exam": "A hardening standard; tools like OpenSCAP measure how well a system complies."},
+ "CVE / CVSS":{"use": "A CVE is a unique ID for a known vulnerability; CVSS is its severity score from 0.0 to 10.0.", "files": ["CVE-YYYY-NNNNN", "CVSS 0.0-10.0"], "similar": "Vendors map CVEs to the package update that fixes them.", "exam": "CVE = the identifier; CVSS = the severity rating that helps prioritize patching."},
+ "Puppet":{"use": "Declarative configuration-management tool using a master/agent model and its own DSL.", "files": ["/etc/puppet/", "manifests (*.pp)", "puppet apply"], "similar": "Ansible is agentless and push-based; Puppet is agent-based and pull-based.", "exam": "Manifests describe desired state; agents pull and enforce it on a schedule."},
+ "OpenTofu / Terraform":{"use": "Infrastructure-as-Code tools that provision cloud and infrastructure from declarative .tf files.", "files": ["main.tf", "terraform init / plan / apply", "tofu ..."], "similar": "Ansible configures existing servers; these create the infrastructure itself.", "exam": "plan previews changes, apply makes them. OpenTofu is the open-source fork of Terraform."},
+ "Kickstart / cloud-init":{"use": "Automated provisioning: Kickstart performs unattended RHEL installs; cloud-init configures cloud VMs on first boot.", "files": ["ks.cfg", "/etc/cloud/cloud.cfg", "user-data"], "similar": "Both make new machines reproducible without manual setup.", "exam": "Kickstart = OS install automation; cloud-init = first-boot configuration in the cloud."},
+ "Kubernetes / Compose":{"use": "Container orchestration: Compose runs multi-container apps on one host; Kubernetes schedules containers across a cluster.", "files": ["compose.yaml", "kubectl", "*.yaml manifests"], "similar": "Compose is single-host; Kubernetes adds scaling, self-healing, and scheduling across nodes.", "exam": "Compose for local/single-host; Kubernetes for clustered, production-scale orchestration."},
+ "PEP 8":{"use": "The Python style guide covering indentation, naming, line length, and formatting.", "files": ["black", "flake8", "pycodestyle"], "similar": "Linters/formatters enforce it automatically.", "exam": "4-space indent, snake_case names, ~79-char lines; tools like black and flake8 check it."},
+ "ss / dig / mtr / tcpdump":{"use": "The core network-troubleshooting toolkit, one tool per layer of the problem.", "check": ["ss -tlnp (listening sockets)", "dig name (DNS)", "mtr host (path & loss)", "tcpdump -i eth0 (packet capture)"], "similar": "Each tool is also listed on its own command row with full detail.", "exam": "Pick by layer: ss = local sockets, dig = DNS, mtr = path, tcpdump = packets on the wire."},
+ "Disk full, du shows little":{"use": "The filesystem reports full, but du can't account for the space - usually a deleted file still held open by a running process.", "check": ["lsof +L1", "lsof | grep deleted"], "similar": "Different from inode exhaustion (check df -i for that).", "exam": "Restart or kill the process holding the deleted file to release the space."},
+ "No space, but df -h has room":{"use": "Writes fail with 'No space left on device' even though df shows free space - you've run out of INODES, not blocks.", "check": ["df -i", "find /path -xdev -type f | wc -l"], "similar": "Contrast with a deleted-but-open file consuming blocks.", "exam": "df -i shows 100% inode use, typically from huge numbers of tiny files."},
+ "High %wa in top":{"use": "A high I/O-wait percentage means the CPU is sitting idle waiting on disk - a storage bottleneck, not a CPU one.", "check": ["iostat -x 1", "iotop"], "similar": "High %us/%sy would instead mean the box is CPU-bound.", "exam": "High %wa -> investigate disks with iostat (watch %util and await)."},
+ "Heavy swapping (si/so)":{"use": "Sustained swap-in/swap-out means RAM is exhausted and the system is thrashing, which kills performance.", "check": ["vmstat 1", "free -h"], "similar": "A little swap usage is normal; continuous si/so is the problem.", "exam": "Nonzero si/so columns in vmstat = memory pressure; add RAM or reduce load."},
+ "OOM killer in dmesg":{"use": "The kernel's out-of-memory killer terminated a process to reclaim memory when the system ran out.", "check": ["dmesg -T | grep -i oom", "journalctl -k | grep -i oom"], "similar": "Often accompanies or follows heavy swapping.", "exam": "'Out of memory: Killed process' in dmesg means the OOM killer fired."},
+ "App denied, perms look right (RHEL)":{"use": "On RHEL/SELinux systems an app fails even though file rwx permissions are correct - SELinux is blocking it.", "check": ["ausearch -m avc -ts recent", "ls -Z", "getenforce"], "similar": "Different from a plain Unix permission or ACL problem.", "exam": "Confirm by testing with setenforce 0; fix with restorecon / setsebool / semanage, not chmod."},
+ "Denied with correct rwx":{"use": "Access is denied despite correct owner/group/permissions - look past rwx to ACLs, SELinux, immutability, or mount options.", "check": ["getfacl file", "ls -Z file", "lsattr file", "mount | grep -E 'ro|noexec'"], "similar": "Specifically about restrictions beyond standard rwx.", "exam": "Check ACLs (getfacl), SELinux (ls -Z), immutable bit (lsattr), and ro/noexec mounts."},
+ "Boot fails after kernel/GRUB change":{"use": "The system won't boot after a kernel update or GRUB edit - boot a known-good kernel, then repair.", "check": ["ls /boot", "grub2-mkconfig -o /boot/grub2/grub.cfg", "journalctl -xb"], "similar": "A broken initramfs may also need dracut -f.", "exam": "Select a previous kernel in the GRUB menu, then regenerate grub.cfg / initramfs after fixing."}
+};
+function cdrow(lab,val,cls){return `<div class="cd-row"><span class="cd-lab${cls?" "+cls:""}">${lab}</span>${val}</div>`;}
+function cmdPanel(it,d){
+  d=d||{};
+  let h='<div class="cmddetail">';
+  if(d.syntax) h+=cdrow("syntax",`<code class="cd-syntax">${esc(d.syntax)}</code>`);
+  if(d.examples&&d.examples.length) h+=cdrow("examples",`<div class="cd-ex">${d.examples.map(e=>`<code>${esc(e)}</code>`).join("")}</div>`);
+  if(d.files&&d.files.length) h+=cdrow("key files",`<div class="cd-ex">${d.files.map(e=>`<code>${esc(e)}</code>`).join("")}</div>`);
+  if(d.check&&d.check.length) h+=cdrow("what to check",`<div class="cd-ex">${d.check.map(e=>`<code>${esc(e)}</code>`).join("")}</div>`);
+  if(it.f&&it.f.length) h+=cdrow("flags",`<div class="ref-flags">${it.f.map(p=>`<div class="ref-flag"><span class="ff">${esc(p[0])}</span><span>${esc(p[1])}</span></div>`).join("")}</div>`);
+  h+=cdrow("used for",`<span class="cd-txt">${esc(d.use||it.d)}</span>`);
+  if(d.similar) h+=cdrow("similar",`<span class="cd-txt">${esc(d.similar)}</span>`);
+  if(d.exam) h+=cdrow("exam clue",`<span class="cd-txt">${esc(d.exam)}</span>`,"exam");
+  return h+'</div>';
+}
+function studySubnav(){
+  const v=R.view;
+  const b=(id,label)=>`<button class="subbtn ${v===id?"active":""}" data-view="${id}">${label}</button>`;
+  return `<div class="subnav">${b("cmd","commands")}${b("flags","flag cross-reference")}${b("pairs","confusing pairs")}${b("concepts","fundamentals")}</div>`;
+}
 function renderRef(){
+  if(R.view==="flags") return renderFlags();
+  if(R.view==="pairs") return renderPairs();
+  if(R.view==="concepts") return renderConcepts();
   const chips=[[0,"all"],[1,"1.0 sys"],[2,"2.0 svc/user"],[3,"3.0 security"],[4,"4.0 automation"],[5,"5.0 troublesh."]];
-  screen.innerHTML=navBar()+
+  const back = R.fromPractice ? `<div class="lookback">&#8592; <button class="linkbtn" id="backToQ">back to the question</button> &middot; reference open to help you answer</div>` : "";
+  screen.innerHTML=navBar()+studySubnav()+back+
     `<div class="chips">${chips.map(([n,l])=>`<button class="chip ${R.dom===n?"active":""}" data-dom="${n}">${l}</button>`).join("")}</div>`+
     promptLine("grep -ri --flags ~/cheatsheet")+
     `<div class="searchbar"><span class="sp">search &gt;</span><input id="refsearch" type="text" placeholder="filter command or flag (e.g. tar, -mtime, selinux)" value="${esc(R.search)}" autocomplete="off" spellcheck="false"></div>
-     <div class="ref-tools"><button class="ref-toolbtn" id="expall">expand all</button><button class="ref-toolbtn" id="colall">collapse all</button><span class="ref-tip muted">click a section to expand</span></div>
+     <div class="ref-tools"><button class="ref-toolbtn" id="expall">expand all</button><button class="ref-toolbtn" id="colall">collapse all</button><span class="ref-tip muted">tap any command for its flags, syntax &amp; examples</span></div>
      <div id="reflist"></div>`;
   hook();
+  document.querySelectorAll(".subbtn").forEach(b=>b.onclick=()=>{R.view=b.dataset.view;renderRef();});
   document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{R.dom=+c.dataset.dom;renderRef();});
+  {const bk=document.getElementById("backToQ"); if(bk) bk.onclick=()=>{R.fromPractice=false; setTab("practice");};}
   const inp=document.getElementById("refsearch");
   inp.oninput=()=>{R.search=inp.value;fillRef();};
   document.getElementById("expall").onclick=()=>{const v=visibleGroups();[...new Set(v.map(g=>g.dom))].forEach(d=>R.domOpen.add(d));v.forEach(g=>R.open.add(gkey(g)));fillRef();};
@@ -978,8 +1537,11 @@ function fillRef(){
     dgroups.forEach(({g,items})=>{
       const open = term ? true : R.open.has(gkey(g));
       const body=items.map(it=>{
-        const flags=it.f.length?`<div class="ref-flags">${it.f.map(p=>`<div class="ref-flag"><span class="ff">${esc(p[0])}</span><span>${esc(p[1])}</span></div>`).join("")}</div>`:"";
-        return `<div class="ref-item"><span class="ref-cmd">${esc(it.c)}</span> <span class="ref-desc">&mdash; ${esc(it.d)}</span>${flags}</div>`;
+        const det=DETAIL[it.c];
+        const ckey=gkey(g)+"::"+it.c;
+        const isOpen=R.openCmd.has(ckey);
+        const nameHtml=`<span class="cmdtoggle ${isOpen?"open":""}" data-ckey="${esc(ckey)}"><span class="ref-cmd clickable">${esc(it.c)}</span><span class="cmdplus">${isOpen?"&minus;":"+"}</span></span>`;
+        return `<div class="ref-item">${nameHtml} <span class="ref-desc">&mdash; ${esc(it.d)}</span>${isOpen?cmdPanel(it,det):""}</div>`;
       }).join("");
       html+=`<div class="ref-acc ${open?"open":""}" data-key="${esc(gkey(g))}">
         <div class="ref-head ${open?"open":""}"><span class="chev">&#9656;</span><span class="ht">${esc(g.g)}</span><span class="hc">${items.length}</span></div>
@@ -1005,8 +1567,182 @@ function fillRef(){
       fillRef();
     });
   }
+  lst.querySelectorAll(".cmdtoggle").forEach(el=>el.onclick=(e)=>{e.stopPropagation();const k=el.dataset.ckey;if(R.openCmd.has(k))R.openCmd.delete(k);else R.openCmd.add(k);fillRef();});
 }
 
+
+/* ---------- FLAG CROSS-REFERENCE ---------- */
+const F={scope:"shared",search:""};
+let FLAGIDX=null;
+function buildFlagIndex(){
+  const idx={};
+  REF.forEach(g=>g.items.forEach(it=>{
+    (it.f||[]).forEach(pair=>{
+      const raw=(pair[0]||"").trim(); if(!raw) return;
+      const desc=pair[1]||"";
+      const sp=raw.indexOf(" ");
+      const key = sp>=0 ? raw.slice(0,sp) : raw;
+      if(key[0]!=="-") return;            // flags only (skip subcommands/values)
+      (idx[key]=idx[key]||[]).push({cmd:it.c, full:raw, desc, dom:g.dom});
+    });
+  }));
+  Object.keys(idx).forEach(k=>{
+    const seen=new Set();
+    idx[k]=idx[k].filter(e=>{const id=e.cmd+"|"+e.full+"|"+e.desc; if(seen.has(id))return false; seen.add(id); return true;});
+  });
+  return idx;
+}
+function distinctCmds(entries){return new Set(entries.map(e=>e.cmd)).size;}
+function firstStem(s){const m=(s||"").toLowerCase().match(/[a-z]+/);return m?m[0].slice(0,4):"";}
+function flagVaries(entries){return new Set(entries.map(e=>firstStem(e.desc))).size>1;}
+function renderFlags(){
+  if(!FLAGIDX) FLAGIDX=buildFlagIndex();
+  const chips=[["shared","shared (2+ tools)"],["all","every flag"]];
+  screen.innerHTML=navBar()+studySubnav()+
+    `<div class="chips">${chips.map(([k,l])=>`<button class="chip ${F.scope===k?"active":""}" data-sc="${k}">${l}</button>`).join("")}</div>`+
+    promptLine("flags --group-by-flag --shared")+
+    `<div class="searchbar"><span class="sp">flag &gt;</span><input id="flagsearch" type="text" placeholder="filter by flag, command, or meaning (e.g. -r, grep, recursive)" value="${esc(F.search)}" autocomplete="off" spellcheck="false"></div>
+     <div class="muted" style="font-size:12px;margin:2px 2px 11px"># one letter, many tools. Cards tagged <span class="vary varies">meaning varies</span> are where the same flag means different things &mdash; classic exam traps.</div>
+     <div id="flaglist"></div>`;
+  hook();
+  document.querySelectorAll(".subbtn").forEach(b=>b.onclick=()=>{R.view=b.dataset.view;renderRef();});
+  document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{F.scope=c.dataset.sc;
+    document.querySelectorAll(".chip").forEach(x=>x.classList.toggle("active",x.dataset.sc===F.scope));fillFlags();});
+  const inp=document.getElementById("flagsearch"); inp.oninput=()=>{F.search=inp.value;fillFlags();};
+  fillFlags();
+  if(F.search){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}
+}
+function fillFlags(){
+  const term=F.search.trim().toLowerCase();
+  let cards=Object.keys(FLAGIDX).map(k=>({k,entries:FLAGIDX[k]}));
+  if(term){
+    cards=cards.map(c=>{
+      if(c.k.toLowerCase().includes(term)) return c;
+      const ent=c.entries.filter(e=>(e.cmd+" "+e.full+" "+e.desc).toLowerCase().includes(term));
+      return ent.length?{k:c.k,entries:ent}:null;
+    }).filter(Boolean);
+  } else if(F.scope==="shared"){
+    cards=cards.filter(c=>distinctCmds(c.entries)>=2);
+  }
+  cards.sort((a,b)=>{const d=distinctCmds(b.entries)-distinctCmds(a.entries); return d||a.k.localeCompare(b.k);});
+  const html=cards.map(c=>{
+    const n=distinctCmds(c.entries), varies=n>=2&&flagVaries(c.entries);
+    const rows=c.entries.slice().sort((a,b)=>a.cmd.localeCompare(b.cmd)).map(e=>
+      `<div class="flagrow"><span class="fcmd">${esc(e.cmd)}</span><span class="ffull">${esc(e.full)}</span><span class="fdesc">${esc(e.desc)}</span></div>`).join("");
+    return `<div class="flagcard">
+      <div class="flaghead"><span class="flagkey">${esc(c.k)}</span><span class="flagcount">${n} tool${n===1?"":"s"}</span>${varies?`<span class="vary varies">meaning varies</span>`:(n>=2?`<span class="vary same">consistent</span>`:"")}</div>
+      <div class="flagrows">${rows}</div>
+    </div>`;
+  }).join("");
+  const lst=document.getElementById("flaglist");
+  lst.innerHTML=(cards.length?`<div class="ref-count"># ${cards.length} flag${cards.length===1?"":"s"}${term?" matching '"+esc(term)+"'":(F.scope==="shared"?" shared by 2+ tools (most-shared first)":"")}</div>`:`<div class="ref-empty">no flags match '${esc(term)}'</div>`)+html;
+}
+
+/* ---------- CONFUSING PAIRS ---------- */
+const PAIRS=[
+ {d:2,a:"apt remove",b:"apt purge",x:"remove deletes the package but keeps its config files; purge deletes the package AND its config.",useA:"Uninstall nginx but keep your edited config for later.",useB:"Completely remove nginx including all of its config files.",obj:"2.4"},
+ {d:2,a:"systemctl reload",b:"systemctl daemon-reload",x:"reload re-reads a service's OWN config without a restart; daemon-reload makes systemd re-read UNIT files after you edit them.",useA:"Apply a new nginx.conf without dropping connections.",useB:"You edited /etc/systemd/system/app.service and systemd must pick it up.",obj:"2.5"},
+ {d:3,a:"chmod",b:"setfacl",x:"chmod sets the classic owner/group/other bits; setfacl grants permissions to SPECIFIC extra users or groups (ACLs).",useA:"Make a script executable by its owner.",useB:"Give just user bob read/write without changing the group.",obj:"3.4"},
+ {d:3,a:"chcon",b:"semanage fcontext",x:"chcon changes a context now but it is lost on relabel; semanage fcontext writes it into policy so it survives relabels (then restorecon applies it).",useA:"Quickly test a context change while troubleshooting.",useB:"Permanently set the SELinux context for a custom web root.",obj:"3.5"},
+ {d:1,a:"insmod",b:"modprobe",x:"insmod loads one .ko file with NO dependency handling; modprobe loads a module AND its dependencies by name.",useA:"Load a single standalone module file by path.",useB:"Load a driver plus whatever it depends on.",obj:"1.1"},
+ {d:1,a:"df",b:"du",x:"df reports free/used space per FILESYSTEM; du sums the size of FILES and directories.",useA:"See how full each mounted filesystem is.",useB:"Find which directory under /var is eating space.",obj:"1.3"},
+ {d:1,a:"ss",b:"netstat",x:"Both list sockets/ports; ss is the modern, faster tool and netstat is the deprecated legacy one.",useA:"The recommended current tool to list listening ports.",useB:"The older tool you may still see in legacy docs.",obj:"1.4"},
+ {d:1,a:"dig",b:"nslookup",x:"dig gives detailed, scriptable DNS output and is preferred; nslookup is the older interactive tool.",useA:"Script a DNS query and parse exact records.",useB:"The legacy interactive DNS lookup tool.",obj:"1.4"},
+ {d:2,a:"systemctl disable",b:"systemctl mask",x:"disable stops boot auto-start but you can still start it manually or as a dependency; mask makes it impossible to start at all.",useA:"Stop a service auto-starting at boot but keep it startable.",useB:"Guarantee a service can never start, even as a dependency.",obj:"2.5"},
+ {d:1,a:"ln -s",b:"ln",x:"ln -s makes a SYMBOLIC link (can cross filesystems, breaks if the target moves); ln makes a HARD link (another name for the same inode, same filesystem).",useA:"Link to a file on another filesystem, or link a directory.",useB:"Create a second hard name for a file on the same filesystem.",obj:"1.2"},
+ {d:1,a:"tar -c",b:"tar -x",x:"-c CREATES an archive; -x EXTRACTS one (z adds gzip, f names the file).",useA:"Bundle /etc into backup.tar.gz.",useB:"Unpack backup.tar.gz.",obj:"1.2"},
+ {d:4,a:">",b:">>",x:"> overwrites the target file; >> appends to it.",useA:"Replace a file's contents with new output.",useB:"Add a line to a log without erasing it.",obj:"4.1"},
+ {d:2,a:"systemctl enable",b:"systemctl enable --now",x:"enable only sets start-at-boot; --now ALSO starts it immediately.",useA:"Set a service to start on the next boot, not yet.",useB:"Start it right now and on every boot, in one command.",obj:"2.5"},
+ {d:2,a:"apt update",b:"apt upgrade",x:"update refreshes the package index (what is available); upgrade installs the newer versions.",useA:"Refresh the list of available packages.",useB:"Actually install the pending updates.",obj:"2.4"},
+ {d:3,a:"su -",b:"sudo",x:"su - opens a full login shell AS another user (needs that user's password); sudo runs a single command with elevated rights using YOUR password per policy.",useA:"Switch into a full login shell as another user.",useB:"Run one command as root using your own password.",obj:"3.3"},
+ {d:1,a:"hostname",b:"hostnamectl",x:"hostname shows or sets the name for the current session only; hostnamectl sets it persistently via systemd.",useA:"Print the current hostname quickly.",useB:"Permanently change the system hostname.",obj:"1.1"}
+];
+const CONCEPTS=[{"t": "The Linux boot sequence", "lead": "Power-on to login prompt, step by step.", "k": "boot startup grub2 grub bootloader initramfs initrd kernel vmlinuz systemd target firmware uefi bios mbr esp post", "html": "<p>Every boot follows the same chain. Knowing the order tells you <i>where</i> to look when a machine won't start.</p><ol class=\"csteps\"><li><b>Firmware (UEFI or BIOS)</b> runs POST and finds a boot device. UEFI reads the EFI System Partition and launches a bootloader; legacy BIOS reads the MBR.</li><li><b>Bootloader (GRUB2)</b> reads <code>/boot/grub2/grub.cfg</code>, shows the menu, and loads the chosen <b>kernel</b> (<code>vmlinuz</code>) and <b>initramfs</b> into memory.</li><li><b>Kernel</b> initializes CPU/memory/hardware and mounts the initramfs as a temporary root.</li><li><b>initramfs</b> carries just enough drivers/tools to find and mount the <i>real</i> root filesystem &mdash; including LVM, RAID, or LUKS-encrypted roots &mdash; then pivots to it.</li><li>Kernel starts <b>PID 1 = systemd</b>, the first user-space process.</li><li><b>systemd</b> activates the default target (usually <code>multi-user.target</code> for CLI or <code>graphical.target</code> for GUI), starting all required units in dependency order.</li><li>A <b>getty</b> or display manager shows the login prompt.</li></ol><div class=\"cnote\"><b>exam angle:</b> Order = firmware &rarr; GRUB2 &rarr; kernel + initramfs &rarr; systemd &rarr; target. Boot broken after a kernel update? Pick the previous kernel in GRUB, then rebuild with <code>dracut -f</code> and <code>grub2-mkconfig</code>. The initramfs is what mounts complex roots (LVM/RAID/LUKS).</div>"}, {"t": "RAID levels", "lead": "Combining disks for redundancy, speed, or both.", "k": "raid 0 1 5 6 10 mirror stripe parity mdadm mdstat redundancy fault tolerance array", "html": "<p>RAID joins multiple disks into one logical array. Each level trades capacity, speed, and fault tolerance differently.</p><ul class=\"cpts\"><li><b>RAID 0 (stripe)</b> &mdash; data spread across disks. Fastest, full capacity, <b>no redundancy</b>: lose one disk, lose everything. Needs &ge;2.</li><li><b>RAID 1 (mirror)</b> &mdash; identical copy on each disk. Survives one disk failure; usable space = one disk. Needs &ge;2.</li><li><b>RAID 5</b> &mdash; striping with distributed parity. Survives <b>one</b> failure; capacity = (n&minus;1) disks. Needs &ge;3.</li><li><b>RAID 6</b> &mdash; double parity. Survives <b>two</b> failures; capacity = (n&minus;2). Needs &ge;4.</li><li><b>RAID 10 (1+0)</b> &mdash; mirrored pairs then striped. Fast and redundant; capacity = half. Needs &ge;4.</li></ul><p>Software RAID is managed with <code>mdadm</code>; live status is in <code>/proc/mdstat</code>.</p><div class=\"cnote\"><b>exam angle:</b> Failure tolerance: 0 = none, 1 and 5 = one disk, 6 = two disks, 10 = one per mirror. RAID is <b>not a backup</b> &mdash; it protects against disk failure, not deletion, ransomware, or corruption.</div>"}, {"t": "LVM &mdash; Logical Volume Manager", "lead": "A flexible layer between physical disks and filesystems.", "k": "lvm pv vg lv physical volume group logical extent pvcreate vgcreate lvcreate lvextend resize snapshot thin", "html": "<p>LVM lets you resize and reorganize storage without repartitioning. It stacks in three layers, bottom up:</p><ol class=\"csteps\"><li><b>Physical Volume (PV)</b> &mdash; a disk or partition initialized with <code>pvcreate</code>.</li><li><b>Volume Group (VG)</b> &mdash; a pool of one or more PVs (<code>vgcreate</code>), divided into fixed-size <b>physical extents</b>.</li><li><b>Logical Volume (LV)</b> &mdash; carved from the VG's free extents (<code>lvcreate</code>). This is what you format and mount.</li></ol><p>Because the LV is decoupled from the physical disks, you can add a disk to the VG (<code>vgextend</code>), grow an LV online, span multiple disks, or take snapshots.</p><div class=\"cnote\"><b>exam angle:</b> Grow order: <code>lvextend</code> &rarr; grow the filesystem (<code>resize2fs</code> for ext4, <code>xfs_growfs</code> for XFS). <code>lvextend -r</code> does both at once. XFS can grow but never shrink.</div>"}, {"t": "The storage stack", "lead": "How a raw disk becomes a mounted directory.", "k": "storage stack disk partition mbr gpt filesystem mkfs mount fstab uuid block device layers", "html": "<p>Storage is built in layers. Each command in the toolchain operates on one layer.</p><ol class=\"csteps\"><li><b>Physical disk</b> (e.g. <code>/dev/sdb</code>).</li><li><b>Partition table</b> &mdash; MBR or GPT, edited with <code>fdisk</code>/<code>gdisk</code>/<code>parted</code>.</li><li><b>Optional RAID</b> (<code>mdadm</code>) and/or <b>LVM</b> (PV &rarr; VG &rarr; LV).</li><li><b>Filesystem</b> &mdash; created with <code>mkfs.ext4</code> or <code>mkfs.xfs</code>.</li><li><b>Mount point</b> &mdash; attached with <code>mount</code>, made permanent in <code>/etc/fstab</code>.</li></ol><div class=\"cnote\"><b>exam angle:</b> Reference filesystems in <code>/etc/fstab</code> by <b>UUID</b> (<code>blkid</code>) so device renaming doesn't break boot; add <code>nofail</code> to non-critical mounts. &lsquo;No space&rsquo; while <code>df -h</code> shows room = inode exhaustion (<code>df -i</code>).</div>"}, {"t": "The filesystem hierarchy (FHS)", "lead": "What lives where in the root tree.", "k": "fhs filesystem hierarchy directory structure etc var usr bin boot proc sys home opt tmp paths", "html": "<p>Linux organizes everything under a single root <code>/</code>. Knowing the map tells you where to find config, logs, and binaries.</p><ul class=\"cpts\"><li><code>/etc</code> &mdash; system configuration files.</li><li><code>/var</code> &mdash; variable data: <code>/var/log</code> (logs), spool, caches.</li><li><code>/usr</code> &mdash; installed software and libraries.</li><li><code>/bin</code>, <code>/sbin</code> &mdash; essential commands.</li><li><code>/home</code> &mdash; user home dirs; <code>/root</code> &mdash; root's home.</li><li><code>/boot</code> &mdash; kernel, initramfs, GRUB.</li><li><code>/dev</code> &mdash; device files; <code>/tmp</code> &mdash; temp (sticky bit).</li><li><code>/proc</code>, <code>/sys</code> &mdash; <b>virtual</b> filesystems exposing kernel/process and device info (in memory, not on disk).</li></ul><div class=\"cnote\"><b>exam angle:</b> <code>/proc</code> and <code>/sys</code> are virtual &mdash; generated by the kernel at runtime. Logs go in <code>/var/log</code>, config in <code>/etc</code>.</div>"}, {"t": "The permissions model", "lead": "Who can read, write, execute &mdash; plus the special bits.", "k": "permissions chmod chown rwx octal setuid setgid sticky bit acl getfacl immutable ugo", "html": "<p>Standard permissions have three classes &mdash; <b>user</b> (owner), <b>group</b>, <b>others</b> &mdash; each with read (4), write (2), execute (1). Octal <code>755</code> = <code>rwxr-xr-x</code>.</p><p>On a <b>directory</b>: read = list names, write = create/delete entries, execute = enter/traverse it.</p><ul class=\"cpts\"><li><b>setuid</b> (<code>u+s</code>, 4xxx) &mdash; run a binary as its owner (e.g. <code>passwd</code> runs as root).</li><li><b>setgid</b> (<code>g+s</code>, 2xxx) &mdash; on a directory, new files inherit its group.</li><li><b>sticky</b> (<code>+t</code>, 1xxx) &mdash; on a shared dir like <code>/tmp</code>, only an owner can delete their own files.</li></ul><div class=\"cnote\"><b>exam angle:</b> Denied despite correct rwx? Look beyond it: ACLs (<code>getfacl</code>), SELinux context (<code>ls -Z</code>), the immutable bit (<code>lsattr</code>), or mount options (<code>ro</code>/<code>noexec</code>).</div>"}, {"t": "systemd units & targets", "lead": "How modern Linux describes and starts everything.", "k": "systemd unit service socket timer target runlevel multi-user graphical enable mask daemon-reload init", "html": "<p>systemd models the system as <b>units</b>. The common types:</p><ul class=\"cpts\"><li><code>.service</code> &mdash; a daemon/process.</li><li><code>.socket</code> &mdash; socket activation (start on first connection).</li><li><code>.timer</code> &mdash; scheduled jobs (the cron replacement).</li><li><code>.mount</code> / <code>.automount</code> &mdash; filesystems.</li><li><code>.target</code> &mdash; a named group of units (the runlevel replacement).</li></ul><p><code>multi-user.target</code> &asymp; old runlevel 3 (multi-user CLI); <code>graphical.target</code> &asymp; runlevel 5 (GUI). Dependencies (<code>Wants</code>/<code>Requires</code>/<code>After</code>) determine start order.</p><div class=\"cnote\"><b>exam angle:</b> <code>enable</code> = start at boot; <code>start</code> = start now. <code>reload</code> re-reads a service's own config; <code>daemon-reload</code> re-reads unit files after you edit them. <code>mask</code> is stronger than <code>disable</code>. Default target: <code>systemctl get-default</code>/<code>set-default</code>.</div>"}, {"t": "Process lifecycle & signals", "lead": "The states a process moves through and how you talk to it.", "k": "process state running sleeping zombie stopped signal kill term hup int stop cont pid job control nohup", "html": "<p>Every process has a state. The ones you'll see in <code>top</code>/<code>ps</code>:</p><ul class=\"cpts\"><li><b>Running / Runnable (R)</b> &mdash; using or ready for the CPU.</li><li><b>Sleeping (S/D)</b> &mdash; waiting (D = uninterruptible, usually disk I/O).</li><li><b>Stopped (T)</b> &mdash; suspended (e.g. by Ctrl+Z).</li><li><b>Zombie (Z)</b> &mdash; finished, but its parent hasn't read its exit status yet.</li></ul><p>Signals are how you control them: <b>TERM (15)</b> graceful stop (default), <b>KILL (9)</b> force, uncatchable, <b>HUP (1)</b> often &lsquo;reload config&rsquo;, <b>INT (2)</b> Ctrl+C, <b>STOP (19)/CONT (18)</b> pause/resume.</p><div class=\"cnote\"><b>exam angle:</b> Zombies can't be killed &mdash; they're already dead; you signal the <b>parent</b> to reap them (or it exits and PID 1 adopts them). Use <code>-9</code> only as a last resort &mdash; it skips cleanup.</div>"}, {"t": "Memory, swap & the OOM killer", "lead": "Virtual memory, caching, and what happens when RAM runs out.", "k": "memory virtual swap page cache oom out of memory free available vmstat si so thrashing buffers", "html": "<p>Each process gets its own virtual address space, mapped to physical RAM in pages. Spare RAM isn't wasted &mdash; the kernel uses it as <b>page cache</b> to speed up disk access.</p><ul class=\"cpts\"><li><b>Low &lsquo;free&rsquo; but high &lsquo;available&rsquo; is normal</b> &mdash; cache is reclaimable on demand.</li><li><b>Swap</b> is disk space used when RAM is under pressure. A little is fine; constant swap-in/out (<code>si</code>/<code>so</code> in <code>vmstat</code>) is <b>thrashing</b>.</li><li>When memory is exhausted and nothing can be reclaimed, the kernel <b>OOM killer</b> terminates a process to survive.</li></ul><div class=\"cnote\"><b>exam angle:</b> Read the <b>available</b> column in <code>free -h</code>, not free. Sustained <code>si</code>/<code>so</code> = memory pressure. &lsquo;Out of memory: Killed process&rsquo; in <code>dmesg</code> = the OOM killer fired.</div>"}, {"t": "Networking basics", "lead": "From interface to name resolution.", "k": "network interface ip address route gateway dns resolv hosts nsswitch port ss nmcli netplan routing", "html": "<p>A packet's journey out of a Linux box touches several pieces:</p><ol class=\"csteps\"><li><b>Interface</b> has an IP address (<code>ip addr</code>).</li><li><b>Routing table</b> decides where packets go (<code>ip route</code>); anything off-subnet goes to the <b>default gateway</b>.</li><li><b>Name resolution</b> order is set by <code>/etc/nsswitch.conf</code> (typically <code>files dns</code>): <code>/etc/hosts</code> is checked first, then DNS servers from <code>/etc/resolv.conf</code>.</li><li><b>Ports</b> identify services; <code>ss -tlnp</code> lists what's listening.</li></ol><p>Runtime changes with <code>ip</code> are lost on reboot; persist config via NetworkManager (<code>nmcli</code>) or netplan.</p><div class=\"cnote\"><b>exam angle:</b> &lsquo;Pings the IP but not the hostname&rsquo; = DNS problem. &lsquo;Works until reboot&rsquo; = the change wasn't saved to the connection profile.</div>"}, {"t": "SELinux in one picture", "lead": "Mandatory access control layered on top of normal permissions.", "k": "selinux context type enforcement enforcing permissive disabled boolean avc denial restorecon semanage setsebool getenforce", "html": "<p>Even with correct rwx permissions, SELinux can still block access. Every process and file carries a <b>context</b> (<code>user:role:type:level</code>), and the policy uses <b>type enforcement</b>: a process type may only touch matching file types.</p><ul class=\"cpts\"><li><b>Modes:</b> Enforcing (block + log), Permissive (log only), Disabled.</li><li><b>Booleans</b> toggle optional behaviors (<code>setsebool -P httpd_can_network_connect on</code>).</li><li><b>Denials</b> are logged as AVC entries (<code>ausearch -m avc</code>).</li></ul><div class=\"cnote\"><b>exam angle:</b> App fails with correct rwx on RHEL? Suspect SELinux. Test with <code>setenforce 0</code> (temporary). Fix properly with <code>restorecon</code> (relabel), a boolean, or <code>semanage</code> (ports/contexts) &mdash; <b>not</b> <code>chmod</code>.</div>"}, {"t": "Package management", "lead": "How software is installed and kept consistent.", "k": "package rpm deb dnf yum apt dpkg repository dependency repo install update family", "html": "<p>Two big families, each with a low-level and a high-level tool:</p><ul class=\"cpts\"><li><b>RPM world</b> (RHEL/Fedora/SUSE): <code>rpm</code> (low-level, single package) and <code>dnf</code>/<code>yum</code> (high-level, resolves dependencies, uses repos).</li><li><b>DEB world</b> (Debian/Ubuntu): <code>dpkg</code> (low-level) and <code>apt</code> (high-level).</li></ul><p>High-level tools pull from <b>repositories</b> (<code>/etc/yum.repos.d</code> or <code>/etc/apt/sources.list</code>) and automatically install dependencies. The low-level tools install a single local file and will <b>not</b> resolve dependencies for you.</p><div class=\"cnote\"><b>exam angle:</b> <code>dnf</code>/<code>apt</code> resolve dependencies; <code>rpm -i</code>/<code>dpkg -i</code> don't. Know the RHEL&harr;Debian command mapping.</div>"}, {"t": "Users, groups & authentication", "lead": "Identity, and how a login is actually checked.", "k": "user group uid gid passwd shadow group pam nss sssd ldap kerberos authentication login useradd usermod", "html": "<p>Identity lives in a few files: <code>/etc/passwd</code> (<code>name:x:uid:gid:gecos:home:shell</code>), password hashes and aging in <code>/etc/shadow</code> (root-only), groups in <code>/etc/group</code>.</p><ul class=\"cpts\"><li><b>PAM</b> (<code>/etc/pam.d/</code>) is the authentication framework &mdash; password rules, lockout, session limits.</li><li><b>NSS</b> (<code>/etc/nsswitch.conf</code>) decides <i>where</i> identities come from: local files, LDAP, SSSD.</li><li><b>SSSD</b> connects logins to Active Directory/LDAP with credential caching for offline use.</li></ul><div class=\"cnote\"><b>exam angle:</b> <code>usermod -aG</code> adds a <b>supplementary</b> group &mdash; the <code>-a</code> is essential or you replace existing groups. New membership applies after re-login. <code>getent passwd</code> reads files <i>and</i> network sources.</div>"}, {"t": "Kernel, modules, /proc & /sys", "lead": "A modular kernel you can inspect and tune at runtime.", "k": "kernel module modprobe insmod lsmod modinfo proc sys sysctl ip_forward driver monolithic tunable", "html": "<p>Linux has a <b>monolithic</b> kernel that loads drivers as <b>modules</b> on demand, so it stays small but supports lots of hardware.</p><ul class=\"cpts\"><li><code>lsmod</code> lists loaded modules; <code>modinfo</code> describes one; <code>modprobe</code> loads a module <b>and its dependencies</b> (<code>insmod</code> loads a single file with none).</li><li><code>/proc</code> exposes process and kernel info; <code>/sys</code> exposes devices and kernel objects &mdash; both virtual.</li><li><code>sysctl</code> reads/sets kernel tunables (e.g. <code>net.ipv4.ip_forward</code>); persist them in <code>/etc/sysctl.d</code>.</li></ul><div class=\"cnote\"><b>exam angle:</b> Use <code>modprobe</code> (handles dependencies), not <code>insmod</code>. Enable routing/NAT with <code>sysctl -w net.ipv4.ip_forward=1</code>. The initramfs ships the modules needed to mount the root device.</div>"}, {"t": "Logging: journald & syslog", "lead": "Where logs go and how to read them.", "k": "log logging journald journalctl syslog rsyslog var log messages auth secure logrotate auditd boot", "html": "<p>Modern systems run <b>systemd-journald</b>, which collects structured logs into a binary journal you read with <code>journalctl</code>.</p><ul class=\"cpts\"><li><code>journalctl -u sshd</code> &mdash; one service's logs; <code>-b</code> &mdash; current boot; <code>-k</code> &mdash; kernel; <code>-p err</code> &mdash; by priority.</li><li>Traditional <b>rsyslog</b> writes plaintext to <code>/var/log</code> (<code>messages</code>/<code>syslog</code>, <code>secure</code>/<code>auth.log</code>).</li><li><b>logrotate</b> compresses and prunes logs so <code>/var/log</code> doesn't fill the disk.</li><li><b>auditd</b> records security events (read with <code>ausearch</code>/<code>aureport</code>).</li></ul><div class=\"cnote\"><b>exam angle:</b> For a service's logs use <code>journalctl -u &lt;svc&gt;</code>; for this boot use <code>-b</code>. A persistent journal needs <code>/var/log/journal</code> to exist.</div>"}, {"t": "Scheduling: cron, anacron & timers", "lead": "Running jobs automatically on a schedule.", "k": "cron crontab anacron systemd timer at schedule recurring job dow path", "html": "<p>Three ways to run jobs on a schedule, plus one-offs:</p><ul class=\"cpts\"><li><b>cron</b> &mdash; recurring jobs (<code>crontab -e</code>; fields are <code>min hour dom mon dow command</code>). Assumes the machine is always on.</li><li><b>anacron</b> &mdash; catches up jobs that were missed while the machine was powered off (great for laptops).</li><li><b>systemd timers</b> &mdash; the modern approach (<code>.timer</code> + <code>.service</code>), with logging and dependencies (<code>systemctl list-timers</code>).</li><li><b>at</b> &mdash; a single job at a specific future time.</li></ul><div class=\"cnote\"><b>exam angle:</b> <code>*/5 * * * *</code> = every 5 minutes; <code>dow</code> 0 = Sunday. cron runs with a <b>minimal PATH</b> &mdash; use absolute paths. anacron for machines that aren't on 24/7.</div>"}, {"t": "Shell, environment & redirection", "lead": "How your commands run and where their input/output goes.", "k": "shell bash login interactive bashrc profile environment variable path export redirection pipe stdout stderr tee subshell", "html": "<p>Bash reads different startup files depending on how it launched: <code>~/.bash_profile</code> for a <b>login</b> shell, <code>~/.bashrc</code> for an <b>interactive non-login</b> shell. Environment variables (<code>PATH</code>, <code>HOME</code>) are inherited by child processes &mdash; that's what <code>export</code> does.</p><ul class=\"cpts\"><li><code>&gt;</code> redirect stdout (overwrite), <code>&gt;&gt;</code> append.</li><li><code>2&gt;</code> redirect stderr; <code>2&gt;&amp;1</code> send stderr wherever stdout is going.</li><li><code>|</code> pipe one command's stdout into the next's stdin.</li><li><code>tee</code> writes a stream to a file <i>and</i> the screen; <code>$(cmd)</code> captures output into a value.</li></ul><div class=\"cnote\"><b>exam angle:</b> &lsquo;Command not found&rsquo; for a binary that exists = a <code>PATH</code> problem. Order matters: <code>&gt; file 2&gt;&amp;1</code> merges both streams into the file; reversing it doesn't.</div>"}, {"t": "Containers vs virtual machines", "lead": "Two ways to isolate workloads, with very different overhead.", "k": "container vm virtual machine namespace cgroup hypervisor kvm qemu docker image dockerfile compose kubernetes isolation", "html": "<p>Both isolate workloads, but at different layers:</p><ul class=\"cpts\"><li><b>VM</b> &mdash; runs a full guest OS on a hypervisor (KVM/QEMU). Strong isolation, but heavier (its own kernel, boot, memory).</li><li><b>Container</b> &mdash; shares the <b>host kernel</b>, isolated with <b>namespaces</b> (what it can see: PIDs, network, mounts) and <b>cgroups</b> (how much it can use: CPU, memory). Lightweight and fast to start.</li></ul><p>Images are built from a <code>Dockerfile</code>; Compose runs a multi-container app on one host; Kubernetes orchestrates containers across a cluster.</p><div class=\"cnote\"><b>exam angle:</b> Containers share the host kernel (no guest OS). Remember the split: <b>namespaces = isolation</b>, <b>cgroups = resource limits</b>.</div>"}, {"t": "Links & inodes", "lead": "How filenames actually map to data on disk.", "k": "inode link hard symbolic symlink ln directory entry data blocks df -i metadata", "html": "<p>A file's data and metadata live in an <b>inode</b> (permissions, timestamps, and pointers to data blocks). A <b>directory entry</b> just maps a name to an inode number &mdash; the name and the data are separate things.</p><ul class=\"cpts\"><li><b>Hard link</b> (<code>ln target name</code>) &mdash; another name for the <i>same inode</i>. Same filesystem only; the data survives until the <b>last</b> link is removed.</li><li><b>Symbolic link</b> (<code>ln -s target name</code>) &mdash; a tiny file containing a <i>path</i>. Can cross filesystems and can &lsquo;dangle&rsquo; if the target moves.</li></ul><div class=\"cnote\"><b>exam angle:</b> <code>ln -s</code> = symlink (path-based, crosses filesystems); plain <code>ln</code> = hard link (same inode, same FS). Out of inodes is a real way to get &lsquo;No space&rsquo; with free blocks &mdash; check <code>df -i</code>.</div>"}, {"t": "Rescue & recovery", "lead": "Getting back in when boot or login is broken.", "k": "rescue recovery emergency single user grub rd.break root password reset initramfs dracut grub2-mkconfig target", "html": "<p>When a system won't boot normally, you drop to a smaller environment to fix it &mdash; usually from the GRUB menu by editing the kernel line.</p><ul class=\"cpts\"><li>Append <code>systemd.unit=rescue.target</code> for a single-user maintenance shell (most services off), or <code>emergency.target</code> for the most minimal environment (read-only root).</li><li>Reset a forgotten root password by booting to a root shell (<code>rd.break</code> on RHEL), remounting root read-write, and running <code>passwd</code>.</li><li>After a bad kernel update, boot a previous kernel from the GRUB submenu.</li><li>Rebuild a broken initramfs with <code>dracut -f</code>; regenerate GRUB with <code>grub2-mkconfig</code> after editing boot config.</li></ul><div class=\"cnote\"><b>exam angle:</b> <code>rescue.target</code> = single-user maintenance; <code>emergency.target</code> = most minimal; <code>rd.break</code> drops you into the initramfs to repair the root filesystem.</div>"}];
+const PR={mode:"study",q:null,answered:false,score:0,asked:0};
+function newPairQ(){
+  const p=PAIRS[Math.floor(Math.random()*PAIRS.length)];
+  const side=Math.random()<0.5?"a":"b";
+  PR.q={p,prompt:side==="a"?p.useA:p.useB,answer:side==="a"?p.a:p.b,opts:shuffle([p.a,p.b])};
+  PR.answered=false;
+}
+function renderPairs(){
+  const chips=[["study","study pairs"],["quiz","quiz me"]];
+  let body;
+  if(PR.mode==="study"){
+    body=PAIRS.map(p=>`<div class="paircard">
+      <div class="pairtop"><span class="pa">${esc(p.a)}</span><span class="vs">vs</span><span class="pb">${esc(p.b)}</span></div>
+      <div class="pairx">${esc(p.x)}</div>
+      <div class="pairuse"><span class="puk">${esc(p.a)}</span> ${esc(p.useA)}</div>
+      <div class="pairuse"><span class="puk">${esc(p.b)}</span> ${esc(p.useB)}</div>
+    </div>`).join("");
+  } else {
+    if(!PR.q) newPairQ();
+    const q=PR.q;
+    const opts=q.opts.map((o,i)=>`<button class="opt pairopt" data-cmd="${esc(o)}"><span class="key">${i+1})</span><span>${esc(o)}</span></button>`).join("");
+    body=`<div class="qbox">
+      <div class="qmeta" id="pairscore">confusing pairs &middot; score ${PR.score}/${PR.asked}</div>
+      <div class="qtext"><span class="pre">&gt;</span>Which command fits this need?</div>
+      <div class="multinote"># ${esc(q.prompt)}</div>
+      <div class="opts" id="pairopts">${opts}</div>
+      <div class="fb" id="fb"><div class="v" id="fv"></div><div class="x" id="fx"></div></div>
+      <div class="row" id="pairafter" style="display:none"><button class="btn" id="pairnext">next &rarr;</button><span class="kbd"><b>keys:</b> 1/2 pick &middot; n/enter next</span></div>
+    </div>`;
+  }
+  screen.innerHTML=navBar()+studySubnav()+
+    `<div class="chips">${chips.map(([k,l])=>`<button class="chip ${PR.mode===k?"active":""}" data-m="${k}">${l}</button>`).join("")}</div>`+
+    promptLine(PR.mode==="study"?"diff <(explain A) <(explain B)":"quiz --confusing-pairs")+
+    (PR.mode==="study"?`<div class="muted" style="font-size:12px;margin:2px 2px 10px"># the look-alikes that trip people up. Learn the one-line difference, then switch to "quiz me".</div>`:"")+
+    body;
+  hook();
+  document.querySelectorAll(".subbtn").forEach(b=>b.onclick=()=>{R.view=b.dataset.view;renderRef();});
+  document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>{PR.mode=c.dataset.m;if(PR.mode==="quiz"&&!PR.q)newPairQ();render();});
+  if(PR.mode==="quiz"){
+    [...document.querySelectorAll(".pairopt")].forEach(el=>el.onclick=()=>answerPair(el.dataset.cmd));
+    const nb=document.getElementById("pairnext"); if(nb) nb.onclick=()=>{newPairQ();render();};
+  }
+}
+function answerPair(cmd){
+  if(PR.answered) return; PR.answered=true; PR.asked++;
+  const q=PR.q, ok=cmd===q.answer; if(ok)PR.score++;
+  [...document.querySelectorAll(".pairopt")].forEach(el=>{el.classList.add("dis"); if(el.dataset.cmd===q.answer)el.classList.add("right"); else if(el.dataset.cmd===cmd&&!ok)el.classList.add("wrong");});
+  document.getElementById("fb").classList.add("show");
+  const fv=document.getElementById("fv");fv.textContent=ok?"\u2713 correct":"\u2717 not quite";fv.className="v "+(ok?"ok":"no");
+  document.getElementById("fx").innerHTML="# "+esc(q.p.x);
+  document.getElementById("pairafter").style.display="flex";
+  const sc=document.getElementById("pairscore"); if(sc) sc.textContent="confusing pairs \u00b7 score "+PR.score+"/"+PR.asked;
+}
+
+/* ---- fundamentals / concepts ---- */
+const CN={search:"", open:new Set()};
+function renderConcepts(){
+  screen.innerHTML=navBar()+studySubnav()+
+    promptLine("man -k fundamentals")+
+    `<div class="muted" style="font-size:12px;margin:2px 2px 11px"># the <i>why</i> behind the commands &mdash; how the system actually works. Tap a topic to expand.</div>
+     <div class="searchbar"><span class="sp">search &gt;</span><input id="cnsearch" type="text" placeholder="filter topics (e.g. boot, raid, selinux, memory, inode)" value="${esc(CN.search)}" autocomplete="off" spellcheck="false"></div>
+     <div class="ref-tools"><button class="ref-toolbtn" id="cnexp">expand all</button><button class="ref-toolbtn" id="cncol">collapse all</button><span class="ref-tip muted">${CONCEPTS.length} core topics</span></div>
+     <div id="cnlist"></div>`;
+  hook();
+  document.querySelectorAll(".subbtn").forEach(b=>b.onclick=()=>{R.view=b.dataset.view;renderRef();});
+  const inp=document.getElementById("cnsearch"); inp.oninput=()=>{CN.search=inp.value;fillConcepts();};
+  document.getElementById("cnexp").onclick=()=>{CONCEPTS.forEach((_,i)=>CN.open.add(i));fillConcepts();};
+  document.getElementById("cncol").onclick=()=>{CN.open.clear();fillConcepts();};
+  fillConcepts();
+  if(CN.search){inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length);}
+}
+function fillConcepts(){
+  const term=CN.search.trim().toLowerCase();
+  const rows=CONCEPTS.map((c,i)=>({c,i})).filter(({c})=> !term || (c.t+" "+c.k+" "+c.lead+" "+c.html).toLowerCase().includes(term));
+  const lst=document.getElementById("cnlist"); if(!lst) return;
+  lst.innerHTML = rows.length ? rows.map(({c,i})=>{
+    const open=CN.open.has(i)||!!term;
+    return `<div class="concept">
+      <div class="concept-h" data-ci="${i}">
+        <span class="concept-tt"><span class="ct">${esc(c.t)}</span><span class="cl">${esc(c.lead)}</span></span>
+        <span class="cmdplus">${open?"&minus;":"+"}</span>
+      </div>${open?`<div class="concept-body">${c.html}</div>`:""}</div>`;
+  }).join("") : `<div class="muted" style="font-size:12.5px;padding:6px 2px"># no topic matches &ldquo;${esc(CN.search)}&rdquo;.</div>`;
+  lst.querySelectorAll(".concept-h").forEach(h=>h.onclick=()=>{const i=+h.dataset.ci; if(CN.open.has(i))CN.open.delete(i); else CN.open.add(i); fillConcepts();});
+}
 
 /* ---- nav wiring + keyboard ---- */
 function hook(){
@@ -1022,13 +1758,20 @@ document.addEventListener("keydown",e=>{
   if(e.target && /^(INPUT|TEXTAREA)$/.test(e.target.tagName)) return;
   const k=e.key.toLowerCase();
   if(tab==="practice" && P.q){
-    if(!P.answered && /^[1-5]$/.test(k)){const idx=+k-1; if(P.order && idx<P.order.length){answerPractice(idx);} }
-    else if(P.answered && (k==="n"||k==="enter")){nextPractice();render();}
+    if(!P.answered){
+      if(Array.isArray(P.q.c)){
+        if(/^[1-6]$/.test(k)){const idx=+k-1; if(P.order && idx<P.order.length){toggleSel(idx);render();}}
+        else if(k==="enter"){ if(P.sel&&P.sel.length) answerPracticeMulti(); }
+      } else if(/^[1-6]$/.test(k)){const idx=+k-1; if(P.order && idx<P.order.length){answerPractice(idx);} }
+    } else if(k==="n"||k==="enter"){nextPractice();render();}
   } else if(tab==="exam" && E.phase==="run"){
     const it=E.items[E.i];
-    if(it.kind!=="pbq" && /^[1-5]$/.test(k)){const idx=+k-1; if(it.order && idx<it.order.length){it.pick=idx;render();}}
+    if(it.kind!=="pbq" && /^[1-6]$/.test(k)){const idx=+k-1; if(it.order && idx<it.order.length){ if(Array.isArray(it.q.c)){ it.pick=it.pick||[]; const j=it.pick.indexOf(idx); if(j>=0)it.pick.splice(j,1); else it.pick.push(idx); } else { it.pick=idx; } render(); }}
     else if(k==="n"||k==="enter"){ if(E.i===E.items.length-1)scoreExam(); else {E.i++;render();} }
     else if(k==="p"&&E.i>0){E.i--;render();}
+  } else if(tab==="ref" && R.view==="pairs" && PR.mode==="quiz"){
+    if(!PR.answered && /^[12]$/.test(k)){const els=[...document.querySelectorAll(".pairopt")];const el=els[+k-1];if(el)answerPair(el.dataset.cmd);}
+    else if(PR.answered && (k==="n"||k==="enter")){newPairQ();render();}
   }
 });
 
@@ -1041,16 +1784,26 @@ function applyTheme(t){
 }
 async function loadTheme(){
   let t="dark";
-  try{const r=await window.storage.get("lxq006:theme"); if(r&&r.value) t=JSON.parse(r.value);}catch(e){ t=mem["lxq006:theme"]||"dark"; }
+  try{const r=await DB.get("lxq006:theme"); if(r&&r.value) t=JSON.parse(r.value);}catch(e){}
   applyTheme(t); return t;
 }
 async function setTheme(t){
-  mem["lxq006:theme"]=t; applyTheme(t);
-  try{await window.storage.set("lxq006:theme",JSON.stringify(t));}catch(e){}
+  applyTheme(t);
+  try{await DB.set("lxq006:theme",JSON.stringify(t));}catch(e){}
 }
 document.getElementById("themeToggle").addEventListener("click",()=>{
   setTheme(document.body.classList.contains("light")?"dark":"light");
 });
+
+/* ---- back to top ---- */
+(function(){
+  const btn=document.getElementById("toTop");
+  if(!btn) return;
+  const onScroll=()=>{ btn.classList.toggle("show", (window.scrollY||document.documentElement.scrollTop)>280); };
+  window.addEventListener("scroll",onScroll,{passive:true});
+  btn.addEventListener("click",()=>window.scrollTo({top:0,behavior:"smooth"}));
+  onScroll();
+})();
 
 (async function(){await loadTheme(); await load(); render();})();
 </script>

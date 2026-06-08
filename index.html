@@ -2395,8 +2395,8 @@ function renderLabRun(){
     const verdict=LB.ok?"&#10003; correct":(LB.revealed?"answer revealed":"&#10007; not an accepted answer");
     mid=`<div class="fb show" id="fb"><div class="v ${LB.ok?"ok":"no"}" id="fv">${verdict}</div><div class="x" id="fx"><div class="pbqrow"><span class="muted">you typed:</span> <code>${esc(LB.typed)||"(nothing)"}</code></div><div class="pbqrow"><span class="muted">expected:</span> <code class="exp">${esc(step.answer)}</code></div>${yourBlock}<div class="labwhy"><span class="labk">Why</span><span>${step.why}</span></div></div></div>
       <div class="row" id="labafter" style="display:flex">
-        <button class="btn" id="labnext">${last?"finish mission &#10003;":"next step &rarr;"}</button>
-        <button class="lookbtn" id="labexit">back to labs</button>
+        ${last?`<button class="btn" id="labanother">&#8635; another variation</button><button class="lookbtn" id="labexit">finish &amp; exit</button>`:`<button class="btn" id="labnext">next step &rarr;</button><button class="lookbtn" id="labexit">back to labs</button>`}
+        <span class="kbd"><b>keys:</b> ${last?"n / enter = another":"n / enter = next"}</span>
       </div>`;
   } else {
     const dangerHtml=LB.danger?`<div class="fb show"><div class="v no">&#9888; dangerous &mdash; not run</div><div class="x"><div class="labwhy yourcmd"><span class="labk">Careful</span><span>${esc(LB.danger)}</span></div></div></div>`:"";
@@ -2426,7 +2426,8 @@ function renderLabRun(){
   {const b=document.getElementById("labhintbtn"); if(b) b.onclick=()=>{LB.hintLevel=Math.min((LB.hintLevel||0)+1,hints.length);render();};}
   {const b=document.getElementById("labreveal"); if(b) b.onclick=()=>revealLab();}
   {const b=document.getElementById("labnext"); if(b) b.onclick=()=>advanceLab();}
-  {const b=document.getElementById("labexit"); if(b) b.onclick=()=>{LB.inst=null;render();};}
+  {const b=document.getElementById("labanother"); if(b) b.onclick=()=>anotherVariation();}
+  {const b=document.getElementById("labexit"); if(b) b.onclick=()=>{ if(LB.inst&&LB.answered&&LB.step===LB.inst.steps.length-1){ LB.done.add(LB.inst.id); saveLabs(); } LB.inst=null; render(); };}
   {const b=document.getElementById("labexit2"); if(b) b.onclick=()=>{LB.inst=null;render();};}
 }
 function answerLab(){
@@ -2443,6 +2444,10 @@ function answerLab(){
 function revealLab(){
   if(LB.answered) return;
   LB.answered=true; LB.ok=false; LB.revealed=true; LB.typed=LB.lastTry||""; render();
+}
+function anotherVariation(){
+  if(LB.inst){ LB.done.add(LB.inst.id); saveLabs(); }
+  startLab(LB.tid); render();
 }
 function advanceLab(){
   const l=LB.inst;
@@ -2477,7 +2482,7 @@ document.addEventListener("keydown",e=>{
     else if(k==="n"||k==="enter"){ if(E.i===E.items.length-1)scoreExam(); else {E.i++;render();} }
     else if(k==="p"&&E.i>0){E.i--;render();}
   } else if(tab==="labs" && LB.inst && LB.answered){
-    if(k==="n"||k==="enter"){ advanceLab(); }
+    if(k==="n"||k==="enter"){ (LB.step===LB.inst.steps.length-1) ? anotherVariation() : advanceLab(); }
   } else if(tab==="ref" && R.view==="workflows" && WF.mode==="quiz"){
     const w=WORKFLOWS[WF.wf]; const complete=w&&WF.placed.length===w.steps.length;
     if(complete && (k==="n"||k==="enter")){ newWFQuiz(); renderRef(); }

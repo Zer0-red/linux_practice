@@ -143,6 +143,23 @@ nav button.active{color:var(--green);border-color:var(--green-dim);background:rg
 .cpts b,.csteps b,.concept-body p b{color:var(--txt);font-weight:600}
 .cnote{margin-top:11px;background:rgba(70,211,105,.06);border:1px solid var(--green-dim);border-radius:7px;padding:9px 12px;font-size:12.8px;color:var(--txt)}
 .cnote b{color:var(--green)}
+.labbox{font-size:14px}
+.labhead{font-size:15px;font-weight:700;color:var(--green);margin-bottom:13px;letter-spacing:.3px}
+.labrow{display:flex;gap:10px;margin:9px 0;line-height:1.55}
+.labrow>span:last-child{flex:1}
+.labk{flex-shrink:0;font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--dim);border:1px solid var(--line2);border-radius:5px;padding:2px 7px;height:fit-content;margin-top:1px}
+.labstep{font-size:11px;color:var(--dim2);margin:12px 0 1px;letter-spacing:.3px}
+.labwhy{margin-top:10px;display:flex;gap:10px;align-items:flex-start;background:rgba(70,211,105,.06);border:1px solid var(--green-dim);border-radius:7px;padding:10px 12px;line-height:1.62;font-size:13px}
+.labwhy .labk{border-color:var(--green-dim);color:var(--green)}
+.labwhy code{background:var(--term);border:1px solid var(--line);border-radius:5px;padding:1px 6px;color:var(--green)}
+.labcard{border:1px solid var(--line);border-radius:9px;margin-bottom:10px;background:var(--surface);padding:13px 15px;cursor:pointer;transition:.13s}
+.labcard:hover{border-color:var(--green-dim);background:var(--track)}
+.labcard-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;flex-wrap:wrap}
+.labcard-t{font-size:14px;font-weight:600;color:var(--txt)}
+.labcard-m{font-size:11px;color:var(--dim2);white-space:nowrap}
+.labdone{color:var(--green);font-size:10.5px;border:1px solid var(--green-dim);border-radius:10px;padding:0 7px;margin-left:4px;letter-spacing:.3px}
+.labcard-s{font-size:12.5px;color:var(--dim);margin:7px 0 8px;line-height:1.5}
+.labcard-go{font-size:12px;color:var(--green)}
 .cmdtoggle{cursor:pointer;display:inline-flex;align-items:baseline;gap:7px}
 .cmdtoggle:hover .ref-cmd.clickable{color:var(--green)}
 .cmdplus{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;font-size:13px;line-height:1;color:var(--green);border:1px solid var(--green-dim);border-radius:50%;flex-shrink:0;align-self:center}
@@ -799,7 +816,7 @@ const barright=document.getElementById("barright");
 
 function promptLine(cmd){return `<div class="cmdline"><span class="prompt"><span class="u">student@linuxplus</span><span class="c">:</span><span class="p">~/xk0-006</span><span class="c">$</span></span> <span class="c">${cmd}</span></div>`;}
 function navBar(){
-  const tabs=[["dash","dashboard"],["ref","study"],["practice","practice"],["exam","exam-sim"]];
+  const tabs=[["dash","dashboard"],["ref","study"],["practice","practice"],["labs","labs"],["exam","exam-sim"]];
   return `<nav>${tabs.map(([k,l])=>`<button data-tab="${k}" class="${tab===k?"active":""}">${l}</button>`).join("")}</nav>`;
 }
 
@@ -809,6 +826,7 @@ function render(){
   if(tab==="ref") return renderRef();
   if(tab==="mistakes") return renderMistakes();
   if(tab==="practice") return renderPractice();
+  if(tab==="labs") return renderLabs();
   if(tab==="exam") return renderExam();
 }
 
@@ -1744,6 +1762,71 @@ function fillConcepts(){
   lst.querySelectorAll(".concept-h").forEach(h=>h.onclick=()=>{const i=+h.dataset.ci; if(CN.open.has(i))CN.open.delete(i); else CN.open.add(i); fillConcepts();});
 }
 
+/* ---- labs (hands-on missions) ---- */
+const LABS=[{"title": "LAB: Service troubleshooting", "d": 2, "situation": "nginx fails to come up after a reboot and the site is down.", "steps": [{"goal": "Show the logs for the nginx service from the current boot only.", "answer": "journalctl -u nginx -b", "accept": ["(sudo )?journalctl -u nginx(\\.service)? -b", "(sudo )?journalctl -b -u nginx(\\.service)?"], "why": "<code>-u</code> filters by unit (the nginx service); <code>-b</code> limits output to the current boot, so you see only this session's failure."}, {"goal": "The logs show it simply never started. Make nginx start automatically on every boot.", "answer": "systemctl enable nginx", "accept": ["(sudo )?systemctl enable nginx(\\.service)?", "(sudo )?systemctl enable --now nginx(\\.service)?"], "why": "<code>enable</code> creates the boot-time symlink so nginx starts on every boot. Add <code>--now</code> to also start it immediately."}]}, {"title": "LAB: Disk filling up", "d": 5, "situation": "Users hit 'No space left on device'. /var is the prime suspect.", "steps": [{"goal": "Show usage of all mounted filesystems in human-readable units.", "answer": "df -h", "accept": ["(sudo )?df -h", "(sudo )?df -h /var"], "why": "<code>df -h</code> shows per-filesystem usage. If it reports free space yet writes still fail, suspect inodes (<code>df -i</code>) or a deleted-but-open file."}, {"goal": "Find which subdirectories of /var are consuming the most space.", "answer": "du -sh /var/*", "accept": ["(sudo )?du -sh /var/\\*( \\| sort -h)?", "(sudo )?du -h /var/\\*( \\| sort -h)?", "(sudo )?du -sh /var/?"], "why": "<code>df</code> tells you a filesystem is full; <code>du -sh</code> tells you <i>what</i> is filling it. Pipe to <code>sort -h</code> to rank the offenders."}]}, {"title": "LAB: Space that won't free up", "d": 5, "situation": "df shows the disk 100% full, but du only accounts for a fraction. A large log was deleted while a service still had it open.", "steps": [{"goal": "List open files that have been deleted but are still held by a running process.", "answer": "lsof +L1", "accept": ["(sudo )?lsof \\+l1", "(sudo )?lsof \\| ?grep deleted"], "why": "A process holding a deleted file keeps its disk blocks allocated until it closes the handle or restarts. <code>lsof +L1</code> lists files whose link count dropped below 1 (deleted-but-open). Restart that process to reclaim the space."}]}, {"title": "LAB: Permission denied", "d": 1, "situation": "You wrote deploy.sh, but running ./deploy.sh returns 'Permission denied'.", "steps": [{"goal": "Give the owner permission to execute deploy.sh.", "answer": "chmod u+x deploy.sh", "accept": ["(sudo )?chmod u\\+x deploy\\.sh", "(sudo )?chmod \\+x deploy\\.sh", "(sudo )?chmod 7[0-7][0-7] deploy\\.sh", "(sudo )?chmod u=rwx deploy\\.sh"], "why": "The script was missing its execute bit. <code>chmod u+x</code> adds execute for the owner; <code>+x</code> adds it for all classes."}]}, {"title": "LAB: Onboarding a teammate", "d": 2, "situation": "New teammate 'deploy' needs Docker access but must keep every group they already belong to.", "steps": [{"goal": "Add user deploy to the docker group without disturbing their existing groups.", "answer": "usermod -aG docker deploy", "accept": ["(sudo )?usermod -ag docker deploy", "(sudo )?usermod -a -g docker deploy", "(sudo )?gpasswd -a deploy docker"], "why": "<code>-a</code> (append) is the key: <code>usermod -G</code> on its own would <i>replace</i> all supplementary groups. The new membership takes effect at the user's next login."}]}, {"title": "LAB: SELinux is blocking you", "d": 3, "situation": "On a RHEL host your web app gets 'Permission denied' reaching its database, yet the file permissions are correct.", "steps": [{"goal": "Check whether SELinux is currently enforcing.", "answer": "getenforce", "accept": ["(sudo )?getenforce", "(sudo )?sestatus"], "why": "<code>getenforce</code> prints Enforcing, Permissive, or Disabled. If it's Enforcing, SELinux can block an app even when rwx is correct."}, {"goal": "Persistently allow the web server (httpd) to make outbound network connections.", "answer": "setsebool -P httpd_can_network_connect on", "accept": ["(sudo )?setsebool -p httpd_can_network_connect (on|1)"], "why": "<code>setsebool</code> flips an SELinux boolean; <code>-P</code> makes it survive a reboot. This is the correct fix &mdash; not <code>chmod</code> and not disabling SELinux."}]}, {"title": "LAB: Name resolution broken", "d": 2, "situation": "A server can ping 8.8.8.8 but reports 'cannot resolve host' for any name.", "steps": [{"goal": "Query DNS directly for the address of example.com.", "answer": "dig example.com", "accept": ["(sudo )?dig example\\.com( a)?", "(sudo )?nslookup example\\.com", "(sudo )?host example\\.com"], "why": "Reaching an IP but not a name points squarely at DNS. <code>dig</code> asks a resolver directly; no answer means the resolver or <code>/etc/resolv.conf</code> is the problem, not connectivity."}]}, {"title": "LAB: Open a firewall port", "d": 3, "situation": "A new HTTPS service must be reachable from outside. The host uses firewalld.", "steps": [{"goal": "Permanently allow inbound TCP traffic on port 443.", "answer": "firewall-cmd --permanent --add-port=443/tcp", "accept": ["(sudo )?firewall-cmd --permanent --add-port=443/tcp", "(sudo )?firewall-cmd --add-port=443/tcp --permanent"], "why": "<code>--permanent</code> writes the rule into the saved configuration so it survives a reboot. Without it, the rule is lost on restart."}, {"goal": "Apply the permanent rule to the running firewall right now.", "answer": "firewall-cmd --reload", "accept": ["(sudo )?firewall-cmd --reload"], "why": "Permanent rules don't take effect until you <code>--reload</code> (or restart firewalld). Reload re-applies the saved config without dropping existing connections."}]}, {"title": "LAB: Grow a full volume", "d": 1, "situation": "The ext4 logical volume /dev/vg0/data is nearly full, and its volume group still has free extents.", "steps": [{"goal": "Extend the logical volume by 5 GB and grow its filesystem in a single command.", "answer": "lvextend -r -L +5G /dev/vg0/data", "accept": ["(sudo )?lvextend -r -l \\+5g /dev/vg0/data", "(sudo )?lvextend -l \\+5g -r /dev/vg0/data", "(sudo )?lvextend --resizefs -l \\+5g /dev/vg0/data"], "why": "<code>-L +5G</code> adds 5 GB; <code>-r</code> (--resizefs) grows the filesystem to match in the same step (it calls resize2fs for ext4). Without <code>-r</code> you'd run resize2fs afterwards."}]}, {"title": "LAB: Runaway process", "d": 5, "situation": "System load is through the roof. A process named 'stress' is pegging the CPU.", "steps": [{"goal": "Print the PID(s) of every process named stress.", "answer": "pgrep stress", "accept": ["(sudo )?pgrep( -a)? stress", "(sudo )?pidof stress"], "why": "<code>pgrep</code> matches processes by name and prints their PIDs &mdash; cleaner and safer than parsing <code>ps</code> output by hand."}, {"goal": "Gracefully terminate all processes named stress.", "answer": "pkill stress", "accept": ["(sudo )?pkill stress", "(sudo )?killall stress"], "why": "<code>pkill</code>/<code>killall</code> send SIGTERM (graceful) by name, letting the process clean up. Reach for <code>-9</code> only if it ignores TERM."}]}, {"title": "LAB: Schedule a backup", "d": 4, "situation": "A backup script at /opt/backup.sh must run automatically every day at 02:00.", "steps": [{"goal": "Write the crontab line that runs /opt/backup.sh daily at 2:00 AM.", "answer": "0 2 * * * /opt/backup.sh", "accept": ["0 2 \\* \\* \\* (sudo )?/opt/backup\\.sh"], "why": "Cron fields are <code>minute hour day-of-month month day-of-week</code>. <code>0 2 * * *</code> means minute 0 of hour 2, every day. Cron runs with a minimal PATH, so use the absolute path."}]}, {"title": "LAB: Recover from a bad kernel update", "d": 5, "situation": "After a kernel update the machine drops to an emergency shell &mdash; the initramfs is missing a storage driver.", "steps": [{"goal": "Regenerate the initramfs for the running kernel, overwriting the existing image.", "answer": "dracut -f", "accept": ["(sudo )?dracut -f", "(sudo )?dracut --force"], "why": "<code>dracut -f</code> forces a rebuild of the initramfs so the needed drivers are included at boot. On Debian/Ubuntu the equivalent is <code>update-initramfs -u</code>."}]}, {"title": "LAB: Back up before editing", "d": 1, "situation": "Before changing system configs you want a compressed snapshot of /etc.", "steps": [{"goal": "Create a gzip-compressed tar archive of /etc at /root/etc.tar.gz.", "answer": "tar -czf /root/etc.tar.gz /etc", "accept": ["(sudo )?tar -?c?z?f? ?-?c?z?v?f /root/etc\\.tar\\.gz /etc", "(sudo )?tar -czf /root/etc\\.tar\\.gz /etc", "(sudo )?tar czf /root/etc\\.tar\\.gz /etc", "(sudo )?tar -czvf /root/etc\\.tar\\.gz /etc", "(sudo )?tar cvzf /root/etc\\.tar\\.gz /etc"], "why": "<code>-c</code> create, <code>-z</code> gzip, <code>-f</code> file (whose name comes right after <code>-f</code>). Add <code>-v</code> for verbose output."}]}, {"title": "LAB: Passwordless SSH", "d": 3, "situation": "You want key-based, passwordless SSH from your laptop to web01 as the deploy user.", "steps": [{"goal": "Install your public key into deploy@web01's authorized_keys.", "answer": "ssh-copy-id deploy@web01", "accept": ["(sudo )?ssh-copy-id deploy@web01", "(sudo )?ssh-copy-id -i [^ ]+ deploy@web01"], "why": "<code>ssh-copy-id</code> appends your <i>public</i> key to the remote account's authorized_keys. Never copy the private key &mdash; it stays on your machine."}]}];
+const LB={lab:null, step:0, answered:false, ok:false, typed:"", done:new Set()};
+async function loadLabs(){ try{const r=await DB.get("lxq006:labs"); if(r&&r.value){const a=JSON.parse(r.value); if(Array.isArray(a)) a.forEach(i=>LB.done.add(i));}}catch(e){} }
+function saveLabs(){ try{ DB.set("lxq006:labs", JSON.stringify([...LB.done])); }catch(e){} }
+function renderLabs(){ return LB.lab===null ? renderLabList() : renderLabRun(); }
+function renderLabList(){
+  const cards=LABS.map((l,i)=>{
+    const done=LB.done.has(i);
+    const dn=(DOMAINS[l.d-1]||{}).name||"";
+    return `<div class="labcard" data-li="${i}">
+      <div class="labcard-h"><span class="labcard-t">${esc(l.title)}${done?` <span class="labdone">&#10003; done</span>`:""}</span><span class="labcard-m">${l.steps.length} step${l.steps.length>1?"s":""} &middot; ${l.d}.0 ${esc(dn)}</span></div>
+      <div class="labcard-s">${esc(l.situation)}</div>
+      <div class="labcard-go">start mission &rarr;</div>
+    </div>`;
+  }).join("");
+  screen.innerHTML=navBar()+promptLine("ls ~/labs")+
+    `<div class="muted" style="font-size:12px;margin:2px 2px 13px"># hands-on missions &mdash; read the situation, type the command that solves it. ${LB.done.size}/${LABS.length} completed.</div>`+
+    `<div id="lablist">${cards}</div>`;
+  hook();
+  document.querySelectorAll(".labcard").forEach(c=>c.onclick=()=>{LB.lab=+c.dataset.li;LB.step=0;LB.answered=false;LB.ok=false;LB.typed="";render();});
+}
+function renderLabRun(){
+  const l=LABS[LB.lab], step=l.steps[LB.step], ans=LB.answered, last=LB.step===l.steps.length-1;
+  const detail = ans ? `<div class="pbqrow"><span class="muted">you typed:</span> <code>${esc(LB.typed)||"(empty)"}</code></div><div class="pbqrow"><span class="muted">expected:</span> <code class="exp">${esc(step.answer)}</code></div><div class="labwhy"><span class="labk">Why</span><span>${step.why}</span></div>` : "";
+  screen.innerHTML=navBar()+promptLine("lab --run")+`
+    <div class="labbox">
+      <div class="labhead">${esc(l.title)}</div>
+      <div class="labrow"><span class="labk">Situation</span><span>${esc(l.situation)}</span></div>
+      ${l.steps.length>1?`<div class="labstep">step ${LB.step+1} / ${l.steps.length}</div>`:""}
+      <div class="labrow"><span class="labk">Goal</span><span>${esc(step.goal)}</span></div>
+      <div class="pbqwrap"><span class="pbqprompt">$</span><input id="labin" class="pbqin ${ans?(LB.ok?"okin":"noin"):""}" type="text" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false" ${ans?"disabled":""} placeholder="type the command, then press enter"></div>
+      <div class="fb ${ans?"show":""}" id="fb"><div class="v ${ans?(LB.ok?"ok":"no"):""}" id="fv">${ans?(LB.ok?"&#10003; correct":"&#10007; not an accepted answer"):""}</div><div class="x" id="fx">${detail}</div></div>
+      <div class="row" id="labafter" style="display:${ans?"flex":"none"}">
+        ${last?`<button class="btn" id="labnext">finish mission &#10003;</button>`:`<button class="btn" id="labnext">next step &rarr;</button>`}
+        ${ans&&!LB.ok?`<button class="lookbtn" id="labretry">try again</button>`:""}
+        <button class="lookbtn" id="labexit">back to labs</button>
+      </div>
+      <div class="row" id="labhint" style="display:${ans?"none":"flex"}"><button class="btn" id="labcheck">check answer</button><button class="lookbtn" id="labexit2">back to labs</button><span class="kbd"><b>tip:</b> accepts common variants (optional sudo, flag order)</span></div>
+    </div>`;
+  hook();
+  const inp=document.getElementById("labin");
+  if(ans && inp) inp.value=LB.typed||"";
+  if(!ans && inp){ inp.focus(); inp.onkeydown=(e)=>{ if(e.key==="Enter"){e.preventDefault();answerLab();} }; }
+  {const b=document.getElementById("labcheck"); if(b) b.onclick=()=>answerLab();}
+  {const b=document.getElementById("labnext"); if(b) b.onclick=()=>advanceLab();}
+  {const b=document.getElementById("labretry"); if(b) b.onclick=()=>{LB.answered=false;LB.ok=false;LB.typed="";render();};}
+  {const b=document.getElementById("labexit"); if(b) b.onclick=()=>{LB.lab=null;render();};}
+  {const b=document.getElementById("labexit2"); if(b) b.onclick=()=>{LB.lab=null;render();};}
+}
+function answerLab(){
+  if(LB.answered) return;
+  const inp=document.getElementById("labin"); const val=inp?inp.value:"";
+  if(!norm(val)) return;
+  const step=LABS[LB.lab].steps[LB.step];
+  LB.ok=pbqCheck(val,step); LB.typed=val; LB.answered=true;
+  render();
+}
+function advanceLab(){
+  const l=LABS[LB.lab];
+  if(LB.step===l.steps.length-1){ LB.done.add(LB.lab); saveLabs(); LB.lab=null; }
+  else { LB.step++; LB.answered=false; LB.ok=false; LB.typed=""; }
+  render();
+}
+
 /* ---- nav wiring + keyboard ---- */
 function hook(){
   document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
@@ -1769,6 +1852,8 @@ document.addEventListener("keydown",e=>{
     if(it.kind!=="pbq" && /^[1-6]$/.test(k)){const idx=+k-1; if(it.order && idx<it.order.length){ if(Array.isArray(it.q.c)){ it.pick=it.pick||[]; const j=it.pick.indexOf(idx); if(j>=0)it.pick.splice(j,1); else it.pick.push(idx); } else { it.pick=idx; } render(); }}
     else if(k==="n"||k==="enter"){ if(E.i===E.items.length-1)scoreExam(); else {E.i++;render();} }
     else if(k==="p"&&E.i>0){E.i--;render();}
+  } else if(tab==="labs" && LB.lab!==null && LB.answered){
+    if(k==="n"||k==="enter"){ advanceLab(); }
   } else if(tab==="ref" && R.view==="pairs" && PR.mode==="quiz"){
     if(!PR.answered && /^[12]$/.test(k)){const els=[...document.querySelectorAll(".pairopt")];const el=els[+k-1];if(el)answerPair(el.dataset.cmd);}
     else if(PR.answered && (k==="n"||k==="enter")){newPairQ();render();}
@@ -1805,7 +1890,7 @@ document.getElementById("themeToggle").addEventListener("click",()=>{
   onScroll();
 })();
 
-(async function(){await loadTheme(); await load(); render();})();
+(async function(){await loadTheme(); await load(); await loadLabs(); render();})();
 </script>
 </body>
 </html>
